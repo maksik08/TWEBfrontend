@@ -1,19 +1,17 @@
-// src/pages/home/HomePage.tsx
+import { Header } from "@/widgets/header/header"
+import { Hero } from "@/widgets/hero/Hero"
+import { ProductCatalog } from "@/widgets/product-catalog/ProductCatalog"
+import { Footer } from "@/widgets/footer/Footer"
+
 export const HomePage = () => {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        height: '100vh',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        fontFamily: 'sans-serif',
-        textAlign: 'center',
-      }}
-    >
-      <h1>🚀 Архитектура работает!</h1>
-      <p>React, Router и структура приложения готовы к работе.</p>
-    </div>
-  )
+
+ return (
+  <>
+   <Header/>
+   <Hero/>
+   <ProductCatalog/>
+   <Footer/>
+  </>
+ )
+
 }

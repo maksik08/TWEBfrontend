@@ -1,28 +1,27 @@
-import { useAuthStore } from '@/features/auth/model/auth.store'
+import styles from "./header.module.css"
 
-export default function Header() {
-  const { user, logout } = useAuthStore()
+export const Header = () => {
 
-  return (
-    <header
-      style={{
-        padding: '1rem',
-        background: '#111',
-        color: 'white',
-        display: 'flex',
-        justifyContent: 'space-between',
-      }}
-    >
-      <div>MyApp</div>
+ return (
 
-      {user && (
-        <div>
-          {user.email} ({user.role})
-          <button onClick={logout} style={{ marginLeft: 10 }}>
-            Logout
-          </button>
-        </div>
-      )}
-    </header>
-  )
+  <header className={styles.header}>
+
+   <div className={styles.headerInner}>
+
+    <h2>NetInstall</h2>
+
+    <nav className={styles.nav}>
+     <a>Каталог</a>
+     <a>Избранное</a>
+     <a>О нас</a>
+    </nav>
+
+   </div>
+
+  </header>
+
+ )
+
 }
+
+export default Header
