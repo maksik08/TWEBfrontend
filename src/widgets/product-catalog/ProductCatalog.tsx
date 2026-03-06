@@ -7,8 +7,10 @@ import { SearchProducts } from "@/features/search-products/SearchProducts"
 import { FilterProducts } from "@/features/filter-products/FilterProducts"
 import { ProductsCounter } from "@/features/products-counter/ProductsCounter"
 
-export const ProductCatalog = () => {
+// Импортируем стили
+import styles from "./ProductCatalog.module.css"
 
+export const ProductCatalog = () => {
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("all")
 
@@ -21,31 +23,32 @@ export const ProductCatalog = () => {
     )
 
   return (
-    <section className="catalogSection">
+    <section className={styles.productCatalog}>
+      <div className={styles.catalogHeader}>
+        <h2>Каталог товаров</h2>
+        <ProductsCounter total={filteredProducts.length} />
+      </div>
 
-      <SearchProducts
-        value={search}
-        onChange={setSearch}
-      />
+      <div className={styles.filters}>
+        <SearchProducts
+          value={search}
+          onChange={setSearch}
+        />
+        <FilterProducts
+          current={category}
+          setCategory={setCategory}
+        />
+      </div>
 
-      <FilterProducts
-        current={category}
-        setCategory={setCategory}
-      />
-
-      <ProductsCounter total={filteredProducts.length} />
-
-      <div className="catalogGrid">
-
+      {/* Используем правильный класс для сетки */}
+      <div className={styles.productsGrid}>
         {filteredProducts.map((product: typeof products[0]) => (
           <ProductCard
             key={product.id}
             product={product}
           />
         ))}
-
       </div>
-
     </section>
   )
 }

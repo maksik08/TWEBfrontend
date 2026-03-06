@@ -1,0 +1,119 @@
+/* widgets/product-catalog/ProductCatalog.module.css */
+
+.productCatalog {
+  padding: 24px;
+  max-width: 1400px; /* Максимальная ширина каталога */
+  margin: 0 auto; /* Центрирование по центру */
+  width: 100%;
+}
+
+.catalogHeader {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.catalogHeader h2 {
+  font-size: 24px;
+  color: #2c3e50;
+  margin: 0;
+}
+
+/* Сетка товаров */
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  justify-content: start; /* Выравнивание по левому краю */
+  margin: 0;
+}
+
+/* Фиксированная ширина для карточек */
+.productsGrid > * {
+  width: 100%;
+  max-width: 200px; /* Максимальная ширина карточки */
+  min-width: 160px; /* Минимальная ширина карточки */
+  justify-self: start; /* Выравнивание по левому краю */
+}
+
+/* Для маленьких экранов */
+@media (max-width: 640px) {
+  .productCatalog {
+    padding: 16px;
+  }
+  
+  .productsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  
+  .productsGrid > * {
+    max-width: 280px;
+  }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 480px) {
+  .productsGrid {
+    grid-template-columns: 1fr; /* Одна колонка */
+    justify-items: center; /* Центрируем карточки */
+  }
+  
+  .productsGrid > * {
+    max-width: 100%;
+  }
+}
+
+/* Альтернативный вариант: фиксированная сетка */
+.productsGrid.fixed {
+  grid-template-columns: repeat(4, 280px); /* 4 колонки по 280px */
+  gap: 24px;
+}
+
+/* Если нужно больше контроля над шириной */
+.productsGrid.controlled {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: flex-start; /* Всегда слева */
+}
+
+.productsGrid.controlled > * {
+  flex: 0 0 280px; /* Фиксированная ширина 280px */
+  margin-right: 24px;
+}
+
+/* Убираем margin у последних элементов в ряду */
+.productsGrid.controlled > *:nth-child(4n) {
+  margin-right: 0;
+}
+
+/* Адаптивность для controlled режима */
+@media (max-width: 1240px) {
+  .productsGrid.controlled > *:nth-child(4n) {
+    margin-right: 24px;
+  }
+  
+  .productsGrid.controlled > *:nth-child(3n) {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 940px) {
+  .productsGrid.controlled > *:nth-child(3n) {
+    margin-right: 24px;
+  }
+  
+  .productsGrid.controlled > *:nth-child(2n) {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .productsGrid.controlled > * {
+    flex: 0 0 100%;
+    margin-right: 0 !important;
+  }
+}
