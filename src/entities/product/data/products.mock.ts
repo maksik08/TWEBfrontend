@@ -48,5 +48,29 @@ export const products: Product[] = [
     price: 520,
     category: "server",
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8kTa3QKt53nJoI_CGx8xRtOOI9CD2vExH8w&s"
-  }
+  },
+  {
+    id: 7,
+    name: "Wi-Fi Router TP-Link TL-WR841N",
+    title: "Wi-Fi Роутер TP-Link TL-WR841N",
+    price: 350,
+    category: "router",
+    image: "https://enter.online/storage/product/2025/07/711803/conversions/enter-wi-fi-router-tp-link-tl-wr841n-18188792-preview-webp.webp"
+  },
+  {
+    id: 8,
+    name: "Switch TP-Link TL-SF1008D",
+    title: "Switch TP-Link TL-SF1008D",
+    price: 350,
+    category: "switch",
+    image: "https://enter.online/storage/product/2025/07/711883/conversions/enter-switch-tp-link-tl-sf1008d-085-preview-webp.webp"
+  },
+  {
+    id: 9,
+    name: "Усилитель сигнала  / extender TP-Link RE315",
+    title: "Усилитель сигнала TP-Link RE315",
+    price: 350,
+    category: "extender",
+    image: "https://enter.online/storage/product/2025/07/745978/conversions/enter-amplificator-de-semnal-tp-link-re315-4772182-preview-webp.webp"
+  },
 ]

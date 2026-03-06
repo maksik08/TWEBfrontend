@@ -28,6 +28,14 @@ export const FilterProducts = ({ current, setCategory }: Props) => {
     Switch
    </button>
 
+    <button
+    style={{ fontWeight: current === "extender" ? "bold" : "normal" }}
+    onClick={() => setCategory("extender")}
+   >
+    Extender
+   </button>
+
+
   </div>
  )
 }
