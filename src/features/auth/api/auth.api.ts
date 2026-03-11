@@ -1,6 +1,6 @@
-import { http } from '../../../api/http'
+import { http } from '@/shared/api/http'
 import type { AuthResponseDto } from '@/shared/api/dto/auth.dto'
-import { mapUserDtoToUser } from '@/shared/lib/mappers/user.mapper'
+import { mapUserDtoToUser } from '@/entities/user/lib/user.mapper'
 
 export const loginRequest = async (
   data: { email: string; password: string },

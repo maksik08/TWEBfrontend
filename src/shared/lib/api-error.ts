@@ -1,15 +1,21 @@
+import type { AxiosError } from 'axios'
+
 export interface ApiError {
   message: string
   status?: number
 }
 
 export const parseApiError = (error: unknown): ApiError => {
-  if (typeof error === 'object' && error !== null && 'response' in error) {
-    const err = error as any
+  type ApiErrorResponse = { message?: string }
 
-    return {
-      message: err.response?.data?.message || 'Unexpected error',
-      status: err.response?.status,
+  if (typeof error === 'object' && error !== null) {
+    const axiosError = error as AxiosError<ApiErrorResponse>
+
+    if (axiosError.isAxiosError) {
+      return {
+        message: axiosError.response?.data?.message ?? 'Unexpected error',
+        status: axiosError.response?.status,
+      }
     }
   }
 

@@ -1,33 +1,28 @@
-interface Props{
- current:string
- setCategory:(v:string)=>void
+import styles from './filter-products.module.css'
+
+interface Props {
+  current: string
+  setCategory: (v: string) => void
 }
 
 export const FilterProducts = ({ current, setCategory }: Props) => {
- return (
-  <div style={{ marginBottom: 20 }}>
+  const categories = [
+    { id: 'all', label: 'Все категории' },
+    { id: 'router', label: 'Маршрутизаторы' },
+    { id: 'switch', label: 'Коммутаторы' },
+  ]
 
-   <button
-    style={{ fontWeight: current === "all" ? "bold" : "normal" }}
-    onClick={() => setCategory("all")}
-   >
-    Все
-   </button>
-
-   <button
-    style={{ fontWeight: current === "router" ? "bold" : "normal" }}
-    onClick={() => setCategory("router")}
-   >
-    Router
-   </button>
-
-   <button
-    style={{ fontWeight: current === "switch" ? "bold" : "normal" }}
-    onClick={() => setCategory("switch")}
-   >
-    Switch
-   </button>
-
-  </div>
- )
+  return (
+    <div className={styles.filterContainer}>
+      {categories.map((category) => (
+        <button
+          key={category.id}
+          className={`${styles.filterButton} ${current === category.id ? styles.active : ''}`}
+          onClick={() => setCategory(category.id)}
+        >
+          {category.label}
+        </button>
+      ))}
+    </div>
+  )
 }

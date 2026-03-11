@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
-import { useAuthStore } from '@/features/auth/model/auth.store'
+import { useSessionStore } from '@/entities/session/model/session.store'
 
 export default function Sidebar() {
-  const { user } = useAuthStore()
+  const { user } = useSessionStore()
 
   return (
     <aside

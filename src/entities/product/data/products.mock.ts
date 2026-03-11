@@ -7,7 +7,7 @@ export const products: Product[] = [
     title: "Wi-Fi Router AX3000",
     price: 120,
     category: "router",
-    image: "https://via.placeholder.com/200"
+    image: "/vite.svg"
   },
   {
     id: 2,
@@ -15,7 +15,7 @@ export const products: Product[] = [
     title: "Network Switch 8 Port",
     price: 90,
     category: "switch",
-    image: "https://via.placeholder.com/200"
+    image: "/vite.svg"
   },
   {
     id: 3,
@@ -23,7 +23,7 @@ export const products: Product[] = [
     title: "Outdoor Antenna",
     price: 70,
     category: "antenna",
-    image: "https://via.placeholder.com/200"
+    image: "/vite.svg"
   },
   {
     id: 4,
@@ -31,7 +31,7 @@ export const products: Product[] = [
     title: "Ethernet Cable Cat6",
     price: 15,
     category: "cable",
-    image: "https://via.placeholder.com/200"
+    image: "/vite.svg"
   },
   {
     id: 5,
@@ -39,7 +39,7 @@ export const products: Product[] = [
     title: "NAS Storage 4TB",
     price: 350,
     category: "nas",
-    image: "https://via.placeholder.com/200"
+    image: "/vite.svg"
   },
   {
     id: 6,
@@ -47,6 +47,6 @@ export const products: Product[] = [
     title: "Server Rack Unit",
     price: 520,
     category: "server",
-    image: "https://via.placeholder.com/200"
+    image: "/vite.svg"
   }
 ]

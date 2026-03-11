@@ -4,8 +4,14 @@ import type { ServerError } from '../types/server-error'
 export const normalizeError = (
   error: unknown,
 ): ServerError => {
+  type ErrorResponseData = {
+    title?: string
+    message?: string
+    errors?: Record<string, string[]>
+  }
+
   if ((error as AxiosError).isAxiosError) {
-    const axiosError = error as AxiosError<any>
+    const axiosError = error as AxiosError<ErrorResponseData>
 
     return {
       status: axiosError.response?.status || 500,

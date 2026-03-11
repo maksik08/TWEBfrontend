@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import toast from 'react-hot-toast'
 import { normalizeError } from '@/shared/lib/normalize-error'
 
-export const queryClient = new QueryClient({
+const queryClient = new QueryClient({
   defaultOptions: {
     mutations: {
       onError: (error: unknown) => {
@@ -19,9 +19,5 @@ export const queryClient = new QueryClient({
 })
 
 export const QueryProvider = ({ children }: { children: ReactNode }) => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  )
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 }
