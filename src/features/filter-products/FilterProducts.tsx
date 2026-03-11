@@ -10,6 +10,10 @@ export const FilterProducts = ({ current, setCategory }: Props) => {
     { id: 'all', label: 'Все категории' },
     { id: 'router', label: 'Маршрутизаторы' },
     { id: 'switch', label: 'Коммутаторы' },
+    { id: 'antenna', label: 'Антенны' },
+    { id: 'cable', label: 'Кабели' },
+    { id: 'nas', label: 'NAS' },
+    { id: 'server', label: 'Серверы' },
   ]
 
   return (

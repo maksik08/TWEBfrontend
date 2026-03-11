@@ -20,9 +20,9 @@ export const ProductCard = ({ product }: Props) => {
         {hasImage ? (
           <img src={product.image} alt={product.title} />
         ) : (
-          <div style={{ fontSize: '3rem', opacity: 0.3 }}>рџ“¦</div>
+          <div style={{ fontSize: '1rem', opacity: 0.6 }}>Нет фото</div>
         )}
-        <div className={styles.badge}>Р’ РЅР°Р»РёС‡РёРё</div>
+        <div className={styles.badge}>В наличии</div>
       </div>
 
       <div className={styles.content}>
@@ -38,7 +38,7 @@ export const ProductCard = ({ product }: Props) => {
         <button
           className={`${styles.iconButton} ${likes > 0 ? styles.active : ''}`}
           onClick={() => setLikes(likes + 1)}
-          title="Р”РѕР±Р°РІРёС‚СЊ РІ РёР·Р±СЂР°РЅРЅРѕРµ"
+          title="Добавить в избранное"
         >
           <FiHeart size={18} />
           {likes > 0 && <span className={styles.likesCount}>{likes}</span>}
@@ -48,7 +48,7 @@ export const ProductCard = ({ product }: Props) => {
           title="Добавить в корзину"
           onClick={() => {
             add(product)
-            toast.success('Added to cart')
+            toast.success('Добавлено в корзину')
           }}
         >
           <FiShoppingCart size={18} style={{ marginRight: '0.5rem' }} />
