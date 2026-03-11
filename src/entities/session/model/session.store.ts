@@ -2,16 +2,19 @@ import { create } from 'zustand'
 import type { User } from '@/entities/user/model/types'
 import { tokenService } from '@/shared/lib/token'
 
-interface AuthState {
+interface SessionState {
   user: User | null
   isAuthenticated: boolean
+  isBootstrapped: boolean
   setUser: (user: User) => void
+  setBootstrapped: (value: boolean) => void
   logout: () => void
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useSessionStore = create<SessionState>((set) => ({
   user: null,
   isAuthenticated: !!tokenService.get(),
+  isBootstrapped: false,
 
   setUser: (user) =>
     set({
@@ -19,11 +22,17 @@ export const useAuthStore = create<AuthState>((set) => ({
       isAuthenticated: true,
     }),
 
+  setBootstrapped: (value) =>
+    set({
+      isBootstrapped: value,
+    }),
+
   logout: () => {
     tokenService.remove()
     set({
       user: null,
       isAuthenticated: false,
+      isBootstrapped: true,
     })
   },
 }))

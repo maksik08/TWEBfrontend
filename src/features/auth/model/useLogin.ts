@@ -1,11 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
 import { loginRequest } from '../api/auth.api'
 import { tokenService } from '@/shared/lib/token'
-import { useAuthStore } from './auth.store'
-import { LoginRequest } from '@/entities/user/model/types'
+import type { LoginRequest } from '@/entities/user/model/types'
+import { useSessionStore } from '@/entities/session/model/session.store'
 
 export const useLogin = () => {
-  const setUser = useAuthStore((state) => state.setUser)
+  const setUser = useSessionStore((state) => state.setUser)
 
   return useMutation({
     mutationFn: (data: LoginRequest) => loginRequest(data),

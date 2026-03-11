@@ -1,4 +1,4 @@
-import { UserDto } from './user.dto'
+import type { UserDto } from './user.dto'
 
 export interface AuthResponseDto {
   accessToken: string

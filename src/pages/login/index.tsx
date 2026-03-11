@@ -1,40 +1,74 @@
-import { Navigate, useLocation } from 'react-router-dom'
-import type { ReactNode } from 'react'
-import { useAuth } from '@/app/providers/auth-provider'
+import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useLogin } from '@/features/auth'
+import styles from './login.module.css'
 
-type RoleRouteProps = {
-  children: ReactNode
-  allowedRoles?: Array<'admin' | 'user'>
-}
-
-export const RoleRoute = ({
-  children,
-  allowedRoles,
-}: RoleRouteProps) => {
-  const { user, isLoading } = useAuth()
+export default function LoginPage() {
+  const navigate = useNavigate()
   const location = useLocation()
+  const loginMutation = useLogin()
 
-  // ⏳ ждём загрузку
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
-  // 🔒 не авторизован
-  if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        state={{ from: location }}
-        replace
-      />
-    )
-  }
+  type LocationState = { from?: { pathname: string } }
+  const state = location.state as LocationState | null
+  const fromPath = state?.from?.pathname ?? '/'
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/forbidden" replace />
-  }
+  return (
+    <div className={styles.page}>
+      <div className="container">
+        <div className={styles.card}>
+          <h1 className={styles.title}>Login</h1>
 
-  return <>{children}</>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              loginMutation.mutate(
+                { email, password },
+                { onSuccess: () => navigate(fromPath, { replace: true }) },
+              )
+            }}
+          >
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="email">
+                Email
+              </label>
+              <input
+                id="email"
+                className={styles.input}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="password">
+                Password
+              </label>
+              <input
+                id="password"
+                className={styles.input}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type="password"
+                autoComplete="current-password"
+              />
+            </div>
+
+            <div className={styles.actions}>
+              <button
+                className={styles.button}
+                type="submit"
+                disabled={loginMutation.isPending}
+              >
+                {loginMutation.isPending ? 'Logging in...' : 'Login'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  )
 }
-
-export default RoleRoute

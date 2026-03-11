@@ -1,0 +1,1 @@
+export { ProductsCounter } from './ProductsCounter'

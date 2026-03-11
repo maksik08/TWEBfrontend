@@ -1,52 +1,70 @@
-// src/app/router/router.tsx
 import { createBrowserRouter } from 'react-router-dom'
-import { RoleRoute } from '@/shared/lib/role-route'
-import AppShell from '@/app/layouts/app-shell'
+import { AppShell } from '@/app/layouts/app-shell'
 import PublicLayout from '@/app/layouts/public-layout'
+import { RoleRoute } from '@/app/router/role-route'
 import AdminDashboard from '@/pages/dashboard/admin'
 import ClientDashboard from '@/pages/dashboard/client'
 import Forbidden from '@/pages/forbidden'
 import Login from '@/pages/login'
-import { HomePage } from '@/pages/home/HomePage'
+import AboutPage from '@/pages/about'
+import CatalogPage from '@/pages/catalog'
+import FavoritesPage from '@/pages/favorites'
+import NotFoundPage from '@/pages/not-found'
+import CartPage from '@/pages/cart'
 
 export const router = createBrowserRouter([
-  // Public routes
   {
+    path: '/login',
     element: <PublicLayout />,
-    children: [
-      {
-        path: '/login',
-        element: <Login children={undefined} />,
-      },
-    ],
+    children: [{ index: true, element: <Login /> }],
   },
-  // Protected / main app routes
   {
+    path: '/',
     element: <AppShell />,
     children: [
-      // 🔹 Главная заглушка
       {
-        path: '/',
-        element: <HomePage />,
+        index: true,
+        element: <AboutPage />,
       },
-      // Admin dashboard
       {
-        path: '/admin',
+        path: 'about',
+        element: <AboutPage />,
+      },
+      {
+        path: 'catalog',
+        element: <CatalogPage />,
+      },
+      {
+        path: 'favorites',
+        element: <FavoritesPage />,
+      },
+      {
+        path: 'cart',
+        element: <CartPage />,
+      },
+      {
+        path: 'admin',
         element: (
-          <RoleRoute allowedRoles={['admin']} children={<AdminDashboard />} />
+          <RoleRoute allowedRoles={['admin']}>
+            <AdminDashboard />
+          </RoleRoute>
         ),
       },
-      // Client dashboard
       {
-        path: '/client',
+        path: 'client',
         element: (
-          <RoleRoute allowedRoles={['client']} children={<ClientDashboard />} />
+          <RoleRoute allowedRoles={['client']}>
+            <ClientDashboard />
+          </RoleRoute>
         ),
       },
-      // Forbidden page
       {
-        path: '/forbidden',
+        path: 'forbidden',
         element: <Forbidden />,
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />,
       },
     ],
   },

@@ -7,7 +7,11 @@ export const products: Product[] = [
     title: "Wi-Fi Router AX3000",
     price: 120,
     category: "router",
+<<<<<<< HEAD
     image: "https://prime-pc.md/files/products/canon-pixma-creative-kit-2-mg-rp-pp-201_4.720x480wn.jpg?8d8a3425f78aab1c934c79f1faf20df3"
+=======
+    image: "/vite.svg"
+>>>>>>> 10206d5 (добавление корзины и простого калькулятора с вкладкой о нас)
   },
   {
     id: 2,
@@ -15,7 +19,11 @@ export const products: Product[] = [
     title: "Network Switch 8 Port",
     price: 90,
     category: "switch",
+<<<<<<< HEAD
     image: "https://www.maxgaming.com/img/bilder/artiklar/34034.jpg?m=1738763052&w=720"
+=======
+    image: "/vite.svg"
+>>>>>>> 10206d5 (добавление корзины и простого калькулятора с вкладкой о нас)
   },
   {
     id: 3,
@@ -23,7 +31,11 @@ export const products: Product[] = [
     title: "Outdoor Antenna",
     price: 70,
     category: "antenna",
+<<<<<<< HEAD
     image: "https://cdn-ultra.esempla.com/storage/webp/e7aca4e0-e28f-4a65-82fb-b9fda82f4971.webp"
+=======
+    image: "/vite.svg"
+>>>>>>> 10206d5 (добавление корзины и простого калькулятора с вкладкой о нас)
   },
   {
     id: 4,
@@ -31,7 +43,11 @@ export const products: Product[] = [
     title: "Ethernet Cable Cat6",
     price: 15,
     category: "cable",
+<<<<<<< HEAD
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/EthernetCableGreen.jpg/1280px-EthernetCableGreen.jpg"
+=======
+    image: "/vite.svg"
+>>>>>>> 10206d5 (добавление корзины и простого калькулятора с вкладкой о нас)
   },
   {
     id: 5,
@@ -39,7 +55,11 @@ export const products: Product[] = [
     title: "NAS Storage 4TB",
     price: 350,
     category: "nas",
+<<<<<<< HEAD
     image: "https://www.disctech.com/SCASite/product_images/SYN-DS423-PLUS_1000-1.jpg?resizeid=9&resizeh=650&resizew=650"
+=======
+    image: "/vite.svg"
+>>>>>>> 10206d5 (добавление корзины и простого калькулятора с вкладкой о нас)
   },
   {
     id: 6,
@@ -47,6 +67,7 @@ export const products: Product[] = [
     title: "Server Rack Unit",
     price: 520,
     category: "server",
+<<<<<<< HEAD
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8kTa3QKt53nJoI_CGx8xRtOOI9CD2vExH8w&s"
   },
   {
@@ -74,3 +95,8 @@ export const products: Product[] = [
     image: "https://enter.online/storage/product/2025/07/745978/conversions/enter-amplificator-de-semnal-tp-link-re315-4772182-preview-webp.webp"
   },
 ]
+=======
+    image: "/vite.svg"
+  }
+]
+>>>>>>> 10206d5 (добавление корзины и простого калькулятора с вкладкой о нас)
