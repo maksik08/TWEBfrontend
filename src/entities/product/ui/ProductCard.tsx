@@ -12,16 +12,30 @@ interface Props {
 
 export const ProductCard = ({ product }: Props) => {
   const [likes, setLikes] = useState(0)
-  const hasImage = Boolean(product.image && product.image !== 'N/A')
+  const [imageError, setImageError] = useState(false)
+  
+  // Формируем путь к изображению: /images/product/имя_файла
+  const imageUrl = product.image && product.image !== 'N/A'
+    ? `/images/product/${product.image}`
+    : null
+  
+  const hasImage = Boolean(imageUrl && !imageError)
   const add = useCartStore((state) => state.add)
 
   return (
     <div className={styles.productCard}>
       <div className={styles.imageContainer}>
         {hasImage ? (
-          <img src={product.image} alt={product.title} />
+          <img 
+            src={imageUrl!} 
+            alt={product.title || product.name}
+            loading="lazy"
+            onError={() => setImageError(true)} // если фото не загрузилось
+          />
         ) : (
-          <div style={{ fontSize: '0.9rem', opacity: 0.6 }}>Нет фото</div>
+          <div style={{ fontSize: '0.9rem', opacity: 0.6 }}>
+            {imageError ? 'Ошибка загрузки' : 'Нет фото'}
+          </div>
         )}
         <div className={styles.badge}>В наличии</div>
       </div>
