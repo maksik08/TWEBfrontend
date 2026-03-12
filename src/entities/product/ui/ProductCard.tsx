@@ -1,6 +1,7 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { FiHeart, FiShoppingCart } from 'react-icons/fi'
+
 import { useCartStore } from '@/entities/cart/model/cart.store'
 import type { Product } from '../model/types'
 import styles from './product-card.module.css'
@@ -11,8 +12,8 @@ interface Props {
 
 export const ProductCard = ({ product }: Props) => {
   const [likes, setLikes] = useState(0)
-  const hasImage = product.image && product.image !== 'N/A'
-  const add = useCartStore((s) => s.add)
+  const hasImage = Boolean(product.image && product.image !== 'N/A')
+  const add = useCartStore((state) => state.add)
 
   return (
     <div className={styles.productCard}>
@@ -20,7 +21,7 @@ export const ProductCard = ({ product }: Props) => {
         {hasImage ? (
           <img src={product.image} alt={product.title} />
         ) : (
-          <div style={{ fontSize: '1rem', opacity: 0.6 }}>Нет фото</div>
+          <div style={{ fontSize: '0.9rem', opacity: 0.6 }}>Нет фото</div>
         )}
         <div className={styles.badge}>В наличии</div>
       </div>
