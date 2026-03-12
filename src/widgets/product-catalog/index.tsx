@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import { products as productsMock, ProductCard, type Product } from '@/entities/product'
@@ -29,7 +29,9 @@ export const ProductCatalog = () => {
     .filter((product) => (category === 'all' ? true : product.category === category))
 
   const errorMessage =
-    error instanceof Error ? error.message : 'Не удалось загрузить товары. Попробуйте позже.'
+    error instanceof Error
+      ? error.message
+      : 'Не удалось загрузить товары. Попробуйте позже.'
 
   return (
     <section className={styles.catalog}>
