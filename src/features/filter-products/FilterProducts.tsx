@@ -1,8 +1,8 @@
-import styles from './filter-products.module.css'
+﻿import styles from './filter-products.module.css'
 
 interface Props {
   current: string
-  setCategory: (v: string) => void
+  setCategory: (value: string) => void
 }
 
 export const FilterProducts = ({ current, setCategory }: Props) => {
