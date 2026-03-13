@@ -14,10 +14,13 @@ export const ProductCard = ({ product }: Props) => {
   const [likes, setLikes] = useState(0)
   const [imageError, setImageError] = useState(false)
   
-  // Формируем путь к изображению: /images/product/имя_файла
-  const imageUrl = product.image && product.image !== 'N/A'
-    ? `/images/product/${product.image}`
-    : null
+  // Support absolute URLs, public-root paths, and bare filenames.
+  const imageUrl =
+    product.image && product.image !== 'N/A'
+      ? product.image.startsWith('http') || product.image.startsWith('/')
+        ? product.image
+        : `/images/product/${product.image}`
+      : null
   
   const hasImage = Boolean(imageUrl && !imageError)
   const add = useCartStore((state) => state.add)

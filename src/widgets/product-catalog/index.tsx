@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
-import { products as productsMock, ProductCard, type Product } from '@/entities/product'
+import { ProductCard, type Product } from '@/entities/product'
+import { fetchProducts } from '@/entities/product/api/products.api'
 
 import { SearchProducts } from '@/features/search-products'
 import { FilterProducts } from '@/features/filter-products'
@@ -14,10 +15,8 @@ export const ProductCatalog = () => {
 
   const { data: products = [], isLoading, isError, error } = useQuery<Product[]>({
     queryKey: ['products'],
-    queryFn: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 350))
-      return productsMock
-    },
+    queryFn: fetchProducts,
+    staleTime: 60_000,
   })
 
   const filteredProducts = products
@@ -78,3 +77,4 @@ export const ProductCatalog = () => {
     </section>
   )
 }
+
