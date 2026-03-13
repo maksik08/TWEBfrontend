@@ -1,24 +1,122 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { FiStar } from 'react-icons/fi'
+import { Link, useSearchParams } from 'react-router-dom'
 
-import { products as productsMock, ProductCard, type Product } from '@/entities/product'
+import { ProductCard, type Product } from '@/entities/product'
+import { fetchProducts } from '@/entities/product/api/products.api'
+import { services } from '@/entities/service/model/mock'
+import { promotions } from '@/entities/promotion/model/mock'
+import {
+  buildFavoriteKey,
+  type FavoriteEntityType,
+  useFavoritesStore,
+} from '@/entities/favorites/model/favorites.store'
 
 import { SearchProducts } from '@/features/search-products'
 import { FilterProducts } from '@/features/filter-products'
 import { ProductsCounter } from '@/features/products-counter'
 import styles from './product-catalog.module.css'
 
+type CatalogSection = 'equipment' | 'services' | 'promotions'
+type CatalogSort = 'default' | 'likes'
+
+type CatalogInfoCardProps = {
+  entityType: FavoriteEntityType
+  entityId: string
+  badge: string
+  title: string
+  description: string
+  priceLabel: string
+  href: string
+  actionLabel: string
+}
+
+const isCatalogSection = (value: string | null): value is CatalogSection =>
+  value === 'equipment' || value === 'services' || value === 'promotions'
+
+const isCatalogSort = (value: string | null): value is CatalogSort =>
+  value === 'default' || value === 'likes'
+
+const CatalogInfoCard = ({
+  entityType,
+  entityId,
+  badge,
+  title,
+  description,
+  priceLabel,
+  href,
+  actionLabel,
+}: CatalogInfoCardProps) => {
+  const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
+  const favoriteKey = buildFavoriteKey(entityType, entityId)
+  const isFavorite = useFavoritesStore((state) =>
+    state.favorites.some((favorite) => favorite.key === favoriteKey),
+  )
+
+  return (
+    <article className={styles.infoCard}>
+      <div className={styles.infoTopRow}>
+        <span className={styles.infoBadge}>{badge}</span>
+        <button
+          type="button"
+          className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteButtonActive : ''}`}
+          onClick={() =>
+            toggleFavorite({
+              key: favoriteKey,
+              entityType,
+              entityId,
+              title,
+              description,
+              priceLabel,
+              metaLabel: badge,
+              href,
+            })
+          }
+          title={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+        >
+          <FiStar size={16} />
+        </button>
+      </div>
+      <h3>{title}</h3>
+      <p>{description}</p>
+      <div className={styles.infoFooter}>
+        <strong>{priceLabel}</strong>
+        <Link to={href} className={styles.infoAction}>
+          {actionLabel}
+        </Link>
+      </div>
+    </article>
+  )
+}
+
 export const ProductCatalog = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
+  const likes = useFavoritesStore((state) => state.likes)
 
   const { data: products = [], isLoading, isError, error } = useQuery<Product[]>({
     queryKey: ['products'],
-    queryFn: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 350))
-      return productsMock
-    },
+    queryFn: fetchProducts,
+    staleTime: 60_000,
   })
+
+  const sectionParam = searchParams.get('section')
+  const sortParam = searchParams.get('sort')
+  const activeSection: CatalogSection = isCatalogSection(sectionParam) ? sectionParam : 'equipment'
+  const activeSort: CatalogSort = isCatalogSort(sortParam) ? sortParam : 'default'
+
+  const updateParams = (nextSection: CatalogSection, nextSort: CatalogSort = activeSort) => {
+    const next = new URLSearchParams()
+    next.set('section', nextSection)
+
+    if (nextSort === 'likes') {
+      next.set('sort', 'likes')
+    }
+
+    setSearchParams(next)
+  }
 
   const filteredProducts = products
     .filter((product) => {
@@ -27,6 +125,18 @@ export const ProductCatalog = () => {
       return (product.title || product.name).toLowerCase().includes(query)
     })
     .filter((product) => (category === 'all' ? true : product.category === category))
+    .sort((left, right) => {
+      if (activeSort !== 'likes') return 0
+
+      const leftLikes = likes[buildFavoriteKey('product', left.id)] ?? 0
+      const rightLikes = likes[buildFavoriteKey('product', right.id)] ?? 0
+
+      if (rightLikes !== leftLikes) {
+        return rightLikes - leftLikes
+      }
+
+      return left.title.localeCompare(right.title)
+    })
 
   const errorMessage =
     error instanceof Error
@@ -37,44 +147,131 @@ export const ProductCatalog = () => {
     <section className={styles.catalog}>
       <div className="container">
         <div className={styles.catalogHeader}>
-          <div className={styles.searchBar}>
-            <SearchProducts value={search} onChange={setSearch} />
+          <div className={styles.sectionTabs}>
+            <button
+              type="button"
+              className={`${styles.sectionTab} ${
+                activeSection === 'equipment' ? styles.sectionTabActive : ''
+              }`}
+              onClick={() => updateParams('equipment')}
+            >
+              Оборудование
+            </button>
+            <button
+              type="button"
+              className={`${styles.sectionTab} ${
+                activeSection === 'services' ? styles.sectionTabActive : ''
+              }`}
+              onClick={() => updateParams('services', 'default')}
+            >
+              Услуги
+            </button>
+            <button
+              type="button"
+              className={`${styles.sectionTab} ${
+                activeSection === 'promotions' ? styles.sectionTabActive : ''
+              }`}
+              onClick={() => updateParams('promotions', 'default')}
+            >
+              Акции
+            </button>
           </div>
 
-          <div className={styles.filters}>
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Категория</label>
-              <FilterProducts current={category} setCategory={setCategory} />
-            </div>
-          </div>
+          {activeSection === 'equipment' && (
+            <>
+              <div className={styles.searchBar}>
+                <SearchProducts value={search} onChange={setSearch} />
+              </div>
+
+              <div className={styles.filters}>
+                <div className={styles.filterGroup}>
+                  <label className={styles.filterLabel}>Категория</label>
+                  <FilterProducts current={category} setCategory={setCategory} />
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
-        {isLoading ? (
-          <div className={styles.emptyState}>
-            <h3>Загрузка...</h3>
-          </div>
-        ) : isError ? (
-          <div className={styles.emptyState}>
-            <h3>Ошибка сети</h3>
-            <p>{errorMessage}</p>
-          </div>
-        ) : filteredProducts.length > 0 ? (
+        {activeSection === 'equipment' ? (
+          isLoading ? (
+            <div className={styles.emptyState}>
+              <h3>Загрузка...</h3>
+            </div>
+          ) : isError ? (
+            <div className={styles.emptyState}>
+              <h3>Ошибка сети</h3>
+              <p>{errorMessage}</p>
+            </div>
+          ) : filteredProducts.length > 0 ? (
+            <>
+              <div className={styles.productGrid}>
+                {filteredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+
+              <div className={styles.catalogFooter}>
+                <ProductsCounter total={filteredProducts.length} />
+                {activeSort === 'likes' && (
+                  <div className={styles.catalogSummary}>Показываем товары от самых лайкнутых.</div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className={styles.emptyState}>
+              <h3>Ничего не найдено</h3>
+              <p>Попробуйте изменить параметры поиска или фильтрации</p>
+            </div>
+          )
+        ) : activeSection === 'services' ? (
           <>
-            <div className={styles.productGrid}>
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+            <div className={styles.infoGrid}>
+              {services.map((service) => (
+                <CatalogInfoCard
+                  key={service.id}
+                  entityType="service"
+                  entityId={service.id}
+                  badge="Услуга"
+                  title={service.name}
+                  description={service.description}
+                  priceLabel={`от $${service.price.toFixed(2)}`}
+                  href="/cart?services=1"
+                  actionLabel={service.ctaLabel ?? 'Перейти к расчёту'}
+                />
               ))}
             </div>
 
             <div className={styles.catalogFooter}>
-              <ProductsCounter total={filteredProducts.length} />
+              <div className={styles.catalogSummary}>
+                Подберите услугу и сразу переходите к расчёту стоимости монтажа.
+              </div>
             </div>
           </>
         ) : (
-          <div className={styles.emptyState}>
-            <h3>Ничего не найдено</h3>
-            <p>Попробуйте изменить параметры поиска или фильтрации</p>
-          </div>
+          <>
+            <div className={styles.infoGrid}>
+              {promotions.map((promotion) => (
+                <CatalogInfoCard
+                  key={promotion.id}
+                  entityType="promotion"
+                  entityId={promotion.id}
+                  badge={promotion.badge}
+                  title={promotion.title}
+                  description={promotion.description}
+                  priceLabel={promotion.discountLabel}
+                  href="/cart?services=1"
+                  actionLabel="Открыть калькулятор"
+                />
+              ))}
+            </div>
+
+            <div className={styles.catalogFooter}>
+              <div className={styles.catalogSummary}>
+                Акции можно использовать как ориентир перед расчётом проекта и стоимости монтажа.
+              </div>
+            </div>
+          </>
         )}
       </div>
     </section>

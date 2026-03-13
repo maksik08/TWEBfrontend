@@ -66,7 +66,7 @@ export const products: Product[] = [
     title: 'Mesh Wi-Fi System (2-Pack)',
     price: 260,
     category: 'router',
-    image: '/vite.svg',
+    image: '/images/product/mesh_wifi_2pack.png',
   },
   {
     id: 9,
@@ -74,7 +74,7 @@ export const products: Product[] = [
     title: 'Travel Router AC1200',
     price: 55,
     category: 'router',
-    image: '/vite.svg',
+    image: '/images/product/travel_router_ac1200.png',
   },
   {
     id: 10,
@@ -82,7 +82,7 @@ export const products: Product[] = [
     title: 'VPN Router Gigabit',
     price: 175,
     category: 'router',
-    image: '/vite.svg',
+    image: '/images/product/vpn_router_gigabit.png',
   },
   {
     id: 11,

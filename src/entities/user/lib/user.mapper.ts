@@ -5,6 +5,7 @@ export const mapUserDtoToUser = (dto: UserDto): User => {
   return {
     id: dto.id,
     email: dto.email,
+    username: dto.username,
     role: dto.role === 'admin' ? 'admin' : 'client',
   }
 }

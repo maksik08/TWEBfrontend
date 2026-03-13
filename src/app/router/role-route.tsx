@@ -10,7 +10,9 @@ interface RoleRouteProps {
 
 export function RoleRoute({ allowedRoles, children }: RoleRouteProps) {
   const location = useLocation()
-  const { user, isAuthenticated, isBootstrapped } = useSessionStore()
+  const user = useSessionStore((state) => state.user)
+  const isAuthenticated = useSessionStore((state) => state.isAuthenticated)
+  const isBootstrapped = useSessionStore((state) => state.isBootstrapped)
 
   if (!isBootstrapped) {
     return null

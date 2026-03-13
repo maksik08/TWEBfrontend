@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import { calculatePrice } from '@/entities/calculator/api/calculator.api'
-import type { CalculateRequest } from '@/entities/calculator/Model/types'
+import { calculatePrice } from '@/entities/Calculator/Api/calculator.api'
+import type { CalculateRequest } from '@/entities/Calculator/Model/types'
 import { parseApiError } from '@/shared/lib/api-error'
 
 export const useCalculatePrice = () => {

@@ -4,9 +4,14 @@
 
 .layout {
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 2rem;
   align-items: start;
+}
+
+.mainColumn {
+  display: grid;
+  gap: 1.5rem;
 }
 
 .titleRow {
@@ -111,21 +116,162 @@
   text-decoration: underline;
 }
 
+.servicesPanel,
 .summary {
-  position: sticky;
-  top: 90px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 1rem;
+  padding: 1.1rem;
   box-shadow: var(--shadow);
 }
 
+.servicesHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1.3rem;
+}
+
+.sectionText {
+  margin-top: 0.35rem;
+  color: var(--text-muted);
+  max-width: 700px;
+}
+
+.toggleBox {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--background-alt);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.serviceEquipmentList {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.serviceEquipmentItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(255, 255, 255, 0.98));
+}
+
+.optionGroup {
+  margin-top: 1rem;
+}
+
+.optionTitle {
+  font-size: 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.optionPills {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.optionPill {
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--background-alt);
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.optionPillActive {
+  background: var(--gradient-primary);
+  border-color: transparent;
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.checkGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.checkItem {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--background-alt);
+}
+
+.serviceFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field span {
+  font-weight: 600;
+}
+
+.field input,
+.field textarea,
+.input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  font: inherit;
+}
+
+.fieldWide {
+  grid-column: 1 / -1;
+}
+
+.serviceBreakdown {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.breakdownRow,
 .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 0.5rem 0;
+  gap: 1rem;
+}
+
+.serviceHint {
+  color: var(--text-muted);
+}
+
+.summary {
+  position: sticky;
+  top: 90px;
 }
 
 .totalRow {
@@ -133,14 +279,6 @@
   padding-top: 0.75rem;
   border-top: 1px solid var(--border);
   font-weight: 800;
-}
-
-.input {
-  width: 120px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.45rem 0.6rem;
-  background: var(--surface);
 }
 
 .pay {
@@ -158,6 +296,27 @@
   cursor: not-allowed;
 }
 
+.balanceOk {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.balanceLow {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.balanceHint {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--danger);
+}
+
+.balanceHint a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 @media (max-width: 980px) {
   .layout {
     grid-template-columns: 1fr;
@@ -165,5 +324,28 @@
 
   .summary {
     position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .card {
+    grid-template-columns: 1fr;
+  }
+
+  .servicesHeader,
+  .serviceEquipmentItem,
+  .breakdownRow,
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .checkGrid,
+  .serviceFields {
+    grid-template-columns: 1fr;
+  }
+
+  .toggleBox {
+    white-space: normal;
   }
 }

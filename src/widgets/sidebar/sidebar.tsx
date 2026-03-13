@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useSessionStore } from '@/entities/session/model/session.store'
 
 export default function Sidebar() {
-  const { user } = useSessionStore()
+  const user = useSessionStore((state) => state.user)
 
   return (
     <aside

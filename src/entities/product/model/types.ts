@@ -5,6 +5,7 @@ export type ProductCategory =
   | "cable"
   | "nas"
   | "server"
+  | (string & {})
 
 export interface Product {
   id: number

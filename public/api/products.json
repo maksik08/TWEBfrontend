@@ -1,0 +1,83 @@
+[
+  {
+    "id": 1,
+    "name": "Wi-Fi Router AX3000",
+    "title": "Wi-Fi Router AX3000",
+    "price": 120,
+    "category": "router",
+    "image": "/images/product/wifi_ax3000.png"
+  },
+  {
+    "id": 2,
+    "name": "Network Switch 8 Port",
+    "title": "Network Switch 8 Port",
+    "price": 90,
+    "category": "switch",
+    "image": "/images/product/switch_8port.png"
+  },
+  {
+    "id": 3,
+    "name": "Outdoor Antenna",
+    "title": "Outdoor Antenna",
+    "price": 70,
+    "category": "antenna",
+    "image": "/images/product/antenna_outdoor.png"
+  },
+  {
+    "id": 4,
+    "name": "Ethernet Cable Cat6",
+    "title": "Ethernet Cable Cat6",
+    "price": 15,
+    "category": "cable",
+    "image": "/images/product/cable_cat6.png"
+  },
+  {
+    "id": 5,
+    "name": "NAS Storage 4TB",
+    "title": "NAS Storage 4TB",
+    "price": 350,
+    "category": "nas",
+    "image": "/images/product/nas_4tb.png"
+  },
+  {
+    "id": 6,
+    "name": "Server Rack Unit",
+    "title": "Server Rack Unit",
+    "price": 520,
+    "category": "server",
+    "image": "/images/product/server_rack_unit.png"
+  },
+  {
+    "id": 7,
+    "name": "Wi-Fi Router AX6000",
+    "title": "Wi-Fi Router AX6000",
+    "price": 210,
+    "category": "router",
+    "image": "/images/product/wifi_ax6000.png"
+  },
+  {
+    "id": 8,
+    "name": "Mesh Wi-Fi System (2-Pack)",
+    "title": "Mesh Wi-Fi System (2-Pack)",
+    "price": 260,
+    "category": "router",
+    "image": "/images/product/mesh_wifi_2pack.png"
+  },
+  {
+    "id": 9,
+    "name": "Travel Router AC1200",
+    "title": "Travel Router AC1200",
+    "price": 55,
+    "category": "router",
+    "image": "/images/product/travel_router_ac1200.png"
+  },
+  {
+    "id": 10,
+    "name": "VPN Router Gigabit",
+    "title": "VPN Router Gigabit",
+    "price": 175,
+    "category": "router",
+    "image": "/images/product/vpn_router_gigabit.png"
+  }
+]
+

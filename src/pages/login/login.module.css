@@ -13,8 +13,13 @@
 }
 
 .title {
-  font-size: 1.5rem;
-  margin-bottom: 0.75rem;
+  font-size: 1.7rem;
+  margin: 0 0 0.4rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  line-height: 1.6;
 }
 
 .field {
@@ -41,6 +46,18 @@
   outline: none;
   border-color: var(--primary-light);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.demoBox {
+  margin-top: 0.9rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: var(--radius);
+  background: rgba(37, 99, 235, 0.06);
+  color: var(--text);
+  line-height: 1.5;
+  display: grid;
+  gap: 0.25rem;
+  font-weight: 600;
 }
 
 .actions {

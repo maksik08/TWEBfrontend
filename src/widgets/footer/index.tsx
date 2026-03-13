@@ -1,4 +1,5 @@
-import styles from './footer.module.css';
+import { Link } from 'react-router-dom'
+import styles from './footer.module.css'
 
 export const Footer = () => {
   return (
@@ -12,17 +13,29 @@ export const Footer = () => {
           <div>
             <h4 className={styles.subtitle}>Каталог</h4>
             <ul className={styles.list}>
-              <li><a href="#">Оборудование</a></li>
-              <li><a href="#">Услуги</a></li>
-              <li><a href="#">Акции</a></li>
+              <li>
+                <Link to="/catalog?section=equipment">Оборудование</Link>
+              </li>
+              <li>
+                <Link to="/catalog?section=services">Услуги</Link>
+              </li>
+              <li>
+                <Link to="/catalog?section=promotions">Акции</Link>
+              </li>
             </ul>
           </div>
           <div>
             <h4 className={styles.subtitle}>Помощь</h4>
             <ul className={styles.list}>
-              <li><a href="#">Доставка</a></li>
-              <li><a href="#">Оплата</a></li>
-              <li><a href="#">Контакты</a></li>
+              <li>
+                <a href="#">Доставка</a>
+              </li>
+              <li>
+                <Link to="/cart?services=1">Оплата</Link>
+              </li>
+              <li>
+                <a href="#">Контакты</a>
+              </li>
             </ul>
           </div>
           <div>
@@ -33,10 +46,8 @@ export const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className={styles.copyright}>
-          © 2026 NetInstall. Все права защищены.
-        </div>
+        <div className={styles.copyright}>© 2026 NetInstall. Все права защищены.</div>
       </div>
     </footer>
-  );
-};
+  )
+}

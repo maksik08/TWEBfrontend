@@ -11,6 +11,8 @@ import CatalogPage from '@/pages/catalog'
 import FavoritesPage from '@/pages/favorites'
 import NotFoundPage from '@/pages/not-found'
 import CartPage from '@/pages/cart'
+import BalancePage from '@/pages/balance'
+import CalculatorPage from '@/pages/calculator'
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +43,14 @@ export const router = createBrowserRouter([
       {
         path: 'cart',
         element: <CartPage />,
+      },
+      {
+        path: 'balance',
+        element: <BalancePage />,
+      },
+      {
+        path: 'calculator',
+        element: <CalculatorPage />,
       },
       {
         path: 'admin',

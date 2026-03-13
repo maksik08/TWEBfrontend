@@ -1,5 +1,5 @@
-import type { CalculateRequest, CalculateResponse } from '@/entities/calculator/Model/types'
-import { calculatePrice as calculatePriceModel } from '@/entities/calculator/Model/calculate'
+import type { CalculateRequest, CalculateResponse } from '@/entities/Calculator/Model/types'
+import { calculatePrice as calculatePriceModel } from '@/entities/Calculator/Model/calculate'
 
 export const calculatePrice = async (
   data: CalculateRequest,

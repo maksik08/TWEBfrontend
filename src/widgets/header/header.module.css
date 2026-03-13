@@ -70,7 +70,7 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.9rem;
 }
 
 .iconButton {
@@ -111,12 +111,139 @@
   border: 2px solid var(--surface);
 }
 
+.likesBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--primary);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--surface);
+  padding: 0 0.25rem;
+}
+
 .menuButton {
   display: none;
   background: transparent;
   color: var(--text-light);
   cursor: pointer;
   border: none;
+}
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+}
+
+.avatarFrame {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  border: 2px solid var(--primary-light);
+  background: var(--background-alt);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatarFrame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitials {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 0.85rem;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.profileName {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.profileMeta {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.1;
+}
+
+.profileBalance {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.profileStats {
+  color: var(--text-muted);
+}
+
+.topUp {
+  margin-left: 0.2rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+.logoutButton,
+.authButton {
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+.logoutButton:hover,
+.authButton:hover {
+  border-color: var(--primary-light);
+  color: var(--primary);
+}
+
+@media (max-width: 1100px) {
+  .profileStats {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .topUp {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
@@ -135,5 +262,20 @@
 
   .logo {
     font-size: 1.25rem;
+  }
+
+  .profileCard {
+    padding: 0.25rem 0.6rem;
+  }
+
+  .avatarFrame {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+@media (max-width: 640px) {
+  .profileMeta {
+    display: none;
   }
 }
