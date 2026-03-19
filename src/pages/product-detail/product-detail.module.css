@@ -1,0 +1,492 @@
+.page {
+  padding: 2.5rem 0 4rem;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary-dark);
+  font-weight: 700;
+}
+
+.stateCard {
+  padding: 3rem;
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--border);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.9));
+  box-shadow: var(--shadow);
+}
+
+.stateCard p {
+  margin-top: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.05fr);
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.mediaPanel,
+.infoPanel,
+.card {
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+}
+
+.mediaPanel {
+  min-height: 460px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 35%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(239, 246, 255, 0.92));
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroPlaceholder {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.infoPanel {
+  padding: 2rem;
+}
+
+.badges {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.categoryBadge,
+.stockBadge {
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.categoryBadge {
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--primary-dark);
+}
+
+.stockBadge {
+  background: rgba(16, 185, 129, 0.12);
+  color: #0f766e;
+}
+
+.title {
+  margin-bottom: 0.85rem;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.subtitle {
+  color: var(--text-light);
+  font-size: 1.02rem;
+  margin-bottom: 1.25rem;
+}
+
+.ratingBox {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(15, 23, 42, 0.03);
+  margin-bottom: 1.25rem;
+}
+
+.ratingBox strong {
+  display: block;
+  font-size: 1.1rem;
+}
+
+.ratingBox p {
+  color: var(--text-muted);
+}
+
+.priceRow {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.priceLabel,
+.skuBox span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.price {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.skuBox {
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(15, 23, 42, 0.03);
+  min-width: 170px;
+}
+
+.actions {
+  display: flex;
+  gap: 0.9rem;
+  margin-bottom: 1.4rem;
+}
+
+.primaryAction,
+.secondaryAction,
+.reviewButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border-radius: var(--radius);
+  padding: 0.9rem 1.2rem;
+  font-weight: 700;
+  transition: var(--transition);
+}
+
+.primaryAction,
+.reviewButton {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.secondaryAction {
+  border: 1px solid rgba(37, 99, 235, 0.16);
+  background: rgba(37, 99, 235, 0.06);
+  color: var(--primary-dark);
+}
+
+.secondaryActionActive {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: #b45309;
+}
+
+.primaryAction:hover,
+.secondaryAction:hover,
+.reviewButton:hover {
+  transform: translateY(-1px);
+}
+
+.quickSpecs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.quickSpecCard {
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+.quickSpecCard span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-bottom: 0.4rem;
+}
+
+.quickSpecCard strong {
+  font-size: 0.95rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: 1.5rem;
+}
+
+.mainColumn,
+.sidebar {
+  display: grid;
+  gap: 1.25rem;
+  align-content: start;
+}
+
+.card {
+  padding: 1.5rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sectionHeader span {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.description {
+  color: var(--text-light);
+  margin-bottom: 1rem;
+  font-size: 0.98rem;
+}
+
+.featureList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.featureItem {
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius);
+  background: rgba(37, 99, 235, 0.06);
+  border: 1px solid rgba(37, 99, 235, 0.08);
+  color: var(--text);
+}
+
+.techList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.techTag {
+  padding: 0.55rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(6, 182, 212, 0.1);
+  color: #0f766e;
+  font-weight: 700;
+}
+
+.reviewSummary {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(15, 23, 42, 0.03);
+  margin-bottom: 1.25rem;
+}
+
+.reviewSummaryScore {
+  min-width: 120px;
+  text-align: center;
+}
+
+.reviewSummaryScore strong {
+  display: block;
+  font-size: 2rem;
+  color: var(--primary-dark);
+}
+
+.reviewSummaryScore span,
+.reviewSummaryMeta p {
+  color: var(--text-muted);
+}
+
+.reviewForm {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.field span {
+  font-weight: 700;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: white;
+  font: inherit;
+  color: var(--text);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.ratingInput {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: white;
+}
+
+.reviewButton {
+  justify-self: start;
+}
+
+.reviewList {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.reviewCard {
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.reviewCardTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.reviewCardTop strong {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.reviewCardTop span {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.reviewRating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.specList {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.specRow {
+  display: grid;
+  gap: 0.35rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.specRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.specRow dt {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.specRow dd {
+  font-weight: 700;
+}
+
+.packageList {
+  padding-left: 1.15rem;
+  display: grid;
+  gap: 0.6rem;
+  color: var(--text-light);
+}
+
+.infoTiles {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.infoTile {
+  display: flex;
+  align-items: start;
+  gap: 0.75rem;
+  padding: 0.95rem;
+  border-radius: var(--radius-lg);
+  background: rgba(15, 23, 42, 0.03);
+}
+
+.infoTile strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.infoTile span {
+  color: var(--text-muted);
+}
+
+@media (max-width: 1100px) {
+  .hero,
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .mediaPanel {
+    min-height: 360px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 2rem 0 3rem;
+  }
+
+  .infoPanel,
+  .card {
+    padding: 1.2rem;
+  }
+
+  .actions,
+  .formGrid,
+  .priceRow,
+  .reviewSummary,
+  .reviewCardTop {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .quickSpecs {
+    grid-template-columns: 1fr;
+  }
+
+  .reviewButton,
+  .primaryAction,
+  .secondaryAction {
+    width: 100%;
+  }
+}

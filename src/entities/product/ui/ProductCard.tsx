@@ -1,9 +1,17 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { FiHeart, FiShoppingCart, FiStar } from 'react-icons/fi'
+import { Link } from 'react-router-dom'
 
 import { useCartStore } from '@/entities/cart/model/cart.store'
 import { buildFavoriteKey, useFavoritesStore } from '@/entities/favorites/model/favorites.store'
+import { getProductRatingSummary, StarRating, useProductFeedbackStore } from '@/entities/product-feedback'
+import {
+  getProductAvailabilityLabel,
+  getProductCategoryLabel,
+  getProductDisplayName,
+  getProductImageUrl,
+} from '../model/product.helpers'
 import type { Product } from '../model/types'
 import styles from './product-card.module.css'
 
@@ -16,6 +24,7 @@ export const ProductCard = ({ product }: Props) => {
   const add = useCartStore((state) => state.add)
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
   const addLike = useFavoritesStore((state) => state.addLike)
+  const reviews = useProductFeedbackStore((state) => state.reviews[String(product.id)] ?? [])
 
   const favoriteKey = buildFavoriteKey('product', product.id)
   const likes = useFavoritesStore((state) => state.likes[favoriteKey] ?? 0)
@@ -23,17 +32,17 @@ export const ProductCard = ({ product }: Props) => {
     state.favorites.some((favorite) => favorite.key === favoriteKey),
   )
 
-  const imageUrl =
-    product.image && product.image !== 'N/A'
-      ? product.image.startsWith('http') || product.image.startsWith('/')
-        ? product.image
-        : `/images/product/${product.image}`
-      : undefined
-
+  const productUrl = `/catalog/${product.id}`
+  const ratingSummary = getProductRatingSummary(reviews)
+  const imageUrl = getProductImageUrl(product)
   const hasImage = Boolean(imageUrl && !imageError)
+  const displayName = getProductDisplayName(product)
+  const summaryText =
+    product.shortDescription ??
+    `${displayName} с полезными характеристиками, готовый для установки в домашнюю или офисную сеть.`
 
   return (
-    <div className={styles.productCard}>
+    <article className={styles.productCard}>
       <div className={styles.imageContainer}>
         <button
           type="button"
@@ -43,11 +52,11 @@ export const ProductCard = ({ product }: Props) => {
               key: favoriteKey,
               entityType: 'product',
               entityId: String(product.id),
-              title: product.title || product.name,
-              description: `Категория: ${product.category}`,
+              title: displayName,
+              description: `Категория: ${getProductCategoryLabel(product.category)}`,
               priceLabel: `$${product.price.toFixed(2)}`,
               metaLabel: 'Товар',
-              href: '/catalog?section=equipment',
+              href: productUrl,
             })
           }
           title={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
@@ -56,20 +65,43 @@ export const ProductCard = ({ product }: Props) => {
         </button>
 
         {hasImage ? (
-          <img src={imageUrl} alt={product.title} onError={() => setImageError(true)} />
+          <Link to={productUrl} className={styles.imageLink}>
+            <img src={imageUrl} alt={displayName} onError={() => setImageError(true)} />
+          </Link>
         ) : (
-          <div className={styles.noImage}>Нет фото</div>
+          <Link to={productUrl} className={styles.noImage}>
+            Нет фото
+          </Link>
         )}
-        <div className={styles.badge}>В наличии</div>
+
+        <div className={styles.badge}>{getProductAvailabilityLabel(product.availability)}</div>
       </div>
 
       <div className={styles.content}>
-        <span className={styles.category}>{product.category}</span>
-        <h3 className={styles.title}>{product.title || product.name}</h3>
+        <span className={styles.category}>{getProductCategoryLabel(product.category)}</span>
+
+        <h3 className={styles.title}>
+          <Link to={productUrl} className={styles.titleLink}>
+            {displayName}
+          </Link>
+        </h3>
+
+        <p className={styles.summary}>{summaryText}</p>
+
+        <div className={styles.ratingRow}>
+          <StarRating value={ratingSummary.average} readOnly size="sm" />
+          <span className={styles.ratingMeta}>
+            {ratingSummary.average.toFixed(1)} ({ratingSummary.total})
+          </span>
+        </div>
 
         <div className={styles.priceContainer}>
-          <span className={styles.price}>${product.price}</span>
+          <span className={styles.price}>${product.price.toFixed(2)}</span>
         </div>
+
+        <Link to={productUrl} className={styles.detailsLink}>
+          Подробнее
+        </Link>
       </div>
 
       <div className={styles.footer}>
@@ -82,6 +114,7 @@ export const ProductCard = ({ product }: Props) => {
           <FiHeart size={18} />
           {likes > 0 && <span className={styles.likesCount}>{likes}</span>}
         </button>
+
         <button
           type="button"
           className={styles.addButton}
@@ -95,6 +128,6 @@ export const ProductCard = ({ product }: Props) => {
           Купить
         </button>
       </div>
-    </div>
+    </article>
   )
 }

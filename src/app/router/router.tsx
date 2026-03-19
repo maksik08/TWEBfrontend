@@ -13,6 +13,7 @@ import NotFoundPage from '@/pages/not-found'
 import CartPage from '@/pages/cart'
 import BalancePage from '@/pages/balance'
 import CalculatorPage from '@/pages/calculator'
+import ProductDetailPage from '@/pages/product-detail'
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
       {
         path: 'catalog',
         element: <CatalogPage />,
+      },
+      {
+        path: 'catalog/:productId',
+        element: <ProductDetailPage />,
       },
       {
         path: 'favorites',

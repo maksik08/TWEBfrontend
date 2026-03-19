@@ -2,12 +2,12 @@ import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useCartStore, selectCartCount, selectCartSubtotal } from '@/entities/cart/model/cart.store'
-import { calculatePrice } from '@/entities/Calculator/Model/calculate'
+import { calculatePrice } from '@/entities/calculator/Model/calculate'
 import type {
   CalculateRequest,
   InstallationType,
   ObjectType,
-} from '@/entities/Calculator/Model/types'
+} from '@/entities/calculator/Model/types'
 import { useProfileStore } from '@/entities/user/model/profile.store'
 import styles from './cart.module.css'
 
