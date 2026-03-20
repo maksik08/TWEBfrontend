@@ -31,4 +31,5 @@ export interface Product {
   specifications?: ProductSpecification[]
   packageContents?: string[]
   warranty?: string
+  updatedAt?: string
 }

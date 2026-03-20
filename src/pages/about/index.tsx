@@ -1,96 +1,193 @@
 import styles from './about.module.css'
 
-const highlights = [
+const stats = [
+  { value: '5 000+', label: 'единиц оборудования в каталоге' },
+  { value: '3 года', label: 'официальная гарантия' },
+  { value: '24/7', label: 'техническая поддержка' },
+  { value: '500+', label: 'выполненных проектов' },
+]
+
+const team = [
   {
-    title: 'Понятный каталог',
-    text: 'Оборудование, услуги и акции собраны так, чтобы пользователь быстро находил нужный сценарий без лишнего шума.',
+    name: 'Драгош Вуткарёв',
+    role: 'Разработчик',
+    desc: 'Более 12 лет опыта в проектировании корпоративных сетей. Сертифицированный специалист Cisco CCIE.',
+    image: '/images/team/dragosh-vutkarev.jpg',
   },
   {
-    title: 'Единый маршрут заказа',
-    text: 'Из каталога можно перейти в избранное, собрать корзину, добавить услуги установки и увидеть итоговую сумму в одном потоке.',
+    name: 'Максим Пометко',
+    role: 'Разработчик',
+    desc: 'Эксперт по подбору сетевого оборудования для бизнеса любого масштаба — от малого офиса до дата-центра.',
+    image: '/images/team/maksim-pometko.jpg',
   },
   {
-    title: 'Акцент на удобство',
-    text: 'Мы стараемся, чтобы интерфейс помогал выбрать решение, а не заставлял разбираться в сложных экранах и скрытых шагах.',
+    name: 'Джейсон Стетхем',
+    role: 'Крутой мужик',
+    desc: 'Обслуживание',
+    image: '/images/avatar/statham1.jpg',
   },
 ]
 
-const principles = [
-  'Показываем товар, доставку и услуги отдельными частями, чтобы итог был прозрачным.',
-  'Даём возможность сохранить интересные позиции в избранное и вернуться к ним позже.',
-  'Собираем структуру проекта так, чтобы каталог, корзина и авторизация работали согласованно.',
-]
-
-const steps = [
-  'Пользователь подбирает оборудование и отмечает интересные позиции.',
-  'Собирает заказ в корзине и при необходимости добавляет услуги установки.',
-  'Получает понятную смету с товарами, доставкой и дополнительными работами.',
+const values = [
+  {
+    icon: '🎯',
+    title: 'Экспертиза',
+    text: 'Мы консультируем по подбору оборудования, а не просто продаём. Каждый специалист имеет профильные сертификаты.',
+  },
+  {
+    icon: '🔍',
+    title: 'Прозрачность',
+    text: 'Показываем товар, доставку и услуги отдельными частями, чтобы итог формирования заказа был понятен.',
+  },
+  {
+    icon: '⚡',
+    title: 'Скорость',
+    text: 'Склад в Москве — отправка в день заказа. Доставка по всей России от 2 рабочих дней.',
+  },
+  {
+    icon: '🤝',
+    title: 'Партнёрство',
+    text: 'Официальные партнёры Cisco, TP-Link, MikroTik, Ubiquiti, HPE. Прямые поставки без посредников.',
+  },
 ]
 
 const AboutPage = () => {
   return (
     <div className={styles.page}>
       <div className="container">
+
+        {/* ЗАГОЛОВОК */}
         <section className={styles.hero}>
           <div className={styles.heroText}>
             <span className={styles.kicker}>NetInstall</span>
-            <h1 className={styles.title}>О нас</h1>
+            <h1 className={styles.title}>О компании</h1>
             <p className={styles.lead}>
-              NetInstall строится как удобный сервис для выбора сетевого оборудования и расчёта
-              сопутствующих услуг. Здесь можно пройти полный путь от каталога и избранного до
-              корзины и финальной стоимости без лишних переходов и путаницы.
+              NetInstall — интернет-магазин и системный интегратор в области сетевого оборудования.
+              Мы работаем с 2015 года и помогаем бизнесу строить надёжную IT-инфраструктуру:
+              от небольшого офиса до распределённой корпоративной сети.
             </p>
           </div>
-
           <div className={styles.statsGrid}>
-            {highlights.map((item) => (
-              <div key={item.title} className={styles.statCard}>
-                <strong>{item.title}</strong>
-                <span>{item.text}</span>
+            {stats.map((s) => (
+              <div key={s.label} className={styles.statCard}>
+                <strong>{s.value}</strong>
+                <span>{s.label}</span>
               </div>
             ))}
           </div>
         </section>
 
-        <section className={styles.contentGrid}>
-          <article className={styles.card}>
-            <h2>Что важно в проекте</h2>
-            <p>
-              Мы делаем интерфейс, в котором легко понять, что именно выбирает пользователь и из
-              чего складывается заказ. Важна не показная витрина, а понятная логика для каталога,
-              лайков, избранного, корзины и услуг.
-            </p>
-            <ul className={styles.list}>
-              {principles.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </article>
-
-          <article className={styles.card}>
-            <h2>Как устроен сценарий</h2>
-            <div className={styles.steps}>
-              {steps.map((step, index) => (
-                <div key={step} className={styles.step}>
-                  <span className={styles.stepIndex}>0{index + 1}</span>
-                  <p>{step}</p>
-                </div>
-              ))}
-            </div>
-          </article>
-        </section>
-
-        <section className={styles.banner}>
-          <div>
-            <h2>Для чего всё это</h2>
-            <p>
-              Чтобы пользователь мог спокойно открыть сайт, выбрать нужные позиции, отметить
-              интересные предложения, оформить заказ и при желании сразу добавить услуги по
-              установке, не теряясь между разделами.
-            </p>
+        {/* ЦЕННОСТИ */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Наши принципы</h2>
+          <div className={styles.valuesGrid}>
+            {values.map((v) => (
+              <div key={v.title} className={styles.valueCard}>
+                <span className={styles.valueIcon}>{v.icon}</span>
+                <h3 className={styles.valueTitle}>{v.title}</h3>
+                <p className={styles.valueText}>{v.text}</p>
+              </div>
+            ))}
           </div>
-          <div className={styles.bannerNote}>Простой путь от выбора до расчёта заказа.</div>
         </section>
+
+        {/* ИСТОРИЯ */}
+        <section className={styles.section}>
+          <div className={styles.twoCol}>
+            <article className={styles.card}>
+              <h2>История компании</h2>
+              <p>
+                NetInstall основана в 2015 году группой сетевых инженеров, которые хотели сделать
+                процесс выбора и покупки оборудования максимально простым и понятным для заказчика.
+              </p>
+              <p>
+                Начав с небольшого склада в Москве, сегодня мы обслуживаем клиентов по всей
+                России и ближнему зарубежью. Наш каталог насчитывает более 5 000 позиций
+                от ведущих мировых производителей.
+              </p>
+              <div className={styles.timeline}>
+                <div className={styles.timelineItem}>
+                  <span className={styles.timelineYear}>2015</span>
+                  <p>Основание компании, первые поставки Cisco и TP-Link</p>
+                </div>
+                <div className={styles.timelineItem}>
+                  <span className={styles.timelineYear}>2018</span>
+                  <p>Запуск отдела монтажа и технического обслуживания</p>
+                </div>
+                <div className={styles.timelineItem}>
+                  <span className={styles.timelineYear}>2021</span>
+                  <p>Открытие партнёрства с HPE и Ubiquiti</p>
+                </div>
+                <div className={styles.timelineItem}>
+                  <span className={styles.timelineYear}>2024</span>
+                  <p>Запуск обновлённой платформы с онлайн-калькулятором</p>
+                </div>
+              </div>
+            </article>
+
+            <article className={styles.card}>
+              <h2>Как мы работаем</h2>
+              <div className={styles.steps}>
+                <div className={styles.step}>
+                  <span className={styles.stepIndex}>01</span>
+                  <div>
+                    <strong>Подбор оборудования</strong>
+                    <p>Вы выбираете позиции в каталоге или описываете задачу — мы предлагаем оптимальное решение.</p>
+                  </div>
+                </div>
+                <div className={styles.step}>
+                  <span className={styles.stepIndex}>02</span>
+                  <div>
+                    <strong>Расчёт стоимости</strong>
+                    <p>Формируем смету с учётом оборудования, доставки и услуг монтажа через встроенный калькулятор.</p>
+                  </div>
+                </div>
+                <div className={styles.step}>
+                  <span className={styles.stepIndex}>03</span>
+                  <div>
+                    <strong>Доставка и монтаж</strong>
+                    <p>Отправляем со склада в день заказа. При необходимости — выезд и настройка специалистами.</p>
+                  </div>
+                </div>
+                <div className={styles.step}>
+                  <span className={styles.stepIndex}>04</span>
+                  <div>
+                    <strong>Поддержка</strong>
+                    <p>Гарантийное и постгарантийное обслуживание, техническая поддержка 24/7.</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        {/* КОМАНДА */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Команда</h2>
+          <div className={styles.teamGrid}>
+            {team.map((member) => (
+              <div key={member.name} className={styles.teamCard}>
+                <div className={styles.teamAvatar}>
+                  <img src={member.image} alt={member.name} />
+                </div>
+                <h3 className={styles.teamName}>{member.name}</h3>
+                <span className={styles.teamRole}>{member.role}</span>
+                <p className={styles.teamDesc}>{member.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ПАРТНЁРЫ */}
+        <section className={styles.partnersSection}>
+          <h2 className={styles.sectionTitle}>Официальные партнёры</h2>
+          <div className={styles.partnersGrid}>
+            {['Cisco', 'TP-Link', 'MikroTik', 'Ubiquiti', 'HPE', 'D-Link'].map((brand) => (
+              <div key={brand} className={styles.partnerCard}>{brand}</div>
+            ))}
+          </div>
+        </section>
+
       </div>
     </div>
   )

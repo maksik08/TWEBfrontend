@@ -20,6 +20,12 @@ const normalizePrice = (value: number | string): number => {
   return Number.isFinite(parsed) ? parsed : 0
 }
 
+const generateUpdatedAt = (id: number): string => {
+  const date = new Date(2024, 0, 1)
+  date.setDate(date.getDate() + id * 17)
+  return date.toISOString()
+}
+
 const pickImage = (dto: ProductDto): string => {
   if (dto.image) return dto.image
   const first = dto.images?.find(Boolean)
@@ -30,12 +36,15 @@ export const mapProductDtoToProduct = (dto: ProductDto): Product => {
   const title = (dto.title ?? dto.name ?? '').toString()
   const name = (dto.name ?? dto.title ?? title).toString()
 
+  const id = Number(dto.id)
+
   return enrichProduct({
-    id: Number(dto.id),
+    id,
     title,
     name,
     price: normalizePrice(dto.price),
     category: normalizeCategory(dto.category),
     image: pickImage(dto),
+    updatedAt: generateUpdatedAt(id),
   })
 }

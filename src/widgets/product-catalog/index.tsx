@@ -19,7 +19,22 @@ import { ProductsCounter } from '@/features/products-counter'
 import styles from './product-catalog.module.css'
 
 type CatalogSection = 'equipment' | 'services' | 'promotions'
-type CatalogSort = 'default' | 'likes'
+type CatalogSort = 'default' | 'price-asc' | 'price-desc' | 'likes' | 'date' | 'availability'
+
+const SORT_OPTIONS: { value: CatalogSort; label: string }[] = [
+  { value: 'default', label: 'По умолчанию' },
+  { value: 'price-asc', label: 'Цена: по возрастанию' },
+  { value: 'price-desc', label: 'Цена: по убыванию' },
+  { value: 'likes', label: 'Популярность' },
+  { value: 'date', label: 'Дата обновления' },
+  { value: 'availability', label: 'Наличие' },
+]
+
+const AVAILABILITY_ORDER: Record<string, number> = {
+  'in-stock': 0,
+  limited: 1,
+  preorder: 2,
+}
 
 type CatalogInfoCardProps = {
   entityType: FavoriteEntityType
@@ -36,7 +51,7 @@ const isCatalogSection = (value: string | null): value is CatalogSection =>
   value === 'equipment' || value === 'services' || value === 'promotions'
 
 const isCatalogSort = (value: string | null): value is CatalogSort =>
-  value === 'default' || value === 'likes'
+  SORT_OPTIONS.some((opt) => opt.value === value)
 
 const CatalogInfoCard = ({
   entityType,
@@ -110,12 +125,12 @@ export const ProductCatalog = () => {
   const updateParams = (nextSection: CatalogSection, nextSort: CatalogSort = activeSort) => {
     const next = new URLSearchParams()
     next.set('section', nextSection)
+    if (nextSort !== 'default') next.set('sort', nextSort)
+    setSearchParams(next, { preventScrollReset: true })
+  }
 
-    if (nextSort === 'likes') {
-      next.set('sort', 'likes')
-    }
-
-    setSearchParams(next)
+  const handleSortChange = (value: CatalogSort) => {
+    updateParams(activeSection, value)
   }
 
   const filteredProducts = products
@@ -126,16 +141,31 @@ export const ProductCatalog = () => {
     })
     .filter((product) => (category === 'all' ? true : product.category === category))
     .sort((left, right) => {
-      if (activeSort !== 'likes') return 0
-
-      const leftLikes = likes[buildFavoriteKey('product', left.id)] ?? 0
-      const rightLikes = likes[buildFavoriteKey('product', right.id)] ?? 0
-
-      if (rightLikes !== leftLikes) {
-        return rightLikes - leftLikes
+      switch (activeSort) {
+        case 'price-asc':
+          return left.price - right.price
+        case 'price-desc':
+          return right.price - left.price
+        case 'likes': {
+          const leftLikes = likes[buildFavoriteKey('product', left.id)] ?? 0
+          const rightLikes = likes[buildFavoriteKey('product', right.id)] ?? 0
+          return rightLikes !== leftLikes
+            ? rightLikes - leftLikes
+            : left.title.localeCompare(right.title)
+        }
+        case 'date': {
+          const leftDate = left.updatedAt ? new Date(left.updatedAt).getTime() : 0
+          const rightDate = right.updatedAt ? new Date(right.updatedAt).getTime() : 0
+          return rightDate - leftDate
+        }
+        case 'availability': {
+          const leftOrder = AVAILABILITY_ORDER[left.availability ?? ''] ?? 3
+          const rightOrder = AVAILABILITY_ORDER[right.availability ?? ''] ?? 3
+          return leftOrder - rightOrder
+        }
+        default:
+          return 0
       }
-
-      return left.title.localeCompare(right.title)
     })
 
   const errorMessage =
@@ -188,6 +218,22 @@ export const ProductCatalog = () => {
                   <label className={styles.filterLabel}>Категория</label>
                   <FilterProducts current={category} setCategory={setCategory} />
                 </div>
+
+                <div className={styles.filterGroup}>
+                  <label className={styles.filterLabel} htmlFor="catalog-sort">Сортировка</label>
+                  <select
+                    id="catalog-sort"
+                    className={styles.sortSelect}
+                    value={activeSort}
+                    onChange={(e) => handleSortChange(e.target.value as CatalogSort)}
+                  >
+                    {SORT_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </>
           )}
@@ -213,8 +259,10 @@ export const ProductCatalog = () => {
 
               <div className={styles.catalogFooter}>
                 <ProductsCounter total={filteredProducts.length} />
-                {activeSort === 'likes' && (
-                  <div className={styles.catalogSummary}>Показываем товары от самых лайкнутых.</div>
+                {activeSort !== 'default' && (
+                  <div className={styles.catalogSummary}>
+                    {SORT_OPTIONS.find((o) => o.value === activeSort)?.label}
+                  </div>
                 )}
               </div>
             </>

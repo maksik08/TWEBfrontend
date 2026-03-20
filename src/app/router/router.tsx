@@ -7,6 +7,7 @@ import ClientDashboard from '@/pages/dashboard/client'
 import Forbidden from '@/pages/forbidden'
 import Login from '@/pages/login'
 import AboutPage from '@/pages/about'
+import HomePage from '@/pages/home'
 import CatalogPage from '@/pages/catalog'
 import FavoritesPage from '@/pages/favorites'
 import NotFoundPage from '@/pages/not-found'
@@ -27,7 +28,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <AboutPage />,
+        element: <HomePage />,
       },
       {
         path: 'about',
