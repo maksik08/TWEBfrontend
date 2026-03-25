@@ -41,12 +41,13 @@ export const Footer = () => {
           <div>
             <h4 className={styles.subtitle}>Контакты</h4>
             <ul className={styles.list}>
-              <li>info@netinstall.ru</li>
-              <li>+7 (495) 123-45-67</li>
+              <li>info@netinstall.md</li>
+              <li>+373 22 123-456</li>
+              <li>мун. Кишинёв, ул. Штефан чел Маре, 134</li>
             </ul>
           </div>
         </div>
-        <div className={styles.copyright}>© 2026 NetInstall. Все права защищены.</div>
+        <div className={styles.copyright}>© 2026 NetInstall Moldova. Все права защищены.</div>
       </div>
     </footer>
   )

@@ -26,12 +26,14 @@ export type PurchaseHistoryItem = {
 type ProfileState = {
   firstName: string
   lastName: string
+  phone: string
   avatarUrl: string | null
   balance: number
   stats: PurchaseStats
   purchaseHistory: PurchaseHistoryItem[]
   topUp: (amount: number) => void
   recordPurchase: (payload: { total: number; lines: PurchaseLineItem[] }) => void
+  updateProfile: (payload: { firstName?: string; lastName?: string; phone?: string }) => void
 }
 
 const normalizeAmount = (value: number) =>
@@ -42,6 +44,7 @@ export const useProfileStore = create<ProfileState>()(
     (set) => ({
       firstName: 'Алексей',
       lastName: 'Ильин',
+      phone: '',
       avatarUrl: null,
       balance: 120,
       stats: {
@@ -55,6 +58,13 @@ export const useProfileStore = create<ProfileState>()(
       topUp: (amount) =>
         set((state) => ({
           balance: state.balance + normalizeAmount(amount),
+        })),
+
+      updateProfile: (payload) =>
+        set((state) => ({
+          firstName: payload.firstName !== undefined ? payload.firstName.trim() : state.firstName,
+          lastName: payload.lastName !== undefined ? payload.lastName.trim() : state.lastName,
+          phone: payload.phone !== undefined ? payload.phone.trim() : state.phone,
         })),
 
       recordPurchase: ({ total, lines }) =>

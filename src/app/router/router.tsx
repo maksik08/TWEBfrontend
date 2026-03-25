@@ -15,6 +15,7 @@ import CartPage from '@/pages/cart'
 import BalancePage from '@/pages/balance'
 import CalculatorPage from '@/pages/calculator'
 import ProductDetailPage from '@/pages/product-detail'
+import ProfilePage from '@/pages/profile'
 
 export const router = createBrowserRouter([
   {
@@ -57,6 +58,10 @@ export const router = createBrowserRouter([
       {
         path: 'calculator',
         element: <CalculatorPage />,
+      },
+      {
+        path: 'profile',
+        element: <ProfilePage />,
       },
       {
         path: 'admin',

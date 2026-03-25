@@ -8,7 +8,7 @@ const demoAccounts = [
     password: 'client123',
     user: {
       id: 'demo-client',
-      email: 'client@netinstall.local',
+      email: 'client@netinstall.md',
       username: 'client',
       role: 'client',
     },
@@ -18,7 +18,7 @@ const demoAccounts = [
     password: 'admin123',
     user: {
       id: 'demo-admin',
-      email: 'admin@netinstall.local',
+      email: 'admin@netinstall.md',
       username: 'admin',
       role: 'admin',
     },

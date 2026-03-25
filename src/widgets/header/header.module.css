@@ -148,6 +148,18 @@
   box-shadow: var(--shadow-sm);
 }
 
+.profileLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.profileLink:hover .profileName {
+  color: var(--primary);
+}
+
 .avatarFrame {
   width: 44px;
   height: 44px;

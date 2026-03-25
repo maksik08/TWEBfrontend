@@ -107,14 +107,14 @@ export default function CartPage() {
     <div className={styles.page}>
       <div className="container">
         <div className={styles.titleRow}>
-          <h1 className={styles.title}>Cart</h1>
-          <span className={styles.muted}>Items: {count}</span>
+          <h1 className={styles.title}>Корзина</h1>
+          <span className={styles.muted}>Позиций: {count}</span>
         </div>
 
         <div className={styles.layout}>
           <div className={styles.mainColumn}>
             {items.length === 0 ? (
-              <p className={styles.muted}>Cart is empty.</p>
+              <p className={styles.muted}>Корзина пуста.</p>
             ) : (
               <>
                 <div className={styles.list}>
@@ -127,8 +127,8 @@ export default function CartPage() {
                       <div>
                         <div className={styles.name}>{item.product.title || item.product.name}</div>
                         <div className={styles.meta}>
-                          <span>Category: {item.product.category}</span>
-                          <span>Unit: {formatMoney(item.product.price)}</span>
+                          <span>Категория: {item.product.category}</span>
+                          <span>За шт.: {formatMoney(item.product.price)}</span>
                         </div>
                       </div>
 
@@ -156,7 +156,7 @@ export default function CartPage() {
                         </div>
 
                         <button className={styles.remove} onClick={() => remove(item.product.id)}>
-                          Remove
+                          Удалить
                         </button>
                       </div>
                     </div>
@@ -389,12 +389,12 @@ export default function CartPage() {
 
           <aside className={styles.summary}>
             <div className={styles.row}>
-              <span className={styles.muted}>Equipment subtotal</span>
+              <span className={styles.muted}>Сумма товаров</span>
               <span>{formatMoney(subtotal)}</span>
             </div>
 
             <div className={styles.row}>
-              <span className={styles.muted}>Discount</span>
+              <span className={styles.muted}>Скидка</span>
               <input
                 className={styles.input}
                 type="number"
@@ -406,22 +406,22 @@ export default function CartPage() {
             </div>
 
             <div className={styles.row}>
-              <span className={styles.muted}>Goods total</span>
+              <span className={styles.muted}>Итого по товарам</span>
               <span>{formatMoney(goodsTotal)}</span>
             </div>
 
             <div className={styles.row}>
-              <span className={styles.muted}>Services</span>
+              <span className={styles.muted}>Услуги</span>
               <span>{formatMoney(servicesTotal)}</span>
             </div>
 
             <div className={`${styles.row} ${styles.totalRow}`}>
-              <span>Total</span>
+              <span>Итого</span>
               <span>{formatMoney(total)}</span>
             </div>
 
             <div className={styles.row}>
-              <span className={styles.muted}>Balance</span>
+              <span className={styles.muted}>Баланс</span>
               <span className={hasEnoughBalance ? styles.balanceOk : styles.balanceLow}>
                 {formatMoney(balance)}
               </span>
@@ -476,12 +476,12 @@ export default function CartPage() {
                   total,
                   lines: purchaseLines,
                 })
-                toast.success(`Paid ${formatMoney(total)} (demo)`)
+                toast.success(`Оплачено ${formatMoney(total)} (демо)`)
                 clear()
                 resetCartAddons()
               }}
             >
-              Pay
+              Оплатить
             </button>
 
             {items.length > 0 && (
@@ -493,7 +493,7 @@ export default function CartPage() {
                 }}
                 style={{ marginTop: '0.75rem' }}
               >
-                Clear cart
+                Очистить корзину
               </button>
             )}
           </aside>

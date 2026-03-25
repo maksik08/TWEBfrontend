@@ -64,24 +64,26 @@ export const Header = () => {
 
             {isAuthenticated ? (
               <div className={styles.profileCard}>
-                <div className={styles.avatarFrame} aria-hidden="true">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt={`${firstName} ${lastName}`} />
-                  ) : (
-                    <span className={styles.avatarInitials}>{initials || 'U'}</span>
-                  )}
-                </div>
-                <div className={styles.profileInfo}>
-                  <div className={styles.profileName}>{displayName}</div>
-                  <div className={styles.profileMeta}>
-                    <span>{displayMeta}</span>
-                    <span className={styles.profileBalance}>Баланс: {formatMoney(balance)}</span>
-                    <span className={styles.profileStats}>
-                      Покупок: {stats.orders} • Товаров: {stats.items} • Потрачено:{' '}
-                      {formatMoney(stats.spent)}
-                    </span>
+                <Link to="/profile" className={styles.profileLink}>
+                  <div className={styles.avatarFrame} aria-hidden="true">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt={`${firstName} ${lastName}`} />
+                    ) : (
+                      <span className={styles.avatarInitials}>{initials || 'U'}</span>
+                    )}
                   </div>
-                </div>
+                  <div className={styles.profileInfo}>
+                    <div className={styles.profileName}>{displayName}</div>
+                    <div className={styles.profileMeta}>
+                      <span>{displayMeta}</span>
+                      <span className={styles.profileBalance}>Баланс: {formatMoney(balance)}</span>
+                      <span className={styles.profileStats}>
+                        Покупок: {stats.orders} • Товаров: {stats.items} • Потрачено:{' '}
+                        {formatMoney(stats.spent)}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
                 <Link to="/balance" className={styles.topUp}>
                   Баланс
                 </Link>
