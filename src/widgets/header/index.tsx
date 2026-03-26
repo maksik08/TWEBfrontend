@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
-import { FiHeart, FiMenu, FiShoppingCart } from 'react-icons/fi'
+import { FiHeart, FiMenu, FiMoon, FiShoppingCart, FiSun } from 'react-icons/fi'
 import { useCartStore, selectCartCount } from '@/entities/cart/model/cart.store'
 import { useFavoritesStore } from '@/entities/favorites/model/favorites.store'
 import { useSessionStore } from '@/entities/session/model/session.store'
 import { useProfileStore } from '@/entities/user/model/profile.store'
+import { useThemeStore } from '@/entities/theme/model/theme.store'
 import styles from './header.module.css'
 
 const formatMoney = (value: number) => `$${value.toFixed(2)}`
@@ -21,6 +22,9 @@ export const Header = () => {
   const avatarUrl = useProfileStore((state) => state.avatarUrl)
   const balance = useProfileStore((state) => state.balance)
   const stats = useProfileStore((state) => state.stats)
+
+  const theme = useThemeStore((state) => state.theme)
+  const toggleTheme = useThemeStore((state) => state.toggleTheme)
 
   const displayName = sessionUser?.username ?? `${firstName} ${lastName}`.trim()
   const displayMeta = sessionUser?.email ?? 'Личный кабинет'
@@ -47,6 +51,16 @@ export const Header = () => {
           </nav>
 
           <div className={styles.actions}>
+            <button
+              type="button"
+              className={styles.themeButton}
+              onClick={toggleTheme}
+              aria-label={theme === 'light' ? 'Включить тёмную тему' : 'Включить светлую тему'}
+              title={theme === 'light' ? 'Тёмная тема' : 'Светлая тема'}
+            >
+              {theme === 'light' ? <FiMoon size={20} /> : <FiSun size={20} />}
+            </button>
+
             <Link
               to="/catalog?section=equipment&sort=likes"
               className={styles.iconButton}
