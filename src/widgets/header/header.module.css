@@ -74,6 +74,32 @@
   gap: 0.9rem;
 }
 
+.languageSwitch {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.languageButton {
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.languageButtonActive {
+  background: var(--gradient-primary);
+  color: white;
+}
+
 .iconButton {
   position: relative;
   display: flex;
@@ -283,6 +309,11 @@
   .nav {
     display: none;
   }
+
+  .languageSwitch {
+    display: none;
+  }
+
   .menuButton {
     display: flex;
     align-items: center;
