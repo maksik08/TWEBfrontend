@@ -13,6 +13,7 @@ import {
   getProductImageUrl,
 } from '../model/product.helpers'
 import type { Product } from '../model/types'
+import { useLanguage } from '@/shared/i18n'
 import styles from './product-card.module.css'
 
 interface Props {
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export const ProductCard = ({ product }: Props) => {
+  const { t, language } = useLanguage()
   const [imageError, setImageError] = useState(false)
   const add = useCartStore((state) => state.add)
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
@@ -39,7 +41,7 @@ export const ProductCard = ({ product }: Props) => {
   const displayName = getProductDisplayName(product)
   const summaryText =
     product.shortDescription ??
-    `${displayName} с полезными характеристиками, готовый для установки в домашнюю или офисную сеть.`
+    t({ ru: `${displayName} с полезными характеристиками, готовый для установки в домашнюю или офисную сеть.`, en: `${displayName} with useful features, ready for installation in a home or office network.` })
 
   return (
     <article className={styles.productCard}>
@@ -53,13 +55,13 @@ export const ProductCard = ({ product }: Props) => {
               entityType: 'product',
               entityId: String(product.id),
               title: displayName,
-              description: `Категория: ${getProductCategoryLabel(product.category)}`,
+              description: `${t({ ru: 'Категория:', en: 'Category:' })} ${getProductCategoryLabel(product.category, language)}`,
               priceLabel: `$${product.price.toFixed(2)}`,
-              metaLabel: 'Товар',
+              metaLabel: t({ ru: 'Товар', en: 'Product' }),
               href: productUrl,
             })
           }
-          title={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+          title={isFavorite ? t({ ru: 'Убрать из избранного', en: 'Remove from favorites' }) : t({ ru: 'Добавить в избранное', en: 'Add to favorites' })}
         >
           <FiStar size={16} />
         </button>
@@ -70,15 +72,15 @@ export const ProductCard = ({ product }: Props) => {
           </Link>
         ) : (
           <Link to={productUrl} className={styles.noImage}>
-            Нет фото
+            {t({ ru: 'Нет фото', en: 'No photo' })}
           </Link>
         )}
 
-        <div className={styles.badge}>{getProductAvailabilityLabel(product.availability)}</div>
+        <div className={styles.badge}>{getProductAvailabilityLabel(product.availability, language)}</div>
       </div>
 
       <div className={styles.content}>
-        <span className={styles.category}>{getProductCategoryLabel(product.category)}</span>
+        <span className={styles.category}>{getProductCategoryLabel(product.category, language)}</span>
 
         <h3 className={styles.title}>
           <Link to={productUrl} className={styles.titleLink}>
@@ -100,7 +102,7 @@ export const ProductCard = ({ product }: Props) => {
         </div>
 
         <Link to={productUrl} className={styles.detailsLink}>
-          Подробнее
+          {t({ ru: 'Подробнее', en: 'Details' })}
         </Link>
       </div>
 
@@ -109,7 +111,7 @@ export const ProductCard = ({ product }: Props) => {
           type="button"
           className={`${styles.iconButton} ${likes > 0 ? styles.iconButtonActive : ''}`}
           onClick={() => addLike(favoriteKey)}
-          title="Поставить лайк"
+          title={t({ ru: 'Поставить лайк', en: 'Like' })}
         >
           <FiHeart size={18} />
           {likes > 0 && <span className={styles.likesCount}>{likes}</span>}
@@ -118,14 +120,14 @@ export const ProductCard = ({ product }: Props) => {
         <button
           type="button"
           className={styles.addButton}
-          title="Добавить в корзину"
+          title={t({ ru: 'Добавить в корзину', en: 'Add to cart' })}
           onClick={() => {
             add(product)
-            toast.success('Добавлено в корзину')
+            toast.success(t({ ru: 'Добавлено в корзину', en: 'Added to cart' }))
           }}
         >
           <FiShoppingCart size={18} style={{ marginRight: '0.5rem' }} />
-          Купить
+          {t({ ru: 'Купить', en: 'Buy' })}
         </button>
       </div>
     </article>

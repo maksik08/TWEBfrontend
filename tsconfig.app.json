@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-  "baseUrl": "./src",
-  "paths": {
-    "@/*": ["*"]
-  },
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "ignoreDeprecations": "6.0",
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2022",
     "useDefineForClassFields": true,
@@ -30,7 +30,6 @@
   },
   "include": ["src"]
 
-  
 }
 
 

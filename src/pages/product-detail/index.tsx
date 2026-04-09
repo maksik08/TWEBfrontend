@@ -24,6 +24,7 @@ import {
 import { getProductRatingSummary, StarRating, useProductFeedbackStore } from '@/entities/product-feedback'
 import { useSessionStore } from '@/entities/session/model/session.store'
 import { useProfileStore } from '@/entities/user/model/profile.store'
+import { useLanguage } from '@/shared/i18n'
 import styles from './product-detail.module.css'
 
 const reviewDateFormatter = new Intl.DateTimeFormat('ru-RU', {
@@ -49,6 +50,7 @@ export default function ProductDetailPage() {
   const firstName = useProfileStore((state) => state.firstName)
   const lastName = useProfileStore((state) => state.lastName)
 
+  const { t, language } = useLanguage()
   const defaultAuthor = buildAuthorName(sessionUser?.username, firstName, lastName)
   const [authorName, setAuthorName] = useState(defaultAuthor)
   const [rating, setRating] = useState(0)
@@ -72,9 +74,9 @@ export default function ProductDetailPage() {
   const ratingSummary = getProductRatingSummary(reviews)
   const heroSpecs = product?.specifications?.slice(0, 3) ?? []
   const imageUrl = product ? getProductImageUrl(product) : undefined
-  const displayName = product ? getProductDisplayName(product) : 'Товар'
+  const displayName = product ? getProductDisplayName(product) : t({ ru: 'Товар', en: 'Product' })
   const errorMessage =
-    error instanceof Error ? error.message : 'Не удалось загрузить данные о товаре.'
+    error instanceof Error ? error.message : t({ ru: 'Не удалось загрузить данные о товаре.', en: 'Failed to load product data.' })
 
   const handleAddToCart = () => {
     if (!product) {
@@ -82,7 +84,7 @@ export default function ProductDetailPage() {
     }
 
     add(product)
-    toast.success('Товар добавлен в корзину')
+    toast.success(t({ ru: 'Товар добавлен в корзину', en: 'Product added to cart' }))
   }
 
   const handleToggleFavorite = () => {
@@ -95,9 +97,9 @@ export default function ProductDetailPage() {
       entityType: 'product',
       entityId: String(product.id),
       title: displayName,
-      description: `Категория: ${getProductCategoryLabel(product.category)}`,
+      description: `${t({ ru: 'Категория:', en: 'Category:' })} ${getProductCategoryLabel(product.category, language)}`,
       priceLabel: `$${product.price.toFixed(2)}`,
-      metaLabel: 'Товар',
+      metaLabel: t({ ru: 'Товар', en: 'Product' }),
       href: `/catalog/${product.id}`,
     })
   }
@@ -110,7 +112,7 @@ export default function ProductDetailPage() {
     }
 
     if (!comment.trim()) {
-      toast.error('Напишите комментарий к товару')
+      toast.error(t({ ru: 'Напишите комментарий к товару', en: 'Please write a comment' }))
       return
     }
 
@@ -123,7 +125,7 @@ export default function ProductDetailPage() {
 
     setComment('')
     setRating(0)
-    toast.success('Комментарий опубликован')
+    toast.success(t({ ru: 'Комментарий опубликован', en: 'Comment published' }))
   }
 
   return (
@@ -131,23 +133,23 @@ export default function ProductDetailPage() {
       <div className="container">
         <Link to="/catalog?section=equipment" className={styles.backLink}>
           <FiArrowLeft size={16} />
-          Назад к каталогу
+          {t({ ru: 'Назад к каталогу', en: 'Back to catalog' })}
         </Link>
 
         {isLoading ? (
           <div className={styles.stateCard}>
-            <h1>Загрузка...</h1>
-            <p>Подготавливаем подробную информацию о товаре.</p>
+            <h1>{t({ ru: 'Загрузка...', en: 'Loading...' })}</h1>
+            <p>{t({ ru: 'Подготавливаем подробную информацию о товаре.', en: 'Preparing detailed product information.' })}</p>
           </div>
         ) : isError ? (
           <div className={styles.stateCard}>
-            <h1>Ошибка загрузки</h1>
+            <h1>{t({ ru: 'Ошибка загрузки', en: 'Loading error' })}</h1>
             <p>{errorMessage}</p>
           </div>
         ) : !product || Number.isNaN(productId) ? (
           <div className={styles.stateCard}>
-            <h1>Товар не найден</h1>
-            <p>Возможно, ссылка устарела или товар был удалён из каталога.</p>
+            <h1>{t({ ru: 'Товар не найден', en: 'Product not found' })}</h1>
+            <p>{t({ ru: 'Возможно, ссылка устарела или товар был удалён из каталога.', en: 'The link may be outdated or the product was removed from the catalog.' })}</p>
           </div>
         ) : (
           <>
@@ -156,17 +158,17 @@ export default function ProductDetailPage() {
                 {imageUrl ? (
                   <img src={imageUrl} alt={displayName} className={styles.heroImage} />
                 ) : (
-                  <div className={styles.heroPlaceholder}>Нет изображения</div>
+                  <div className={styles.heroPlaceholder}>{t({ ru: 'Нет изображения', en: 'No image' })}</div>
                 )}
               </div>
 
               <div className={styles.infoPanel}>
                 <div className={styles.badges}>
                   <span className={styles.categoryBadge}>
-                    {getProductCategoryLabel(product.category)}
+                    {getProductCategoryLabel(product.category, language)}
                   </span>
                   <span className={styles.stockBadge}>
-                    {getProductAvailabilityLabel(product.availability)}
+                    {getProductAvailabilityLabel(product.availability, language)}
                   </span>
                 </div>
 
@@ -177,13 +179,13 @@ export default function ProductDetailPage() {
                   <StarRating value={ratingSummary.average} readOnly size="md" />
                   <div>
                     <strong>{ratingSummary.average.toFixed(1)} / 5</strong>
-                    <p>{ratingSummary.total} отзывов</p>
+                    <p>{ratingSummary.total} {t({ ru: 'отзывов', en: 'reviews' })}</p>
                   </div>
                 </div>
 
                 <div className={styles.priceRow}>
                   <div>
-                    <span className={styles.priceLabel}>Цена</span>
+                    <span className={styles.priceLabel}>{t({ ru: 'Цена', en: 'Price' })}</span>
                     <div className={styles.price}>${product.price.toFixed(2)}</div>
                   </div>
                   <div className={styles.skuBox}>
@@ -195,7 +197,7 @@ export default function ProductDetailPage() {
                 <div className={styles.actions}>
                   <button type="button" className={styles.primaryAction} onClick={handleAddToCart}>
                     <FiShoppingCart size={18} />
-                    Добавить в корзину
+                    {t({ ru: 'Добавить в корзину', en: 'Add to cart' })}
                   </button>
                   <button
                     type="button"
@@ -203,7 +205,7 @@ export default function ProductDetailPage() {
                     onClick={handleToggleFavorite}
                   >
                     <FiHeart size={18} />
-                    {isFavorite ? 'В избранном' : 'В избранное'}
+                    {isFavorite ? t({ ru: 'В избранном', en: 'In favorites' }) : t({ ru: 'В избранное', en: 'Add to favorites' })}
                   </button>
                 </div>
 
@@ -222,7 +224,7 @@ export default function ProductDetailPage() {
               <div className={styles.mainColumn}>
                 <article className={styles.card}>
                   <div className={styles.sectionHeader}>
-                    <h2>Описание</h2>
+                    <h2>{t({ ru: 'Описание', en: 'Description' })}</h2>
                   </div>
                   <p className={styles.description}>{product.description}</p>
                   <div className={styles.featureList}>
@@ -236,7 +238,7 @@ export default function ProductDetailPage() {
 
                 <article className={styles.card}>
                   <div className={styles.sectionHeader}>
-                    <h2>Используемые технологии</h2>
+                    <h2>{t({ ru: 'Используемые технологии', en: 'Technologies used' })}</h2>
                   </div>
                   <div className={styles.techList}>
                     {product.technology?.map((item) => (
@@ -249,20 +251,19 @@ export default function ProductDetailPage() {
 
                 <article className={styles.card}>
                   <div className={styles.sectionHeader}>
-                    <h2>Комментарии и рейтинг</h2>
-                    <span>{reviews.length} записей</span>
+                    <h2>{t({ ru: 'Комментарии и рейтинг', en: 'Reviews & rating' })}</h2>
+                    <span>{reviews.length} {t({ ru: 'записей', en: 'entries' })}</span>
                   </div>
 
                   <div className={styles.reviewSummary}>
                     <div className={styles.reviewSummaryScore}>
                       <strong>{ratingSummary.average.toFixed(1)}</strong>
-                      <span>Средняя оценка</span>
+                      <span>{t({ ru: 'Средняя оценка', en: 'Average rating' })}</span>
                     </div>
                     <div className={styles.reviewSummaryMeta}>
                       <StarRating value={ratingSummary.average} readOnly size="md" />
                       <p>
-                        Пользователи оценивают товар по удобству, качеству сборки и полезности
-                        характеристик.
+                        {t({ ru: 'Пользователи оценивают товар по удобству, качеству сборки и полезности характеристик.', en: 'Users rate products by usability, build quality, and usefulness of features.' })}
                       </p>
                     </div>
                   </div>
@@ -270,16 +271,16 @@ export default function ProductDetailPage() {
                   <form className={styles.reviewForm} onSubmit={handleSubmitReview}>
                     <div className={styles.formGrid}>
                       <label className={styles.field}>
-                        <span>Имя</span>
+                        <span>{t({ ru: 'Имя', en: 'Name' })}</span>
                         <input
                           value={authorName}
                           onChange={(event) => setAuthorName(event.target.value)}
-                          placeholder="Ваше имя"
+                          placeholder={t({ ru: 'Ваше имя', en: 'Your name' })}
                         />
                       </label>
 
                       <label className={styles.field}>
-                        <span>Оценка</span>
+                        <span>{t({ ru: 'Оценка', en: 'Rating' })}</span>
                         <div className={styles.ratingInput}>
                           <StarRating value={rating} onChange={setRating} size="lg" showValue />
                         </div>
@@ -287,18 +288,18 @@ export default function ProductDetailPage() {
                     </div>
 
                     <label className={styles.field}>
-                      <span>Комментарий</span>
+                      <span>{t({ ru: 'Комментарий', en: 'Comment' })}</span>
                       <textarea
                         value={comment}
                         onChange={(event) => setComment(event.target.value)}
-                        placeholder="Расскажите, что понравилось: порты, технологии, стабильность работы, комплектация..."
+                        placeholder={t({ ru: 'Расскажите, что понравилось: порты, технологии, стабильность работы, комплектация...', en: 'Tell us what you liked: ports, technologies, stability, package contents...' })}
                         rows={5}
                       />
                     </label>
 
                     <button type="submit" className={styles.reviewButton}>
                       <FiMessageSquare size={18} />
-                      Опубликовать комментарий
+                      {t({ ru: 'Опубликовать комментарий', en: 'Publish comment' })}
                     </button>
                   </form>
 
@@ -325,7 +326,7 @@ export default function ProductDetailPage() {
               <aside className={styles.sidebar}>
                 <article className={styles.card}>
                   <div className={styles.sectionHeader}>
-                    <h2>Характеристики</h2>
+                    <h2>{t({ ru: 'Характеристики', en: 'Specifications' })}</h2>
                   </div>
 
                   <dl className={styles.specList}>
@@ -340,7 +341,7 @@ export default function ProductDetailPage() {
 
                 <article className={styles.card}>
                   <div className={styles.sectionHeader}>
-                    <h2>Комплектация</h2>
+                    <h2>{t({ ru: 'Комплектация', en: 'Package contents' })}</h2>
                   </div>
 
                   <ul className={styles.packageList}>
@@ -352,22 +353,22 @@ export default function ProductDetailPage() {
 
                 <article className={styles.card}>
                   <div className={styles.sectionHeader}>
-                    <h2>Полезная информация</h2>
+                    <h2>{t({ ru: 'Полезная информация', en: 'Useful information' })}</h2>
                   </div>
 
                   <div className={styles.infoTiles}>
                     <div className={styles.infoTile}>
                       <FiPackage size={18} />
                       <div>
-                        <strong>Поставка</strong>
-                        <span>Подготовлен для сетевых инсталляций и быстрого запуска.</span>
+                        <strong>{t({ ru: 'Поставка', en: 'Supply' })}</strong>
+                        <span>{t({ ru: 'Подготовлен для сетевых инсталляций и быстрого запуска.', en: 'Ready for network installations and quick deployment.' })}</span>
                       </div>
                     </div>
 
                     <div className={styles.infoTile}>
                       <FiShield size={18} />
                       <div>
-                        <strong>Гарантия</strong>
+                        <strong>{t({ ru: 'Гарантия', en: 'Warranty' })}</strong>
                         <span>{product.warranty}</span>
                       </div>
                     </div>

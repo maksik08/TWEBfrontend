@@ -5,8 +5,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 
 import { ProductCard, type Product } from '@/entities/product'
 import { fetchProducts } from '@/entities/product/api/products.api'
-import { services } from '@/entities/service/model/mock'
-import { promotions } from '@/entities/promotion/model/mock'
+import { useContentStore } from '@/entities/content/model/content.store'
 import {
   buildFavoriteKey,
   type FavoriteEntityType,
@@ -16,19 +15,11 @@ import {
 import { SearchProducts } from '@/features/search-products'
 import { FilterProducts } from '@/features/filter-products'
 import { ProductsCounter } from '@/features/products-counter'
+import { useLanguage } from '@/shared/i18n'
 import styles from './product-catalog.module.css'
 
 type CatalogSection = 'equipment' | 'services' | 'promotions'
 type CatalogSort = 'default' | 'price-asc' | 'price-desc' | 'likes' | 'date' | 'availability'
-
-const SORT_OPTIONS: { value: CatalogSort; label: string }[] = [
-  { value: 'default', label: 'По умолчанию' },
-  { value: 'price-asc', label: 'Цена: по возрастанию' },
-  { value: 'price-desc', label: 'Цена: по убыванию' },
-  { value: 'likes', label: 'Популярность' },
-  { value: 'date', label: 'Дата обновления' },
-  { value: 'availability', label: 'Наличие' },
-]
 
 const AVAILABILITY_ORDER: Record<string, number> = {
   'in-stock': 0,
@@ -50,8 +41,8 @@ type CatalogInfoCardProps = {
 const isCatalogSection = (value: string | null): value is CatalogSection =>
   value === 'equipment' || value === 'services' || value === 'promotions'
 
-const isCatalogSort = (value: string | null): value is CatalogSort =>
-  SORT_OPTIONS.some((opt) => opt.value === value)
+const isCatalogSort = (value: string | null, options: { value: CatalogSort }[]): value is CatalogSort =>
+  options.some((opt) => opt.value === value)
 
 const CatalogInfoCard = ({
   entityType,
@@ -63,6 +54,7 @@ const CatalogInfoCard = ({
   href,
   actionLabel,
 }: CatalogInfoCardProps) => {
+  const { t } = useLanguage()
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
   const favoriteKey = buildFavoriteKey(entityType, entityId)
   const isFavorite = useFavoritesStore((state) =>
@@ -88,7 +80,7 @@ const CatalogInfoCard = ({
               href,
             })
           }
-          title={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+          title={isFavorite ? t({ ru: 'Убрать из избранного', en: 'Remove from favorites' }) : t({ ru: 'Добавить в избранное', en: 'Add to favorites' })}
         >
           <FiStar size={16} />
         </button>
@@ -106,10 +98,21 @@ const CatalogInfoCard = ({
 }
 
 export const ProductCatalog = () => {
+  const { t } = useLanguage()
+  const { services, promotions } = useContentStore()
   const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
   const likes = useFavoritesStore((state) => state.likes)
+
+  const SORT_OPTIONS: { value: CatalogSort; label: string }[] = [
+    { value: 'default', label: t({ ru: 'По умолчанию', en: 'Default' }) },
+    { value: 'price-asc', label: t({ ru: 'Цена: по возрастанию', en: 'Price: low to high' }) },
+    { value: 'price-desc', label: t({ ru: 'Цена: по убыванию', en: 'Price: high to low' }) },
+    { value: 'likes', label: t({ ru: 'Популярность', en: 'Popularity' }) },
+    { value: 'date', label: t({ ru: 'Дата обновления', en: 'Update date' }) },
+    { value: 'availability', label: t({ ru: 'Наличие', en: 'Availability' }) },
+  ]
 
   const { data: products = [], isLoading, isError, error } = useQuery<Product[]>({
     queryKey: ['products'],
@@ -120,7 +123,7 @@ export const ProductCatalog = () => {
   const sectionParam = searchParams.get('section')
   const sortParam = searchParams.get('sort')
   const activeSection: CatalogSection = isCatalogSection(sectionParam) ? sectionParam : 'equipment'
-  const activeSort: CatalogSort = isCatalogSort(sortParam) ? sortParam : 'default'
+  const activeSort: CatalogSort = isCatalogSort(sortParam, SORT_OPTIONS) ? sortParam : 'default'
 
   const updateParams = (nextSection: CatalogSection, nextSort: CatalogSort = activeSort) => {
     const next = new URLSearchParams()
@@ -171,7 +174,7 @@ export const ProductCatalog = () => {
   const errorMessage =
     error instanceof Error
       ? error.message
-      : 'Не удалось загрузить товары. Попробуйте позже.'
+      : t({ ru: 'Не удалось загрузить товары. Попробуйте позже.', en: 'Failed to load products. Please try again.' })
 
   return (
     <section className={styles.catalog}>
@@ -185,7 +188,7 @@ export const ProductCatalog = () => {
               }`}
               onClick={() => updateParams('equipment')}
             >
-              Оборудование
+              {t({ ru: 'Оборудование', en: 'Equipment' })}
             </button>
             <button
               type="button"
@@ -194,7 +197,7 @@ export const ProductCatalog = () => {
               }`}
               onClick={() => updateParams('services', 'default')}
             >
-              Услуги
+              {t({ ru: 'Услуги', en: 'Services' })}
             </button>
             <button
               type="button"
@@ -203,7 +206,7 @@ export const ProductCatalog = () => {
               }`}
               onClick={() => updateParams('promotions', 'default')}
             >
-              Акции
+              {t({ ru: 'Акции', en: 'Promotions' })}
             </button>
           </div>
 
@@ -215,12 +218,12 @@ export const ProductCatalog = () => {
 
               <div className={styles.filters}>
                 <div className={styles.filterGroup}>
-                  <label className={styles.filterLabel}>Категория</label>
+                  <label className={styles.filterLabel}>{t({ ru: 'Категория', en: 'Category' })}</label>
                   <FilterProducts current={category} setCategory={setCategory} />
                 </div>
 
                 <div className={styles.filterGroup}>
-                  <label className={styles.filterLabel} htmlFor="catalog-sort">Сортировка</label>
+                  <label className={styles.filterLabel} htmlFor="catalog-sort">{t({ ru: 'Сортировка', en: 'Sort' })}</label>
                   <select
                     id="catalog-sort"
                     className={styles.sortSelect}
@@ -242,11 +245,11 @@ export const ProductCatalog = () => {
         {activeSection === 'equipment' ? (
           isLoading ? (
             <div className={styles.emptyState}>
-              <h3>Загрузка...</h3>
+              <h3>{t({ ru: 'Загрузка...', en: 'Loading...' })}</h3>
             </div>
           ) : isError ? (
             <div className={styles.emptyState}>
-              <h3>Ошибка сети</h3>
+              <h3>{t({ ru: 'Ошибка сети', en: 'Network error' })}</h3>
               <p>{errorMessage}</p>
             </div>
           ) : filteredProducts.length > 0 ? (
@@ -268,8 +271,8 @@ export const ProductCatalog = () => {
             </>
           ) : (
             <div className={styles.emptyState}>
-              <h3>Ничего не найдено</h3>
-              <p>Попробуйте изменить параметры поиска или фильтрации</p>
+              <h3>{t({ ru: 'Ничего не найдено', en: 'Nothing found' })}</h3>
+              <p>{t({ ru: 'Попробуйте изменить параметры поиска или фильтрации', en: 'Try changing the search or filter parameters' })}</p>
             </div>
           )
         ) : activeSection === 'services' ? (
@@ -280,19 +283,19 @@ export const ProductCatalog = () => {
                   key={service.id}
                   entityType="service"
                   entityId={service.id}
-                  badge="Услуга"
+                  badge={t({ ru: 'Услуга', en: 'Service' })}
                   title={service.name}
                   description={service.description}
                   priceLabel={`от $${service.price.toFixed(2)}`}
                   href="/cart?services=1"
-                  actionLabel={service.ctaLabel ?? 'Перейти к расчёту'}
+                  actionLabel={service.ctaLabel ?? t({ ru: 'Перейти к расчёту', en: 'Go to calculator' })}
                 />
               ))}
             </div>
 
             <div className={styles.catalogFooter}>
               <div className={styles.catalogSummary}>
-                Подберите услугу и сразу переходите к расчёту стоимости монтажа.
+                {t({ ru: 'Подберите услугу и сразу переходите к расчёту стоимости монтажа.', en: 'Select a service and proceed directly to installation cost calculation.' })}
               </div>
             </div>
           </>
@@ -309,14 +312,14 @@ export const ProductCatalog = () => {
                   description={promotion.description}
                   priceLabel={promotion.discountLabel}
                   href="/cart?services=1"
-                  actionLabel="Открыть калькулятор"
+                  actionLabel={t({ ru: 'Открыть калькулятор', en: 'Open calculator' })}
                 />
               ))}
             </div>
 
             <div className={styles.catalogFooter}>
               <div className={styles.catalogSummary}>
-                Акции можно использовать как ориентир перед расчётом проекта и стоимости монтажа.
+                {t({ ru: 'Акции можно использовать как ориентир перед расчётом проекта и стоимости монтажа.', en: 'Promotions can be used as a guide before calculating project and installation costs.' })}
               </div>
             </div>
           </>

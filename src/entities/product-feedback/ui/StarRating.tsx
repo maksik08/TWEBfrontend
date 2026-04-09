@@ -1,4 +1,5 @@
 import { FaStar } from 'react-icons/fa'
+import { useLanguage } from '@/shared/i18n'
 import styles from './star-rating.module.css'
 
 type StarRatingSize = 'sm' | 'md' | 'lg'
@@ -22,11 +23,12 @@ export const StarRating = ({
   size = 'md',
   showValue = false,
 }: StarRatingProps) => {
+  const { t } = useLanguage()
   const safeValue = clampValue(value)
 
   return (
     <div className={`${styles.rating} ${styles[size]}`}>
-      <div className={styles.stars} aria-label={`Рейтинг ${safeValue} из 5`}>
+      <div className={styles.stars} aria-label={t({ ru: `Рейтинг ${safeValue} из 5`, en: `Rating ${safeValue} out of 5` })}>
         {Array.from({ length: TOTAL_STARS }, (_, index) => {
           const starValue = index + 1
           const isActive = safeValue >= starValue
@@ -49,8 +51,8 @@ export const StarRating = ({
               type="button"
               className={`${styles.starButton} ${isActive ? styles.active : ''}`}
               onClick={() => onChange?.(starValue)}
-              aria-label={`Поставить ${starValue} из 5`}
-              title={`${starValue} из 5`}
+              aria-label={t({ ru: `Поставить ${starValue} из 5`, en: `Rate ${starValue} out of 5` })}
+              title={t({ ru: `${starValue} из 5`, en: `${starValue} out of 5` })}
             >
               <FaStar />
             </button>
@@ -63,7 +65,7 @@ export const StarRating = ({
           type="button"
           className={styles.resetButton}
           onClick={() => onChange?.(0)}
-          title="Сбросить оценку"
+          title={t({ ru: 'Сбросить оценку', en: 'Reset rating' })}
         >
           0
         </button>

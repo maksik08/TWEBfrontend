@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useProfileStore } from '@/entities/user/model/profile.store'
+import { useLanguage } from '@/shared/i18n'
 import styles from './balance.module.css'
 
 const formatMoney = (value: number) => `$${value.toFixed(2)}`
@@ -18,63 +19,64 @@ export default function BalancePage() {
   const purchaseHistory = useProfileStore((s) => s.purchaseHistory)
   const topUp = useProfileStore((s) => s.topUp)
 
+  const { t } = useLanguage()
   const [amount, setAmount] = useState<number>(25)
 
   return (
     <div className={styles.page}>
       <div className="container">
         <div className={styles.header}>
-          <h1 className={styles.title}>Пополнение баланса</h1>
+          <h1 className={styles.title}>{t({ ru: 'Пополнение баланса', en: 'Top up balance' })}</h1>
           <p className={styles.subtitle}>
-            Баланс используется для оплаты заказов. Пополните его любым удобным способом.
+            {t({ ru: 'Баланс используется для оплаты заказов. Пополните его любым удобным способом.', en: 'Balance is used to pay for orders. Top it up in any convenient way.' })}
           </p>
         </div>
 
         <div className={styles.layout}>
           <section className={styles.card}>
-            <h2 className={styles.sectionTitle}>Ваш баланс</h2>
+            <h2 className={styles.sectionTitle}>{t({ ru: 'Ваш баланс', en: 'Your balance' })}</h2>
             <div className={styles.balanceValue}>{formatMoney(balance)}</div>
 
             <div className={styles.stats}>
               <div className={styles.statItem}>
-                <span>Покупок</span>
+                <span>{t({ ru: 'Покупок', en: 'Purchases' })}</span>
                 <strong>{stats.orders}</strong>
               </div>
               <div className={styles.statItem}>
-                <span>Товаров</span>
+                <span>{t({ ru: 'Товаров', en: 'Items' })}</span>
                 <strong>{stats.items}</strong>
               </div>
               <div className={styles.statItem}>
-                <span>Потрачено</span>
+                <span>{t({ ru: 'Потрачено', en: 'Spent' })}</span>
                 <strong>{formatMoney(stats.spent)}</strong>
               </div>
             </div>
 
             {stats.lastPurchaseAt && (
               <p className={styles.lastPurchase}>
-                Последняя покупка: {formatDate(stats.lastPurchaseAt)}
+                {t({ ru: 'Последняя покупка:', en: 'Last purchase:' })} {formatDate(stats.lastPurchaseAt)}
               </p>
             )}
           </section>
 
           <section className={styles.card}>
-            <h2 className={styles.sectionTitle}>Пополнить</h2>
+            <h2 className={styles.sectionTitle}>{t({ ru: 'Пополнить', en: 'Top up' })}</h2>
             <form
               className={styles.form}
               onSubmit={(event) => {
                 event.preventDefault()
                 if (!Number.isFinite(amount) || amount <= 0) {
-                  toast.error('Введите корректную сумму')
+                  toast.error(t({ ru: 'Введите корректную сумму', en: 'Enter a valid amount' }))
                   return
                 }
 
                 topUp(amount)
-                toast.success(`Баланс пополнен на ${formatMoney(amount)}`)
+                toast.success(`${t({ ru: 'Баланс пополнен на', en: 'Balance topped up by' })} ${formatMoney(amount)}`)
                 setAmount(0)
               }}
             >
               <label className={styles.label} htmlFor="balance-amount">
-                Сумма
+                {t({ ru: 'Сумма', en: 'Amount' })}
               </label>
               <div className={styles.inputRow}>
                 <input
@@ -87,7 +89,7 @@ export default function BalancePage() {
                   onChange={(e) => setAmount(Number(e.target.value))}
                 />
                 <button className={styles.submit} type="submit">
-                  Пополнить
+                  {t({ ru: 'Пополнить', en: 'Top up' })}
                 </button>
               </div>
 
@@ -105,19 +107,19 @@ export default function BalancePage() {
               </div>
             </form>
 
-            <p className={styles.note}>Средства начисляются мгновенно (демо).</p>
+            <p className={styles.note}>{t({ ru: 'Средства начисляются мгновенно (демо).', en: 'Funds are credited instantly (demo).' })}</p>
           </section>
         </div>
 
         <section className={styles.historySection}>
           <div className={styles.historyHeader}>
-            <h2 className={styles.sectionTitle}>История покупок</h2>
-            <span className={styles.historyCount}>Всего заказов: {purchaseHistory.length}</span>
+            <h2 className={styles.sectionTitle}>{t({ ru: 'История покупок', en: 'Purchase history' })}</h2>
+            <span className={styles.historyCount}>{t({ ru: 'Всего заказов:', en: 'Total orders:' })} {purchaseHistory.length}</span>
           </div>
 
           {purchaseHistory.length === 0 ? (
             <div className={styles.emptyHistory}>
-              История пока пустая. После оплаты в корзине здесь появятся ваши покупки.
+              {t({ ru: 'История пока пустая. После оплаты в корзине здесь появятся ваши покупки.', en: 'History is empty. After paying in the cart, your purchases will appear here.' })}
             </div>
           ) : (
             <div className={styles.historyList}>
@@ -125,11 +127,11 @@ export default function BalancePage() {
                 <article key={entry.id} className={styles.historyCard}>
                   <div className={styles.historyTop}>
                     <div>
-                      <h3 className={styles.historyTitle}>Заказ на {formatMoney(entry.total)}</h3>
+                      <h3 className={styles.historyTitle}>{t({ ru: 'Заказ на', en: 'Order for' })} {formatMoney(entry.total)}</h3>
                       <p className={styles.historyDate}>{formatDate(entry.purchasedAt)}</p>
                     </div>
                     <div className={styles.historyMeta}>
-                      <span>{entry.itemsCount} шт.</span>
+                      <span>{entry.itemsCount} {t({ ru: 'шт.', en: 'pcs.' })}</span>
                       <strong>{formatMoney(entry.total)}</strong>
                     </div>
                   </div>

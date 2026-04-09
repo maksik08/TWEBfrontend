@@ -9,30 +9,10 @@ import type {
   ObjectType,
 } from '@/entities/calculator/Model/types'
 import { useProfileStore } from '@/entities/user/model/profile.store'
+import { useLanguage } from '@/shared/i18n'
 import styles from './cart.module.css'
 
 const formatMoney = (value: number) => `$${value.toFixed(2)}`
-
-const objectOptions: Array<{ value: ObjectType; label: string }> = [
-  { value: 'flat', label: 'Квартира' },
-  { value: 'house', label: 'Дом' },
-  { value: 'small_office', label: 'Малый офис' },
-  { value: 'medium_office', label: 'Средний офис' },
-]
-
-const installationOptions: Array<{ value: InstallationType; label: string }> = [
-  { value: 'wireless', label: 'Беспроводной монтаж' },
-  { value: 'fiber', label: 'Оптика' },
-  { value: 'copper', label: 'Медная сеть' },
-]
-
-const workOptions = [
-  { id: 'survey', label: 'Обследование объекта' },
-  { id: 'design', label: 'Проектирование' },
-  { id: 'mounting', label: 'Монтаж линий' },
-  { id: 'setup', label: 'Настройка оборудования' },
-  { id: 'testing', label: 'Тестирование и сдача' },
-]
 
 const createInitialServiceForm = (): Omit<CalculateRequest, 'selectedEquipment'> => ({
   objectType: 'flat',
@@ -46,6 +26,7 @@ const createInitialServiceForm = (): Omit<CalculateRequest, 'selectedEquipment'>
 })
 
 export default function CartPage() {
+  const { t } = useLanguage()
   const [searchParams] = useSearchParams()
   const items = useCartStore((s) => s.items)
   const setQuantity = useCartStore((s) => s.setQuantity)
@@ -83,6 +64,27 @@ export default function CartPage() {
     })
   }, [cartEquipment, serviceForm, servicesEnabled])
 
+  const objectOptions: Array<{ value: ObjectType; label: string }> = [
+    { value: 'flat', label: t({ ru: 'Квартира', en: 'Apartment' }) },
+    { value: 'house', label: t({ ru: 'Дом', en: 'House' }) },
+    { value: 'small_office', label: t({ ru: 'Малый офис', en: 'Small office' }) },
+    { value: 'medium_office', label: t({ ru: 'Средний офис', en: 'Medium office' }) },
+  ]
+
+  const installationOptions: Array<{ value: InstallationType; label: string }> = [
+    { value: 'wireless', label: t({ ru: 'Беспроводной монтаж', en: 'Wireless installation' }) },
+    { value: 'fiber', label: t({ ru: 'Оптика', en: 'Fiber' }) },
+    { value: 'copper', label: t({ ru: 'Медная сеть', en: 'Copper network' }) },
+  ]
+
+  const workOptions = [
+    { id: 'survey', label: t({ ru: 'Обследование объекта', en: 'Site survey' }) },
+    { id: 'design', label: t({ ru: 'Проектирование', en: 'Design' }) },
+    { id: 'mounting', label: t({ ru: 'Монтаж линий', en: 'Cable installation' }) },
+    { id: 'setup', label: t({ ru: 'Настройка оборудования', en: 'Equipment setup' }) },
+    { id: 'testing', label: t({ ru: 'Тестирование и сдача', en: 'Testing & handover' }) },
+  ]
+
   const goodsTotal = Math.max(0, subtotal - Math.max(0, discount))
   const servicesTotal = serviceCalculation?.total ?? 0
   const total = goodsTotal + servicesTotal
@@ -107,14 +109,14 @@ export default function CartPage() {
     <div className={styles.page}>
       <div className="container">
         <div className={styles.titleRow}>
-          <h1 className={styles.title}>Корзина</h1>
-          <span className={styles.muted}>Позиций: {count}</span>
+          <h1 className={styles.title}>{t({ ru: 'Корзина', en: 'Cart' })}</h1>
+          <span className={styles.muted}>{t({ ru: 'Позиций:', en: 'Items:' })} {count}</span>
         </div>
 
         <div className={styles.layout}>
           <div className={styles.mainColumn}>
             {items.length === 0 ? (
-              <p className={styles.muted}>Корзина пуста.</p>
+              <p className={styles.muted}>{t({ ru: 'Корзина пуста.', en: 'Cart is empty.' })}</p>
             ) : (
               <>
                 <div className={styles.list}>
@@ -127,8 +129,8 @@ export default function CartPage() {
                       <div>
                         <div className={styles.name}>{item.product.title || item.product.name}</div>
                         <div className={styles.meta}>
-                          <span>Категория: {item.product.category}</span>
-                          <span>За шт.: {formatMoney(item.product.price)}</span>
+                          <span>{t({ ru: 'Категория:', en: 'Category:' })} {item.product.category}</span>
+                          <span>{t({ ru: 'За шт.:', en: 'Per unit:' })} {formatMoney(item.product.price)}</span>
                         </div>
                       </div>
 
@@ -156,7 +158,7 @@ export default function CartPage() {
                         </div>
 
                         <button className={styles.remove} onClick={() => remove(item.product.id)}>
-                          Удалить
+                          {t({ ru: 'Удалить', en: 'Remove' })}
                         </button>
                       </div>
                     </div>
@@ -166,10 +168,9 @@ export default function CartPage() {
                 <section className={styles.servicesPanel}>
                   <div className={styles.servicesHeader}>
                     <div>
-                      <h2 className={styles.sectionTitle}>Калькулятор услуг</h2>
+                      <h2 className={styles.sectionTitle}>{t({ ru: 'Калькулятор услуг', en: 'Services calculator' })}</h2>
                       <p className={styles.sectionText}>
-                        Дополнительные услуги считаются по оборудованию, которое уже лежит в
-                        корзине. Доставка обязательна и всегда входит в сервисную часть заказа.
+                        {t({ ru: 'Дополнительные услуги считаются по оборудованию, которое уже лежит в корзине. Доставка обязательна и всегда входит в сервисную часть заказа.', en: 'Additional services are calculated based on equipment already in the cart. Delivery is mandatory and always included in the service part of the order.' })}
                       </p>
                     </div>
 
@@ -179,7 +180,7 @@ export default function CartPage() {
                         checked={servicesEnabled}
                         onChange={(event) => setServicesEnabled(event.target.checked)}
                       />
-                      <span>Добавить услуги и установку</span>
+                      <span>{t({ ru: 'Добавить услуги и установку', en: 'Add services and installation' })}</span>
                     </label>
                   </div>
 
@@ -190,14 +191,14 @@ export default function CartPage() {
                           <div key={equipment.equipmentId} className={styles.serviceEquipmentItem}>
                             <span>{equipment.title}</span>
                             <strong>
-                              {equipment.quantity} шт. · {formatMoney(equipment.unitPrice)}
+                              {equipment.quantity} {t({ ru: 'шт.', en: 'pcs.' })} · {formatMoney(equipment.unitPrice)}
                             </strong>
                           </div>
                         ))}
                       </div>
 
                       <div className={styles.optionGroup}>
-                        <h3 className={styles.optionTitle}>Тип объекта</h3>
+                        <h3 className={styles.optionTitle}>{t({ ru: 'Тип объекта', en: 'Object type' })}</h3>
                         <div className={styles.optionPills}>
                           {objectOptions.map((option) => (
                             <button
@@ -220,7 +221,7 @@ export default function CartPage() {
                       </div>
 
                       <div className={styles.optionGroup}>
-                        <h3 className={styles.optionTitle}>Формат установки</h3>
+                        <h3 className={styles.optionTitle}>{t({ ru: 'Формат установки', en: 'Installation format' })}</h3>
                         <div className={styles.optionPills}>
                           {installationOptions.map((option) => (
                             <button
@@ -245,7 +246,7 @@ export default function CartPage() {
                       </div>
 
                       <div className={styles.optionGroup}>
-                        <h3 className={styles.optionTitle}>Опциональные функции</h3>
+                        <h3 className={styles.optionTitle}>{t({ ru: 'Опциональные функции', en: 'Optional features' })}</h3>
                         <div className={styles.checkGrid}>
                           {workOptions.map((work) => (
                             <label key={work.id} className={styles.checkItem}>
@@ -262,7 +263,7 @@ export default function CartPage() {
 
                       <div className={styles.serviceFields}>
                         <label className={styles.field}>
-                          <span>Штатных сотрудников</span>
+                          <span>{t({ ru: 'Штатных сотрудников', en: 'Staff count' })}</span>
                           <input
                             type="number"
                             min={0}
@@ -278,7 +279,7 @@ export default function CartPage() {
                         </label>
 
                         <label className={styles.field}>
-                          <span>Ставка за сотрудника</span>
+                          <span>{t({ ru: 'Ставка за сотрудника', en: 'Staff rate' })}</span>
                           <input
                             type="number"
                             min={0}
@@ -294,7 +295,7 @@ export default function CartPage() {
                         </label>
 
                         <label className={styles.field}>
-                          <span>Стоимость установки</span>
+                          <span>{t({ ru: 'Стоимость установки', en: 'Installation cost' })}</span>
                           <input
                             type="number"
                             min={0}
@@ -310,7 +311,7 @@ export default function CartPage() {
                         </label>
 
                         <label className={styles.field}>
-                          <span>Доставка (обязательно)</span>
+                          <span>{t({ ru: 'Доставка (обязательно)', en: 'Delivery (required)' })}</span>
                           <input
                             type="number"
                             min={0}
@@ -326,7 +327,7 @@ export default function CartPage() {
                         </label>
 
                         <label className={`${styles.field} ${styles.fieldWide}`}>
-                          <span>Комментарии</span>
+                          <span>{t({ ru: 'Комментарии', en: 'Comments' })}</span>
                           <textarea
                             rows={4}
                             value={serviceForm.comment ?? ''}
@@ -336,7 +337,7 @@ export default function CartPage() {
                                 comment: event.target.value,
                               }))
                             }
-                            placeholder="Комментарии сохраняются для заявки, но не участвуют в расчёте."
+                            placeholder={t({ ru: 'Комментарии сохраняются для заявки, но не участвуют в расчёте.', en: 'Comments are saved for the request but do not affect the calculation.' })}
                           />
                         </label>
                       </div>
@@ -344,33 +345,33 @@ export default function CartPage() {
                       {serviceCalculation && (
                         <div className={styles.serviceBreakdown}>
                           <div className={styles.breakdownRow}>
-                            <span>База по объекту</span>
+                            <span>{t({ ru: 'База по объекту', en: 'Object base' })}</span>
                             <strong>{formatMoney(serviceCalculation.breakdown.objectBase)}</strong>
                           </div>
                           <div className={styles.breakdownRow}>
-                            <span>Формат установки</span>
+                            <span>{t({ ru: 'Формат установки', en: 'Installation format' })}</span>
                             <strong>
                               {formatMoney(serviceCalculation.breakdown.installationType)}
                             </strong>
                           </div>
                           <div className={styles.breakdownRow}>
-                            <span>Опциональные функции</span>
+                            <span>{t({ ru: 'Опциональные функции', en: 'Optional features' })}</span>
                             <strong>{formatMoney(serviceCalculation.breakdown.works)}</strong>
                           </div>
                           <div className={styles.breakdownRow}>
-                            <span>Позиции из корзины</span>
+                            <span>{t({ ru: 'Позиции из корзины', en: 'Cart items' })}</span>
                             <strong>{formatMoney(serviceCalculation.breakdown.equipment)}</strong>
                           </div>
                           <div className={styles.breakdownRow}>
-                            <span>Штатные сотрудники</span>
+                            <span>{t({ ru: 'Штатные сотрудники', en: 'Staff' })}</span>
                             <strong>{formatMoney(serviceCalculation.breakdown.staff)}</strong>
                           </div>
                           <div className={styles.breakdownRow}>
-                            <span>Установка</span>
+                            <span>{t({ ru: 'Установка', en: 'Installation' })}</span>
                             <strong>{formatMoney(serviceCalculation.breakdown.installation)}</strong>
                           </div>
                           <div className={styles.breakdownRow}>
-                            <span>Доставка</span>
+                            <span>{t({ ru: 'Доставка', en: 'Delivery' })}</span>
                             <strong>{formatMoney(serviceCalculation.breakdown.delivery)}</strong>
                           </div>
                         </div>
@@ -378,8 +379,7 @@ export default function CartPage() {
                     </>
                   ) : (
                     <p className={styles.serviceHint}>
-                      Включите блок выше, если хотите сразу посчитать установку, сотрудников и
-                      обязательную доставку к текущему заказу.
+                      {t({ ru: 'Включите блок выше, если хотите сразу посчитать установку, сотрудников и обязательную доставку к текущему заказу.', en: 'Enable the block above if you want to calculate installation, staff, and mandatory delivery costs for your current order.' })}
                     </p>
                   )}
                 </section>
@@ -389,12 +389,12 @@ export default function CartPage() {
 
           <aside className={styles.summary}>
             <div className={styles.row}>
-              <span className={styles.muted}>Сумма товаров</span>
+              <span className={styles.muted}>{t({ ru: 'Сумма товаров', en: 'Subtotal' })}</span>
               <span>{formatMoney(subtotal)}</span>
             </div>
 
             <div className={styles.row}>
-              <span className={styles.muted}>Скидка</span>
+              <span className={styles.muted}>{t({ ru: 'Скидка', en: 'Discount' })}</span>
               <input
                 className={styles.input}
                 type="number"
@@ -406,22 +406,22 @@ export default function CartPage() {
             </div>
 
             <div className={styles.row}>
-              <span className={styles.muted}>Итого по товарам</span>
+              <span className={styles.muted}>{t({ ru: 'Итого по товарам', en: 'Goods total' })}</span>
               <span>{formatMoney(goodsTotal)}</span>
             </div>
 
             <div className={styles.row}>
-              <span className={styles.muted}>Услуги</span>
+              <span className={styles.muted}>{t({ ru: 'Услуги', en: 'Services' })}</span>
               <span>{formatMoney(servicesTotal)}</span>
             </div>
 
             <div className={`${styles.row} ${styles.totalRow}`}>
-              <span>Итого</span>
+              <span>{t({ ru: 'Итого', en: 'Total' })}</span>
               <span>{formatMoney(total)}</span>
             </div>
 
             <div className={styles.row}>
-              <span className={styles.muted}>Баланс</span>
+              <span className={styles.muted}>{t({ ru: 'Баланс', en: 'Balance' })}</span>
               <span className={hasEnoughBalance ? styles.balanceOk : styles.balanceLow}>
                 {formatMoney(balance)}
               </span>
@@ -429,7 +429,7 @@ export default function CartPage() {
 
             {items.length > 0 && !hasEnoughBalance && (
               <p className={styles.balanceHint}>
-                Недостаточно средств. <Link to="/balance">Пополнить баланс</Link>
+                {t({ ru: 'Недостаточно средств.', en: 'Insufficient funds.' })} <Link to="/balance">{t({ ru: 'Пополнить баланс', en: 'Top up balance' })}</Link>
               </p>
             )}
 
@@ -438,7 +438,7 @@ export default function CartPage() {
               disabled={items.length === 0 || total === 0 || !hasEnoughBalance}
               onClick={() => {
                 if (!hasEnoughBalance) {
-                  toast.error('Недостаточно средств для оплаты')
+                  toast.error(t({ ru: 'Недостаточно средств для оплаты', en: 'Insufficient funds for payment' }))
                   return
                 }
 
@@ -453,7 +453,7 @@ export default function CartPage() {
                   if (serviceCalculation.breakdown.delivery > 0) {
                     purchaseLines.push({
                       productId: 900001,
-                      title: 'Доставка оборудования',
+                      title: t({ ru: 'Доставка оборудования', en: 'Equipment delivery' }),
                       quantity: 1,
                       unitPrice: serviceCalculation.breakdown.delivery,
                     })
@@ -465,7 +465,7 @@ export default function CartPage() {
                   if (extraServices > 0) {
                     purchaseLines.push({
                       productId: 900002,
-                      title: 'Услуги установки и настройки',
+                      title: t({ ru: 'Услуги установки и настройки', en: 'Installation and setup services' }),
                       quantity: 1,
                       unitPrice: extraServices,
                     })
@@ -476,12 +476,12 @@ export default function CartPage() {
                   total,
                   lines: purchaseLines,
                 })
-                toast.success(`Оплачено ${formatMoney(total)} (демо)`)
+                toast.success(`${t({ ru: 'Оплачено', en: 'Paid' })} ${formatMoney(total)} (demo)`)
                 clear()
                 resetCartAddons()
               }}
             >
-              Оплатить
+              {t({ ru: 'Оплатить', en: 'Pay' })}
             </button>
 
             {items.length > 0 && (
@@ -493,7 +493,7 @@ export default function CartPage() {
                 }}
                 style={{ marginTop: '0.75rem' }}
               >
-                Очистить корзину
+                {t({ ru: 'Очистить корзину', en: 'Clear cart' })}
               </button>
             )}
           </aside>

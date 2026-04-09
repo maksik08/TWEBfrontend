@@ -16,6 +16,7 @@ import toast from 'react-hot-toast'
 import { useProfileStore } from '@/entities/user/model/profile.store'
 import { useSessionStore } from '@/entities/session/model/session.store'
 import { useFavoritesStore } from '@/entities/favorites/model/favorites.store'
+import { useLanguage } from '@/shared/i18n'
 import styles from './profile.module.css'
 
 type Tab = 'account' | 'orders' | 'favorites' | 'settings'
@@ -43,6 +44,7 @@ export default function ProfilePage() {
 
   const favorites = useFavoritesStore((s) => s.favorites)
 
+  const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState<Tab>('account')
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
 
@@ -57,16 +59,16 @@ export default function ProfilePage() {
 
   const displayName = sessionUser?.username ?? `${firstName} ${lastName}`.trim()
   const initials = displayName.slice(0, 2).toUpperCase() || 'U'
-  const roleLabel = sessionUser?.role === 'admin' ? 'Администратор' : 'Клиент'
+  const roleLabel = sessionUser?.role === 'admin' ? t({ ru: 'Администратор', en: 'Administrator' }) : t({ ru: 'Клиент', en: 'Client' })
   const roleClass = sessionUser?.role === 'admin' ? styles.roleAdmin : styles.roleClient
 
   const handleSaveProfile = () => {
     if (!editFirstName.trim() || !editLastName.trim()) {
-      toast.error('Имя и фамилия не могут быть пустыми')
+      toast.error(t({ ru: 'Имя и фамилия не могут быть пустыми', en: 'First and last name cannot be empty' }))
       return
     }
     updateProfile({ firstName: editFirstName, lastName: editLastName, phone: editPhone })
-    toast.success('Профиль обновлён')
+    toast.success(t({ ru: 'Профиль обновлён', en: 'Profile updated' }))
     setIsEditing(false)
   }
 
@@ -78,10 +80,10 @@ export default function ProfilePage() {
   }
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-    { id: 'account', label: 'Аккаунт', icon: <FiUser size={17} /> },
-    { id: 'orders', label: `Заказы (${purchaseHistory.length})`, icon: <FiShoppingBag size={17} /> },
-    { id: 'favorites', label: `Избранное (${favorites.length})`, icon: <FiHeart size={17} /> },
-    { id: 'settings', label: 'Настройки', icon: <FiSettings size={17} /> },
+    { id: 'account', label: t({ ru: 'Аккаунт', en: 'Account' }), icon: <FiUser size={17} /> },
+    { id: 'orders', label: `${t({ ru: 'Заказы', en: 'Orders' })} (${purchaseHistory.length})`, icon: <FiShoppingBag size={17} /> },
+    { id: 'favorites', label: `${t({ ru: 'Избранное', en: 'Favorites' })} (${favorites.length})`, icon: <FiHeart size={17} /> },
+    { id: 'settings', label: t({ ru: 'Настройки', en: 'Settings' }), icon: <FiSettings size={17} /> },
   ]
 
   return (
@@ -89,8 +91,8 @@ export default function ProfilePage() {
       <div className="container">
         {/* Page header */}
         <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>Личный кабинет</h1>
-          <p className={styles.pageSubtitle}>Управляйте профилем, заказами и настройками</p>
+          <h1 className={styles.pageTitle}>{t({ ru: 'Личный кабинет', en: 'My account' })}</h1>
+          <p className={styles.pageSubtitle}>{t({ ru: 'Управляйте профилем, заказами и настройками', en: 'Manage your profile, orders, and settings' })}</p>
         </div>
 
         <div className={styles.layout}>
@@ -113,9 +115,9 @@ export default function ProfilePage() {
 
             <div className={styles.sidebarBalance}>
               <FiDollarSign size={15} />
-              <span>Баланс:</span>
+              <span>{t({ ru: 'Баланс:', en: 'Balance:' })}</span>
               <strong>{formatMoney(balance)}</strong>
-              <Link to="/balance" className={styles.topUpLink}>Пополнить</Link>
+              <Link to="/balance" className={styles.topUpLink}>{t({ ru: 'Пополнить', en: 'Top up' })}</Link>
             </div>
 
             <nav className={styles.sidebarNav}>
@@ -133,7 +135,7 @@ export default function ProfilePage() {
             </nav>
 
             <button type="button" className={styles.logoutBtn} onClick={logout}>
-              Выйти из аккаунта
+              {t({ ru: 'Выйти из аккаунта', en: 'Log out' })}
             </button>
           </aside>
 
@@ -142,24 +144,24 @@ export default function ProfilePage() {
             {/* Account tab */}
             {activeTab === 'account' && (
               <div className={styles.tabContent}>
-                <h2 className={styles.tabTitle}>Информация об аккаунте</h2>
+                <h2 className={styles.tabTitle}>{t({ ru: 'Информация об аккаунте', en: 'Account information' })}</h2>
 
                 {/* Stats row */}
                 <div className={styles.statsGrid}>
                   <div className={styles.statCard}>
-                    <span className={styles.statLabel}>Заказов</span>
+                    <span className={styles.statLabel}>{t({ ru: 'Заказов', en: 'Orders' })}</span>
                     <strong className={styles.statValue}>{stats.orders}</strong>
                   </div>
                   <div className={styles.statCard}>
-                    <span className={styles.statLabel}>Товаров куплено</span>
+                    <span className={styles.statLabel}>{t({ ru: 'Товаров куплено', en: 'Items purchased' })}</span>
                     <strong className={styles.statValue}>{stats.items}</strong>
                   </div>
                   <div className={styles.statCard}>
-                    <span className={styles.statLabel}>Потрачено</span>
+                    <span className={styles.statLabel}>{t({ ru: 'Потрачено', en: 'Spent' })}</span>
                     <strong className={styles.statValue}>{formatMoney(stats.spent)}</strong>
                   </div>
                   <div className={styles.statCard}>
-                    <span className={styles.statLabel}>Баланс</span>
+                    <span className={styles.statLabel}>{t({ ru: 'Баланс', en: 'Balance' })}</span>
                     <strong className={`${styles.statValue} ${styles.statBalance}`}>{formatMoney(balance)}</strong>
                   </div>
                 </div>
@@ -167,7 +169,7 @@ export default function ProfilePage() {
                 {/* Profile info card */}
                 <div className={styles.card}>
                   <div className={styles.cardHeader}>
-                    <h3 className={styles.cardTitle}>Личные данные</h3>
+                    <h3 className={styles.cardTitle}>{t({ ru: 'Личные данные', en: 'Personal data' })}</h3>
                     {!isEditing && (
                       <button
                         type="button"
@@ -180,7 +182,7 @@ export default function ProfilePage() {
                         }}
                       >
                         <FiEdit2 size={14} />
-                        Редактировать
+                        {t({ ru: 'Редактировать', en: 'Edit' })}
                       </button>
                     )}
                   </div>
@@ -188,7 +190,7 @@ export default function ProfilePage() {
                   {isEditing ? (
                     <div className={styles.editForm}>
                       <div className={styles.editRow}>
-                        <label className={styles.editLabel}>Имя</label>
+                        <label className={styles.editLabel}>{t({ ru: 'Имя', en: 'First name' })}</label>
                         <input
                           className={styles.editInput}
                           value={editFirstName}
@@ -196,7 +198,7 @@ export default function ProfilePage() {
                         />
                       </div>
                       <div className={styles.editRow}>
-                        <label className={styles.editLabel}>Фамилия</label>
+                        <label className={styles.editLabel}>{t({ ru: 'Фамилия', en: 'Last name' })}</label>
                         <input
                           className={styles.editInput}
                           value={editLastName}
@@ -204,7 +206,7 @@ export default function ProfilePage() {
                         />
                       </div>
                       <div className={styles.editRow}>
-                        <label className={styles.editLabel}>Телефон</label>
+                        <label className={styles.editLabel}>{t({ ru: 'Телефон', en: 'Phone' })}</label>
                         <input
                           className={styles.editInput}
                           placeholder="+373 (___) ___-___"
@@ -214,21 +216,21 @@ export default function ProfilePage() {
                       </div>
                       <div className={styles.editActions}>
                         <button type="button" className={styles.saveBtn} onClick={handleSaveProfile}>
-                          <FiCheck size={15} /> Сохранить
+                          <FiCheck size={15} /> {t({ ru: 'Сохранить', en: 'Save' })}
                         </button>
                         <button type="button" className={styles.cancelBtn} onClick={handleCancelEdit}>
-                          <FiX size={15} /> Отмена
+                          <FiX size={15} /> {t({ ru: 'Отмена', en: 'Cancel' })}
                         </button>
                       </div>
                     </div>
                   ) : (
                     <div className={styles.infoGrid}>
                       <div className={styles.infoItem}>
-                        <span className={styles.infoLabel}>Имя</span>
+                        <span className={styles.infoLabel}>{t({ ru: 'Имя', en: 'First name' })}</span>
                         <span className={styles.infoValue}>{firstName || '—'}</span>
                       </div>
                       <div className={styles.infoItem}>
-                        <span className={styles.infoLabel}>Фамилия</span>
+                        <span className={styles.infoLabel}>{t({ ru: 'Фамилия', en: 'Last name' })}</span>
                         <span className={styles.infoValue}>{lastName || '—'}</span>
                       </div>
                       <div className={styles.infoItem}>
@@ -236,15 +238,15 @@ export default function ProfilePage() {
                         <span className={styles.infoValue}>{sessionUser?.email ?? '—'}</span>
                       </div>
                       <div className={styles.infoItem}>
-                        <span className={styles.infoLabel}>Телефон</span>
-                        <span className={styles.infoValue}>{phone || 'Не указан'}</span>
+                        <span className={styles.infoLabel}>{t({ ru: 'Телефон', en: 'Phone' })}</span>
+                        <span className={styles.infoValue}>{phone || t({ ru: 'Не указан', en: 'Not specified' })}</span>
                       </div>
                       <div className={styles.infoItem}>
-                        <span className={styles.infoLabel}>Роль</span>
+                        <span className={styles.infoLabel}>{t({ ru: 'Роль', en: 'Role' })}</span>
                         <span className={styles.infoValue}>{roleLabel}</span>
                       </div>
                       <div className={styles.infoItem}>
-                        <span className={styles.infoLabel}>ID пользователя</span>
+                        <span className={styles.infoLabel}>{t({ ru: 'ID пользователя', en: 'User ID' })}</span>
                         <span className={styles.infoValue}>{sessionUser?.id ?? '—'}</span>
                       </div>
                     </div>
@@ -254,16 +256,16 @@ export default function ProfilePage() {
                 {/* Last order */}
                 {stats.lastPurchaseAt && (
                   <div className={styles.card}>
-                    <h3 className={styles.cardTitle}>Последняя активность</h3>
+                    <h3 className={styles.cardTitle}>{t({ ru: 'Последняя активность', en: 'Recent activity' })}</h3>
                     <p className={styles.mutedText}>
-                      Последняя покупка: <strong>{formatDate(stats.lastPurchaseAt)}</strong>
+                      {t({ ru: 'Последняя покупка:', en: 'Last purchase:' })} <strong>{formatDate(stats.lastPurchaseAt)}</strong>
                     </p>
                     <button
                       type="button"
                       className={styles.linkBtn}
                       onClick={() => setActiveTab('orders')}
                     >
-                      Посмотреть все заказы →
+                      {t({ ru: 'Посмотреть все заказы →', en: 'View all orders →' })}
                     </button>
                   </div>
                 )}
@@ -274,15 +276,15 @@ export default function ProfilePage() {
             {activeTab === 'orders' && (
               <div className={styles.tabContent}>
                 <div className={styles.tabTitleRow}>
-                  <h2 className={styles.tabTitle}>История заказов</h2>
+                  <h2 className={styles.tabTitle}>{t({ ru: 'История заказов', en: 'Order history' })}</h2>
                   <span className={styles.countBadge}>{purchaseHistory.length}</span>
                 </div>
 
                 {purchaseHistory.length === 0 ? (
                   <div className={styles.emptyState}>
                     <FiShoppingBag size={40} className={styles.emptyIcon} />
-                    <p>У вас пока нет заказов</p>
-                    <Link to="/catalog" className={styles.ctaLink}>Перейти в каталог</Link>
+                    <p>{t({ ru: 'У вас пока нет заказов', en: 'You have no orders yet' })}</p>
+                    <Link to="/catalog" className={styles.ctaLink}>{t({ ru: 'Перейти в каталог', en: 'Go to catalog' })}</Link>
                   </div>
                 ) : (
                   <div className={styles.orderList}>
@@ -296,11 +298,11 @@ export default function ProfilePage() {
                           }
                         >
                           <div className={styles.orderMeta}>
-                            <span className={styles.orderStatus}>Выполнен</span>
+                            <span className={styles.orderStatus}>{t({ ru: 'Выполнен', en: 'Completed' })}</span>
                             <span className={styles.orderDate}>{formatDate(order.purchasedAt)}</span>
                           </div>
                           <div className={styles.orderSummary}>
-                            <span className={styles.orderItems}>{order.itemsCount} шт.</span>
+                            <span className={styles.orderItems}>{order.itemsCount} {t({ ru: 'шт.', en: 'pcs.' })}</span>
                             <strong className={styles.orderTotal}>{formatMoney(order.total)}</strong>
                             {expandedOrder === order.id ? (
                               <FiChevronUp size={16} />
@@ -327,7 +329,7 @@ export default function ProfilePage() {
                               </div>
                             ))}
                             <div className={styles.orderFooter}>
-                              <span>Итого:</span>
+                              <span>{t({ ru: 'Итого:', en: 'Total:' })}</span>
                               <strong>{formatMoney(order.total)}</strong>
                             </div>
                           </div>
@@ -343,15 +345,15 @@ export default function ProfilePage() {
             {activeTab === 'favorites' && (
               <div className={styles.tabContent}>
                 <div className={styles.tabTitleRow}>
-                  <h2 className={styles.tabTitle}>Избранное</h2>
+                  <h2 className={styles.tabTitle}>{t({ ru: 'Избранное', en: 'Favorites' })}</h2>
                   <span className={styles.countBadge}>{favorites.length}</span>
                 </div>
 
                 {favorites.length === 0 ? (
                   <div className={styles.emptyState}>
                     <FiHeart size={40} className={styles.emptyIcon} />
-                    <p>Список избранного пуст</p>
-                    <Link to="/catalog" className={styles.ctaLink}>Перейти в каталог</Link>
+                    <p>{t({ ru: 'Список избранного пуст', en: 'Favorites list is empty' })}</p>
+                    <Link to="/catalog" className={styles.ctaLink}>{t({ ru: 'Перейти в каталог', en: 'Go to catalog' })}</Link>
                   </div>
                 ) : (
                   <div className={styles.favoritesList}>
@@ -382,77 +384,77 @@ export default function ProfilePage() {
             {/* Settings tab */}
             {activeTab === 'settings' && (
               <div className={styles.tabContent}>
-                <h2 className={styles.tabTitle}>Настройки</h2>
+                <h2 className={styles.tabTitle}>{t({ ru: 'Настройки', en: 'Settings' })}</h2>
 
                 <div className={styles.card}>
-                  <h3 className={styles.cardTitle}>Безопасность</h3>
+                  <h3 className={styles.cardTitle}>{t({ ru: 'Безопасность', en: 'Security' })}</h3>
                   <div className={styles.settingRow}>
                     <div>
-                      <div className={styles.settingName}>Пароль</div>
-                      <div className={styles.settingDesc}>Последнее изменение: неизвестно</div>
+                      <div className={styles.settingName}>{t({ ru: 'Пароль', en: 'Password' })}</div>
+                      <div className={styles.settingDesc}>{t({ ru: 'Последнее изменение: неизвестно', en: 'Last changed: unknown' })}</div>
                     </div>
                     <button
                       type="button"
                       className={styles.settingBtn}
-                      onClick={() => toast('Смена пароля недоступна в демо-режиме', { icon: 'ℹ️' })}
+                      onClick={() => toast(t({ ru: 'Смена пароля недоступна в демо-режиме', en: 'Password change unavailable in demo mode' }), { icon: 'ℹ️' })}
                     >
-                      Изменить
+                      {t({ ru: 'Изменить', en: 'Change' })}
                     </button>
                   </div>
                   <div className={styles.settingRow}>
                     <div>
-                      <div className={styles.settingName}>Двухфакторная аутентификация</div>
-                      <div className={styles.settingDesc}>Отключена</div>
+                      <div className={styles.settingName}>{t({ ru: 'Двухфакторная аутентификация', en: 'Two-factor authentication' })}</div>
+                      <div className={styles.settingDesc}>{t({ ru: 'Отключена', en: 'Disabled' })}</div>
                     </div>
                     <button
                       type="button"
                       className={styles.settingBtn}
-                      onClick={() => toast('2FA недоступна в демо-режиме', { icon: 'ℹ️' })}
+                      onClick={() => toast(t({ ru: '2FA недоступна в демо-режиме', en: '2FA unavailable in demo mode' }), { icon: 'ℹ️' })}
                     >
-                      Включить
+                      {t({ ru: 'Включить', en: 'Enable' })}
                     </button>
                   </div>
                 </div>
 
                 <div className={styles.card}>
-                  <h3 className={styles.cardTitle}>Уведомления</h3>
+                  <h3 className={styles.cardTitle}>{t({ ru: 'Уведомления', en: 'Notifications' })}</h3>
                   <div className={styles.settingRow}>
                     <div>
-                      <div className={styles.settingName}>Email-уведомления о заказах</div>
-                      <div className={styles.settingDesc}>Получайте статус заказов на почту</div>
+                      <div className={styles.settingName}>{t({ ru: 'Email-уведомления о заказах', en: 'Email order notifications' })}</div>
+                      <div className={styles.settingDesc}>{t({ ru: 'Получайте статус заказов на почту', en: 'Receive order status updates by email' })}</div>
                     </div>
                     <button
                       type="button"
                       className={`${styles.settingBtn} ${styles.settingBtnActive}`}
-                      onClick={() => toast('Настройки уведомлений недоступны в демо', { icon: 'ℹ️' })}
+                      onClick={() => toast(t({ ru: 'Настройки уведомлений недоступны в демо', en: 'Notification settings unavailable in demo' }), { icon: 'ℹ️' })}
                     >
-                      Включено
+                      {t({ ru: 'Включено', en: 'Enabled' })}
                     </button>
                   </div>
                   <div className={styles.settingRow}>
                     <div>
-                      <div className={styles.settingName}>Промо-рассылка</div>
-                      <div className={styles.settingDesc}>Акции, скидки и новинки</div>
+                      <div className={styles.settingName}>{t({ ru: 'Промо-рассылка', en: 'Promotional emails' })}</div>
+                      <div className={styles.settingDesc}>{t({ ru: 'Акции, скидки и новинки', en: 'Promotions, discounts and new arrivals' })}</div>
                     </div>
                     <button
                       type="button"
                       className={styles.settingBtn}
-                      onClick={() => toast('Настройки рассылки недоступны в демо', { icon: 'ℹ️' })}
+                      onClick={() => toast(t({ ru: 'Настройки рассылки недоступны в демо', en: 'Mailing settings unavailable in demo' }), { icon: 'ℹ️' })}
                     >
-                      Отключена
+                      {t({ ru: 'Отключена', en: 'Disabled' })}
                     </button>
                   </div>
                 </div>
 
                 <div className={styles.card}>
-                  <h3 className={styles.cardTitle}>Аккаунт</h3>
+                  <h3 className={styles.cardTitle}>{t({ ru: 'Аккаунт', en: 'Account' })}</h3>
                   <div className={styles.settingRow}>
                     <div>
-                      <div className={styles.settingName}>Выйти из аккаунта</div>
-                      <div className={styles.settingDesc}>Завершить текущую сессию</div>
+                      <div className={styles.settingName}>{t({ ru: 'Выйти из аккаунта', en: 'Log out' })}</div>
+                      <div className={styles.settingDesc}>{t({ ru: 'Завершить текущую сессию', en: 'End current session' })}</div>
                     </div>
                     <button type="button" className={styles.settingBtnDanger} onClick={logout}>
-                      Выйти
+                      {t({ ru: 'Выйти', en: 'Log out' })}
                     </button>
                   </div>
                 </div>
