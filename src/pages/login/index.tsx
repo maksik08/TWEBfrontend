@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useLogin } from '@/features/auth'
 import { useLanguage } from '@/shared/i18n'
 import styles from './login.module.css'
@@ -80,6 +80,13 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+
+          <div className={styles.footer}>
+            {t({ ru: 'Нет аккаунта?', en: "Don't have an account?" })}
+            <Link to="/register" className={styles.footerLink}>
+              {t({ ru: 'Зарегистрироваться', en: 'Sign up' })}
+            </Link>
+          </div>
         </div>
       </div>
     </div>

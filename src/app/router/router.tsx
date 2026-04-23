@@ -6,6 +6,7 @@ import AdminDashboard from '@/pages/dashboard/admin'
 import ClientDashboard from '@/pages/dashboard/client'
 import Forbidden from '@/pages/forbidden'
 import Login from '@/pages/login'
+import Register from '@/pages/register'
 import AboutPage from '@/pages/about'
 import HomePage from '@/pages/home'
 import CatalogPage from '@/pages/catalog'
@@ -22,6 +23,11 @@ export const router = createBrowserRouter([
     path: '/login',
     element: <PublicLayout />,
     children: [{ index: true, element: <Login /> }],
+  },
+  {
+    path: '/register',
+    element: <PublicLayout />,
+    children: [{ index: true, element: <Register /> }],
   },
   {
     path: '/',
