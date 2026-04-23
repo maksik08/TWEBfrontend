@@ -1,34 +1,26 @@
 import type { ProductDto } from '@/shared/api/dto/product.dto'
-import { productsOverride } from '@/entities/product/api/products.override'
+import { http } from '@/shared/api/http'
 
 export const fetchProductDtos = async (): Promise<ProductDto[]> => {
-  const override = productsOverride.get()
-  if (override) return override
-
-  const response = await fetch('/api/products.json')
-  if (!response.ok) {
-    throw new Error('Ошибка загрузки товаров')
-  }
-
-  return (await response.json()) as ProductDto[]
+  const { data } = await http.get<ProductDto[]>('/products')
+  return data
 }
 
-const normalizeId = (value: number | string) => Number(value)
-
-export const updateProductDto = async (next: ProductDto): Promise<ProductDto[]> => {
-  const base = await fetchProductDtos()
-  const nextId = normalizeId(next.id)
-
-  if (!Number.isFinite(nextId)) {
+export const updateProductDto = async (next: ProductDto): Promise<ProductDto> => {
+  const id = Number(next.id)
+  if (!Number.isFinite(id)) {
     throw new Error('Некорректный id товара')
   }
 
-  const updated = base.map((dto) => (normalizeId(dto.id) === nextId ? { ...dto, ...next, id: dto.id } : dto))
-  productsOverride.set(updated)
-  return updated
+  const { data } = await http.put<ProductDto>(`/products/${id}`, next)
+  return data
 }
 
-export const clearProductsOverride = () => {
-  productsOverride.clear()
+export const createProductDto = async (next: Omit<ProductDto, 'id'>): Promise<ProductDto> => {
+  const { data } = await http.post<ProductDto>('/products', next)
+  return data
 }
 
+export const deleteProductDto = async (id: number | string): Promise<void> => {
+  await http.delete(`/products/${id}`)
+}

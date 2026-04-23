@@ -1,21 +1,9 @@
 import type { Product } from '../model/types'
 import type { ProductDto } from '@/shared/api/dto/product.dto'
+import { http } from '@/shared/api/http'
 import { mapProductDtoToProduct } from '@/entities/product/model/product.mapper'
-import { productsOverride } from '@/entities/product/api/products.override'
 
 export const fetchProducts = async (): Promise<Product[]> => {
-  const override = productsOverride.get()
-  if (override) {
-    return override.map(mapProductDtoToProduct).filter((p) => Number.isFinite(p.id))
-  }
-
-  // Local "API" endpoint served by Vite from /public/api/products.json
-  const response = await fetch('/api/products.json')
-
-  if (!response.ok) {
-    throw new Error('Ошибка загрузки товаров')
-  }
-
-  const dtos = (await response.json()) as ProductDto[]
-  return dtos.map(mapProductDtoToProduct).filter((p) => Number.isFinite(p.id))
+  const { data } = await http.get<ProductDto[]>('/products')
+  return data.map(mapProductDtoToProduct).filter((p) => Number.isFinite(p.id))
 }

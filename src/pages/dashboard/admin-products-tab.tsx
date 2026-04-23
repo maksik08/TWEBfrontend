@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ProductDto } from '@/shared/api/dto/product.dto'
-import { clearProductsOverride, fetchProductDtos, updateProductDto } from '@/entities/product/api/products.admin'
+import { fetchProductDtos, updateProductDto } from '@/entities/product/api/products.admin'
 import styles from './admin.module.css'
 
 type ProductDraft = {
@@ -88,16 +88,6 @@ export const AdminProductsTab = () => {
     })
   }
 
-  const reset = async () => {
-    clearProductsOverride()
-    cancelEdit()
-    toast.success('Изменения сброшены (локально)')
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] }),
-      queryClient.invalidateQueries({ queryKey: ['products'] }),
-    ])
-  }
-
   if (isLoading) {
     return (
       <div className={styles.content}>
@@ -132,11 +122,6 @@ export const AdminProductsTab = () => {
       <div className={styles.card}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>Товары</h2>
-          <div className={styles.actionRow}>
-            <button type="button" className={styles.btnReset} onClick={reset}>
-              Сбросить изменения
-            </button>
-          </div>
         </div>
 
         <div className={styles.fieldGrid}>
@@ -228,9 +213,6 @@ export const AdminProductsTab = () => {
               </label>
             </div>
           )}
-          <p style={{ color: 'var(--color-text-muted, #6b7280)', fontSize: '0.85rem', marginTop: '0.75rem' }}>
-            Изменения сохраняются в браузере (localStorage) и применяются только на этом устройстве.
-          </p>
         </div>
       </div>
     </div>
