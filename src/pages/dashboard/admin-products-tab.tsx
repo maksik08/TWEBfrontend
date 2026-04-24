@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ProductDto } from '@/shared/api/dto/product.dto'
+import type { CategoryDto } from '@/shared/api/dto/category.dto'
 import { fetchProductDtos, updateProductDto } from '@/entities/product/api/products.admin'
+import { fetchCategoryDtos } from '@/entities/product/api/categories.admin'
 import styles from './admin.module.css'
 
 type ProductDraft = {
@@ -10,7 +12,7 @@ type ProductDraft = {
   name: string
   title: string
   price: string
-  category: string
+  categoryId: string
   image: string
 }
 
@@ -19,7 +21,7 @@ const toDraft = (dto: ProductDto): ProductDraft => ({
   name: (dto.name ?? '').toString(),
   title: (dto.title ?? '').toString(),
   price: (dto.price ?? '').toString(),
-  category: (dto.category ?? '').toString(),
+  categoryId: dto.categoryId != null ? String(dto.categoryId) : '',
   image: (dto.image ?? '').toString(),
 })
 
@@ -34,17 +36,36 @@ export const AdminProductsTab = () => {
     queryFn: fetchProductDtos,
   })
 
+  const { data: categories = [] } = useQuery<CategoryDto[]>({
+    queryKey: ['admin', 'categories'],
+    queryFn: fetchCategoryDtos,
+  })
+
+  const categoryNameById = useMemo(() => {
+    const map = new Map<number, string>()
+    categories.forEach((c) => map.set(c.id, c.name))
+    return map
+  }, [categories])
+
+  const resolveCategoryLabel = (dto: ProductDto): string => {
+    if (dto.category) return dto.category
+    if (dto.categoryId != null) return categoryNameById.get(dto.categoryId) ?? ''
+    return ''
+  }
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return dtos
     return dtos.filter((dto) => {
-      const text = `${dto.title ?? ''} ${dto.name ?? ''} ${dto.category ?? ''} ${dto.id}`.toLowerCase()
+      const text = `${dto.title ?? ''} ${dto.name ?? ''} ${resolveCategoryLabel(dto)} ${dto.id}`.toLowerCase()
       return text.includes(q)
     })
-  }, [dtos, query])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dtos, query, categoryNameById])
 
   const mutation = useMutation({
-    mutationFn: updateProductDto,
+    mutationFn: (vars: { id: number | string; payload: Parameters<typeof updateProductDto>[1] }) =>
+      updateProductDto(vars.id, vars.payload),
     onSuccess: async () => {
       toast.success('Товар сохранён')
       await Promise.all([
@@ -78,13 +99,21 @@ export const AdminProductsTab = () => {
       return
     }
 
+    const categoryIdNum = draft.categoryId === '' ? null : Number(draft.categoryId)
+    if (categoryIdNum !== null && !Number.isFinite(categoryIdNum)) {
+      toast.error('Некорректная категория')
+      return
+    }
+
     mutation.mutate({
       id: draft.id,
-      name: draft.name.trim(),
-      title: draft.title.trim(),
-      price,
-      category: draft.category.trim(),
-      image: draft.image.trim(),
+      payload: {
+        name: draft.name.trim(),
+        title: draft.title.trim() || null,
+        image: draft.image.trim() || null,
+        price,
+        categoryId: categoryIdNum,
+      },
     })
   }
 
@@ -141,6 +170,7 @@ export const AdminProductsTab = () => {
             {filtered.map((dto) => {
               const isActive = String(dto.id) === String(selectedId)
               const title = (dto.title ?? dto.name ?? '').toString()
+              const categoryLabel = resolveCategoryLabel(dto)
               return (
                 <div key={String(dto.id)} className={styles.itemRow} style={isActive ? { borderColor: '#2563eb' } : undefined}>
                   <div className={styles.itemRowHeader}>
@@ -153,7 +183,7 @@ export const AdminProductsTab = () => {
                     <div>
                       <div style={{ fontWeight: 700 }}>{title || '(без названия)'}</div>
                       <div style={{ color: 'var(--color-text-muted, #6b7280)', fontSize: '0.875rem' }}>
-                        Категория: {(dto.category ?? '').toString() || '—'} · Цена: {dto.price}
+                        Категория: {categoryLabel || '—'} · Цена: {dto.price}
                       </div>
                     </div>
                     {dto.image ? (
@@ -203,7 +233,18 @@ export const AdminProductsTab = () => {
                 </label>
                 <label className={styles.field}>
                   <span className={styles.fieldLabel}>Категория</span>
-                  <input className={styles.input} value={draft.category} onChange={(e) => setDraft((d) => (d ? { ...d, category: e.target.value } : d))} placeholder="router / switch / antenna / cable / nas / server" />
+                  <select
+                    className={styles.input}
+                    value={draft.categoryId}
+                    onChange={(e) => setDraft((d) => (d ? { ...d, categoryId: e.target.value } : d))}
+                  >
+                    <option value="">— не выбрана —</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={String(c.id)}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
                 </label>
               </div>
 
@@ -218,4 +259,3 @@ export const AdminProductsTab = () => {
     </div>
   )
 }
-

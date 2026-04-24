@@ -1,4 +1,4 @@
-import type { ProductDto } from '@/shared/api/dto/product.dto'
+import type { ProductDto, UpdateProductPayload } from '@/shared/api/dto/product.dto'
 import { http } from '@/shared/api/http'
 
 export const fetchProductDtos = async (): Promise<ProductDto[]> => {
@@ -6,18 +6,21 @@ export const fetchProductDtos = async (): Promise<ProductDto[]> => {
   return data
 }
 
-export const updateProductDto = async (next: ProductDto): Promise<ProductDto> => {
-  const id = Number(next.id)
-  if (!Number.isFinite(id)) {
+export const updateProductDto = async (
+  id: number | string,
+  payload: UpdateProductPayload,
+): Promise<ProductDto> => {
+  const numericId = Number(id)
+  if (!Number.isFinite(numericId)) {
     throw new Error('Некорректный id товара')
   }
 
-  const { data } = await http.put<ProductDto>(`/products/${id}`, next)
+  const { data } = await http.put<ProductDto>(`/products/${numericId}`, payload)
   return data
 }
 
-export const createProductDto = async (next: Omit<ProductDto, 'id'>): Promise<ProductDto> => {
-  const { data } = await http.post<ProductDto>('/products', next)
+export const createProductDto = async (payload: UpdateProductPayload): Promise<ProductDto> => {
+  const { data } = await http.post<ProductDto>('/products', payload)
   return data
 }
 
