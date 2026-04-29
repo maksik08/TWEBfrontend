@@ -18,6 +18,7 @@ type ProductFeedbackState = {
     rating: number
     comment: string
   }) => void
+  removeReview: (payload: { productId: number; reviewId: string }) => void
 }
 
 const clampRating = (value: number) => Math.max(0, Math.min(5, Math.round(value)))
@@ -177,6 +178,21 @@ export const useProductFeedbackStore = create<ProductFeedbackState>()(
             reviews: {
               ...state.reviews,
               [key]: [nextReview, ...(state.reviews[key] ?? [])],
+            },
+          }
+        }),
+      removeReview: ({ productId, reviewId }) =>
+        set((state) => {
+          const key = String(productId)
+          const list = state.reviews[key]
+          if (!list) {
+            return state
+          }
+
+          return {
+            reviews: {
+              ...state.reviews,
+              [key]: list.filter((review) => review.id !== reviewId),
             },
           }
         }),

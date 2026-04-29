@@ -393,6 +393,27 @@
   flex-shrink: 0;
 }
 
+.reviewDeleteButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 0.35rem;
+  border-radius: 50%;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  background: rgba(254, 226, 226, 0.6);
+  color: #b91c1c;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.reviewDeleteButton:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
 .specList {
   display: grid;
   gap: 0.85rem;

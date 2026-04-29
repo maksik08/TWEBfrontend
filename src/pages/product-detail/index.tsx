@@ -8,6 +8,7 @@ import {
   FiPackage,
   FiShield,
   FiShoppingCart,
+  FiTrash2,
 } from 'react-icons/fi'
 import { Link, useParams } from 'react-router-dom'
 
@@ -45,8 +46,10 @@ export default function ProductDetailPage() {
   const add = useCartStore((state) => state.add)
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
   const addReview = useProductFeedbackStore((state) => state.addReview)
+  const removeReview = useProductFeedbackStore((state) => state.removeReview)
   const reviews = useProductFeedbackStore((state) => state.reviews[String(productId)] ?? [])
   const sessionUser = useSessionStore((state) => state.user)
+  const isAdmin = sessionUser?.role === 'admin'
   const firstName = useProfileStore((state) => state.firstName)
   const lastName = useProfileStore((state) => state.lastName)
 
@@ -126,6 +129,22 @@ export default function ProductDetailPage() {
     setComment('')
     setRating(0)
     toast.success(t({ ru: 'Комментарий опубликован', en: 'Comment published' }))
+  }
+
+  const handleDeleteReview = (reviewId: string) => {
+    if (!product) {
+      return
+    }
+
+    const confirmed = window.confirm(
+      t({ ru: 'Удалить этот отзыв?', en: 'Delete this review?' }),
+    )
+    if (!confirmed) {
+      return
+    }
+
+    removeReview({ productId: product.id, reviewId })
+    toast.success(t({ ru: 'Отзыв удалён', en: 'Review deleted' }))
   }
 
   return (
@@ -314,6 +333,17 @@ export default function ProductDetailPage() {
                           <div className={styles.reviewRating}>
                             <StarRating value={review.rating} readOnly size="sm" />
                             <span>{review.rating.toFixed(1)} / 5</span>
+                            {isAdmin && (
+                              <button
+                                type="button"
+                                className={styles.reviewDeleteButton}
+                                onClick={() => handleDeleteReview(review.id)}
+                                aria-label={t({ ru: 'Удалить отзыв', en: 'Delete review' })}
+                                title={t({ ru: 'Удалить отзыв', en: 'Delete review' })}
+                              >
+                                <FiTrash2 size={16} />
+                              </button>
+                            )}
                           </div>
                         </div>
                         <p>{review.comment}</p>

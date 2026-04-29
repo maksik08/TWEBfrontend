@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { FiStar } from 'react-icons/fi'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -103,6 +103,9 @@ export const ProductCatalog = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
+  const [priceMin, setPriceMin] = useState<string>('')
+  const [priceMax, setPriceMax] = useState<string>('')
   const likes = useFavoritesStore((state) => state.likes)
 
   const SORT_OPTIONS: { value: CatalogSort; label: string }[] = [
@@ -136,6 +139,52 @@ export const ProductCatalog = () => {
     updateParams(activeSection, value)
   }
 
+  const availableBrands = useMemo(() => {
+    const set = new Set<string>()
+    products.forEach((product) => {
+      const brand = product.brand?.trim()
+      if (brand) set.add(brand)
+    })
+    return Array.from(set).sort((a, b) => a.localeCompare(b))
+  }, [products])
+
+  const priceBounds = useMemo(() => {
+    if (products.length === 0) return { min: 0, max: 0 }
+    let min = Infinity
+    let max = -Infinity
+    products.forEach((product) => {
+      if (product.price < min) min = product.price
+      if (product.price > max) max = product.price
+    })
+    return {
+      min: Math.floor(Number.isFinite(min) ? min : 0),
+      max: Math.ceil(Number.isFinite(max) ? max : 0),
+    }
+  }, [products])
+
+  const toggleBrand = (brand: string) => {
+    setSelectedBrands((prev) =>
+      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand],
+    )
+  }
+
+  const resetFilters = () => {
+    setSearch('')
+    setCategory('all')
+    setSelectedBrands([])
+    setPriceMin('')
+    setPriceMax('')
+  }
+
+  const minPriceNum = priceMin === '' ? null : Number(priceMin)
+  const maxPriceNum = priceMax === '' ? null : Number(priceMax)
+  const hasActiveFilters =
+    search.trim() !== '' ||
+    category !== 'all' ||
+    selectedBrands.length > 0 ||
+    priceMin !== '' ||
+    priceMax !== ''
+
   const filteredProducts = products
     .filter((product) => {
       const query = search.trim().toLowerCase()
@@ -143,6 +192,20 @@ export const ProductCatalog = () => {
       return (product.title || product.name).toLowerCase().includes(query)
     })
     .filter((product) => (category === 'all' ? true : product.category === category))
+    .filter((product) => {
+      if (selectedBrands.length === 0) return true
+      const brand = product.brand?.trim()
+      return brand ? selectedBrands.includes(brand) : false
+    })
+    .filter((product) => {
+      if (minPriceNum !== null && Number.isFinite(minPriceNum) && product.price < minPriceNum) {
+        return false
+      }
+      if (maxPriceNum !== null && Number.isFinite(maxPriceNum) && product.price > maxPriceNum) {
+        return false
+      }
+      return true
+    })
     .sort((left, right) => {
       switch (activeSort) {
         case 'price-asc':
@@ -211,70 +274,140 @@ export const ProductCatalog = () => {
           </div>
 
           {activeSection === 'equipment' && (
-            <>
+            <div className={styles.topBar}>
               <div className={styles.searchBar}>
                 <SearchProducts value={search} onChange={setSearch} />
               </div>
 
-              <div className={styles.filters}>
-                <div className={styles.filterGroup}>
-                  <label className={styles.filterLabel}>{t({ ru: 'Категория', en: 'Category' })}</label>
-                  <FilterProducts current={category} setCategory={setCategory} />
-                </div>
-
-                <div className={styles.filterGroup}>
-                  <label className={styles.filterLabel} htmlFor="catalog-sort">{t({ ru: 'Сортировка', en: 'Sort' })}</label>
-                  <select
-                    id="catalog-sort"
-                    className={styles.sortSelect}
-                    value={activeSort}
-                    onChange={(e) => handleSortChange(e.target.value as CatalogSort)}
-                  >
-                    {SORT_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div className={styles.sortGroup}>
+                <label className={styles.filterLabel} htmlFor="catalog-sort">{t({ ru: 'Сортировка', en: 'Sort' })}</label>
+                <select
+                  id="catalog-sort"
+                  className={styles.sortSelect}
+                  value={activeSort}
+                  onChange={(e) => handleSortChange(e.target.value as CatalogSort)}
+                >
+                  {SORT_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
               </div>
-            </>
+            </div>
           )}
         </div>
 
         {activeSection === 'equipment' ? (
-          isLoading ? (
-            <div className={styles.emptyState}>
-              <h3>{t({ ru: 'Загрузка...', en: 'Loading...' })}</h3>
-            </div>
-          ) : isError ? (
-            <div className={styles.emptyState}>
-              <h3>{t({ ru: 'Ошибка сети', en: 'Network error' })}</h3>
-              <p>{errorMessage}</p>
-            </div>
-          ) : filteredProducts.length > 0 ? (
-            <>
-              <div className={styles.productGrid}>
-                {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
+          <div className={styles.equipmentLayout}>
+            <aside className={styles.sidebar}>
+              <div className={styles.sidebarHeader}>
+                <h3 className={styles.sidebarTitle}>{t({ ru: 'Фильтры', en: 'Filters' })}</h3>
+                {hasActiveFilters && (
+                  <button type="button" className={styles.resetButton} onClick={resetFilters}>
+                    {t({ ru: 'Сбросить', en: 'Reset' })}
+                  </button>
+                )}
               </div>
 
-              <div className={styles.catalogFooter}>
-                <ProductsCounter total={filteredProducts.length} />
-                {activeSort !== 'default' && (
-                  <div className={styles.catalogSummary}>
-                    {SORT_OPTIONS.find((o) => o.value === activeSort)?.label}
+              <div className={styles.sidebarSection}>
+                <span className={styles.sidebarLabel}>{t({ ru: 'Категория', en: 'Category' })}</span>
+                <FilterProducts current={category} setCategory={setCategory} />
+              </div>
+
+              <div className={styles.sidebarSection}>
+                <span className={styles.sidebarLabel}>{t({ ru: 'Цена, $', en: 'Price, $' })}</span>
+                <div className={styles.priceRange}>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    className={styles.priceInput}
+                    placeholder={priceBounds.min ? String(priceBounds.min) : t({ ru: 'от', en: 'min' })}
+                    value={priceMin}
+                    min={0}
+                    onChange={(e) => setPriceMin(e.target.value)}
+                  />
+                  <span className={styles.priceSeparator}>—</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    className={styles.priceInput}
+                    placeholder={priceBounds.max ? String(priceBounds.max) : t({ ru: 'до', en: 'max' })}
+                    value={priceMax}
+                    min={0}
+                    onChange={(e) => setPriceMax(e.target.value)}
+                  />
+                </div>
+                {priceBounds.max > 0 && (
+                  <div className={styles.priceHint}>
+                    {t({ ru: 'Диапазон', en: 'Range' })}: ${priceBounds.min} – ${priceBounds.max}
                   </div>
                 )}
               </div>
-            </>
-          ) : (
-            <div className={styles.emptyState}>
-              <h3>{t({ ru: 'Ничего не найдено', en: 'Nothing found' })}</h3>
-              <p>{t({ ru: 'Попробуйте изменить параметры поиска или фильтрации', en: 'Try changing the search or filter parameters' })}</p>
+
+              <div className={styles.sidebarSection}>
+                <span className={styles.sidebarLabel}>{t({ ru: 'Бренд', en: 'Brand' })}</span>
+                {availableBrands.length === 0 ? (
+                  <p className={styles.brandEmpty}>
+                    {t({ ru: 'Бренды появятся после загрузки товаров', en: 'Brands will appear after products load' })}
+                  </p>
+                ) : (
+                  <ul className={styles.brandList}>
+                    {availableBrands.map((brand) => {
+                      const checked = selectedBrands.includes(brand)
+                      return (
+                        <li key={brand}>
+                          <label className={styles.brandItem}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleBrand(brand)}
+                            />
+                            <span>{brand}</span>
+                          </label>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </div>
+            </aside>
+
+            <div className={styles.equipmentMain}>
+              {isLoading ? (
+                <div className={styles.emptyState}>
+                  <h3>{t({ ru: 'Загрузка...', en: 'Loading...' })}</h3>
+                </div>
+              ) : isError ? (
+                <div className={styles.emptyState}>
+                  <h3>{t({ ru: 'Ошибка сети', en: 'Network error' })}</h3>
+                  <p>{errorMessage}</p>
+                </div>
+              ) : filteredProducts.length > 0 ? (
+                <>
+                  <div className={styles.productGrid}>
+                    {filteredProducts.map((product) => (
+                      <ProductCard key={product.id} product={product} />
+                    ))}
+                  </div>
+
+                  <div className={styles.catalogFooter}>
+                    <ProductsCounter total={filteredProducts.length} />
+                    {activeSort !== 'default' && (
+                      <div className={styles.catalogSummary}>
+                        {SORT_OPTIONS.find((o) => o.value === activeSort)?.label}
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className={styles.emptyState}>
+                  <h3>{t({ ru: 'Ничего не найдено', en: 'Nothing found' })}</h3>
+                  <p>{t({ ru: 'Попробуйте изменить параметры поиска или фильтрации', en: 'Try changing the search or filter parameters' })}</p>
+                </div>
+              )}
             </div>
-          )
+          </div>
         ) : activeSection === 'services' ? (
           <>
             <div className={styles.infoGrid}>
