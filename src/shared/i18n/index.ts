@@ -1,2 +1,3 @@
-export { LanguageProvider, useLanguage } from './language-provider'
-export type { AppLanguage } from './language-provider'
+export { LanguageProvider } from './language-provider'
+export { useLanguage } from './language-context'
+export type { AppLanguage } from './language-context'

@@ -106,6 +106,7 @@ export const ProductCatalog = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [priceMin, setPriceMin] = useState<string>('')
   const [priceMax, setPriceMax] = useState<string>('')
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
   const likes = useFavoritesStore((state) => state.likes)
 
   const SORT_OPTIONS: { value: CatalogSort; label: string }[] = [
@@ -129,6 +130,7 @@ export const ProductCatalog = () => {
   const activeSort: CatalogSort = isCatalogSort(sortParam, SORT_OPTIONS) ? sortParam : 'default'
 
   const updateParams = (nextSection: CatalogSection, nextSort: CatalogSort = activeSort) => {
+    setIsMobileFiltersOpen(false)
     const next = new URLSearchParams()
     next.set('section', nextSection)
     if (nextSort !== 'default') next.set('sort', nextSort)
@@ -239,10 +241,111 @@ export const ProductCatalog = () => {
       ? error.message
       : t({ ru: 'Не удалось загрузить товары. Попробуйте позже.', en: 'Failed to load products. Please try again.' })
 
+  const FiltersSidebar = (
+    <aside className={styles.sidebar} aria-label={t({ ru: 'Фильтры', en: 'Filters' })}>
+      <div className={styles.sidebarHeader}>
+        <h3 className={styles.sidebarTitle}>{t({ ru: 'Фильтры', en: 'Filters' })}</h3>
+        <div className={styles.sidebarHeaderActions}>
+          {hasActiveFilters && (
+            <button type="button" className={styles.resetButton} onClick={resetFilters}>
+              {t({ ru: 'Сбросить', en: 'Reset' })}
+            </button>
+          )}
+          <button
+            type="button"
+            className={styles.closeButton}
+            onClick={() => setIsMobileFiltersOpen(false)}
+            aria-label={t({ ru: 'Закрыть', en: 'Close' })}
+          >
+            ×
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.sidebarSection}>
+        <span className={styles.sidebarLabel}>{t({ ru: 'Категория', en: 'Category' })}</span>
+        <FilterProducts current={category} setCategory={setCategory} />
+      </div>
+
+      <div className={styles.sidebarSection}>
+        <span className={styles.sidebarLabel}>{t({ ru: 'Цена, $', en: 'Price, $' })}</span>
+        <div className={styles.priceRange}>
+          <input
+            type="number"
+            inputMode="numeric"
+            className={styles.priceInput}
+            placeholder={priceBounds.min ? String(priceBounds.min) : t({ ru: 'от', en: 'min' })}
+            value={priceMin}
+            min={0}
+            onChange={(e) => setPriceMin(e.target.value)}
+          />
+          <span className={styles.priceSeparator}>—</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            className={styles.priceInput}
+            placeholder={priceBounds.max ? String(priceBounds.max) : t({ ru: 'до', en: 'max' })}
+            value={priceMax}
+            min={0}
+            onChange={(e) => setPriceMax(e.target.value)}
+          />
+        </div>
+        {priceBounds.max > 0 && (
+          <div className={styles.priceHint}>
+            {t({ ru: 'Диапазон', en: 'Range' })}: ${priceBounds.min} – ${priceBounds.max}
+          </div>
+        )}
+      </div>
+
+      <div className={styles.sidebarSection}>
+        <span className={styles.sidebarLabel}>{t({ ru: 'Бренд', en: 'Brand' })}</span>
+        {availableBrands.length === 0 ? (
+          <p className={styles.brandEmpty}>
+            {t({
+              ru: 'Бренды появятся после загрузки товаров',
+              en: 'Brands will appear after products load',
+            })}
+          </p>
+        ) : (
+          <ul className={styles.brandList}>
+            {availableBrands.map((brand) => {
+              const checked = selectedBrands.includes(brand)
+              return (
+                <li key={brand}>
+                  <label className={styles.brandItem}>
+                    <input type="checkbox" checked={checked} onChange={() => toggleBrand(brand)} />
+                    <span>{brand}</span>
+                  </label>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </div>
+    </aside>
+  )
+
   return (
     <section className={styles.catalog}>
       <div className="container">
         <div className={styles.catalogHeader}>
+          <div className={styles.catalogTitleRow}>
+            <div>
+              <h1 className={styles.catalogTitle}>{t({ ru: 'Каталог', en: 'Catalog' })}</h1>
+              <p className={styles.catalogSubtitle}>
+                {t({
+                  ru: 'Оборудование, услуги и акции для сетевых проектов.',
+                  en: 'Equipment, services, and promotions for network projects.',
+                })}
+              </p>
+            </div>
+            {activeSection === 'equipment' && (
+              <div className={styles.catalogMeta}>
+                <ProductsCounter total={filteredProducts.length} />
+              </div>
+            )}
+          </div>
+
           <div className={styles.sectionTabs}>
             <button
               type="button"
@@ -280,7 +383,9 @@ export const ProductCatalog = () => {
               </div>
 
               <div className={styles.sortGroup}>
-                <label className={styles.filterLabel} htmlFor="catalog-sort">{t({ ru: 'Сортировка', en: 'Sort' })}</label>
+                <label className={styles.filterLabel} htmlFor="catalog-sort">
+                  {t({ ru: 'Сортировка', en: 'Sort' })}
+                </label>
                 <select
                   id="catalog-sort"
                   className={styles.sortSelect}
@@ -294,12 +399,27 @@ export const ProductCatalog = () => {
                   ))}
                 </select>
               </div>
+
+              <div className={styles.mobileFilters}>
+                <button
+                  type="button"
+                  className={styles.filtersButton}
+                  onClick={() => setIsMobileFiltersOpen(true)}
+                  aria-haspopup="dialog"
+                  aria-expanded={isMobileFiltersOpen}
+                >
+                  {t({ ru: 'Фильтры', en: 'Filters' })}
+                  {hasActiveFilters && <span className={styles.filtersBadge} />}
+                </button>
+              </div>
             </div>
           )}
         </div>
 
         {activeSection === 'equipment' ? (
           <div className={styles.equipmentLayout}>
+            <div className={styles.desktopSidebar}>{FiltersSidebar}</div>
+            {/*
             <aside className={styles.sidebar}>
               <div className={styles.sidebarHeader}>
                 <h3 className={styles.sidebarTitle}>{t({ ru: 'Фильтры', en: 'Filters' })}</h3>
@@ -372,11 +492,14 @@ export const ProductCatalog = () => {
                 )}
               </div>
             </aside>
+            */}
 
             <div className={styles.equipmentMain}>
               {isLoading ? (
-                <div className={styles.emptyState}>
-                  <h3>{t({ ru: 'Загрузка...', en: 'Loading...' })}</h3>
+                <div className={styles.skeletonGrid} aria-label={t({ ru: 'Загрузка', en: 'Loading' })}>
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <div key={index} className={styles.skeletonCard} />
+                  ))}
                 </div>
               ) : isError ? (
                 <div className={styles.emptyState}>
@@ -392,7 +515,18 @@ export const ProductCatalog = () => {
                   </div>
 
                   <div className={styles.catalogFooter}>
-                    <ProductsCounter total={filteredProducts.length} />
+                    <div className={styles.footerLeft}>
+                      <ProductsCounter total={filteredProducts.length} />
+                      {hasActiveFilters && (
+                        <button
+                          type="button"
+                          className={styles.resetInlineButton}
+                          onClick={resetFilters}
+                        >
+                          {t({ ru: 'Сбросить фильтры', en: 'Reset filters' })}
+                        </button>
+                      )}
+                    </div>
                     {activeSort !== 'default' && (
                       <div className={styles.catalogSummary}>
                         {SORT_OPTIONS.find((o) => o.value === activeSort)?.label}
@@ -407,6 +541,20 @@ export const ProductCatalog = () => {
                 </div>
               )}
             </div>
+
+            {isMobileFiltersOpen && (
+              <div
+                className={styles.filtersOverlay}
+                role="dialog"
+                aria-modal="true"
+                aria-label={t({ ru: 'Фильтры', en: 'Filters' })}
+                onClick={() => setIsMobileFiltersOpen(false)}
+              >
+                <div className={styles.filtersDrawer} onClick={(e) => e.stopPropagation()}>
+                  {FiltersSidebar}
+                </div>
+              </div>
+            )}
           </div>
         ) : activeSection === 'services' ? (
           <>
