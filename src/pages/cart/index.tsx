@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useSearchParams } from 'react-router-dom'
+import axios from 'axios'
 import { useCartStore, selectCartCount, selectCartSubtotal } from '@/entities/cart/model/cart.store'
 import { calculatePrice } from '@/entities/calculator/Model/calculate'
 import type {
@@ -9,6 +10,7 @@ import type {
   ObjectType,
 } from '@/entities/calculator/Model/types'
 import { useProfileStore } from '@/entities/user/model/profile.store'
+import { createOrder, payOrder } from '@/entities/order'
 import { useLanguage } from '@/shared/i18n'
 import styles from './cart.module.css'
 
@@ -40,6 +42,7 @@ export default function CartPage() {
   const [serviceForm, setServiceForm] = useState<Omit<CalculateRequest, 'selectedEquipment'>>(
     createInitialServiceForm,
   )
+  const [isCheckingOut, setIsCheckingOut] = useState(false)
 
   const count = useMemo(() => selectCartCount(items), [items])
   const subtotal = useMemo(() => selectCartSubtotal(items), [items])
@@ -435,53 +438,77 @@ export default function CartPage() {
 
             <button
               className={styles.pay}
-              disabled={items.length === 0 || total === 0 || !hasEnoughBalance}
-              onClick={() => {
+              disabled={items.length === 0 || total === 0 || !hasEnoughBalance || isCheckingOut}
+              onClick={async () => {
                 if (!hasEnoughBalance) {
                   toast.error(t({ ru: 'Недостаточно средств для оплаты', en: 'Insufficient funds for payment' }))
                   return
                 }
 
-                const purchaseLines = items.map((item) => ({
-                  productId: item.product.id,
-                  title: item.product.title || item.product.name,
-                  quantity: item.quantity,
-                  unitPrice: item.product.price,
-                }))
+                setIsCheckingOut(true)
+                try {
+                  const order = await createOrder({
+                    items: items.map((item) => ({
+                      productId: item.product.id,
+                      quantity: item.quantity,
+                    })),
+                  })
 
-                if (serviceCalculation) {
-                  if (serviceCalculation.breakdown.delivery > 0) {
-                    purchaseLines.push({
-                      productId: 900001,
-                      title: t({ ru: 'Доставка оборудования', en: 'Equipment delivery' }),
-                      quantity: 1,
-                      unitPrice: serviceCalculation.breakdown.delivery,
-                    })
+                  await payOrder(order.id)
+
+                  const purchaseLines = items.map((item) => ({
+                    productId: item.product.id,
+                    title: item.product.title || item.product.name,
+                    quantity: item.quantity,
+                    unitPrice: item.product.price,
+                  }))
+
+                  if (serviceCalculation) {
+                    if (serviceCalculation.breakdown.delivery > 0) {
+                      purchaseLines.push({
+                        productId: 900001,
+                        title: t({ ru: 'Доставка оборудования', en: 'Equipment delivery' }),
+                        quantity: 1,
+                        unitPrice: serviceCalculation.breakdown.delivery,
+                      })
+                    }
+
+                    const extraServices =
+                      serviceCalculation.total - serviceCalculation.breakdown.delivery
+
+                    if (extraServices > 0) {
+                      purchaseLines.push({
+                        productId: 900002,
+                        title: t({ ru: 'Услуги установки и настройки', en: 'Installation and setup services' }),
+                        quantity: 1,
+                        unitPrice: extraServices,
+                      })
+                    }
                   }
 
-                  const extraServices =
-                    serviceCalculation.total - serviceCalculation.breakdown.delivery
-
-                  if (extraServices > 0) {
-                    purchaseLines.push({
-                      productId: 900002,
-                      title: t({ ru: 'Услуги установки и настройки', en: 'Installation and setup services' }),
-                      quantity: 1,
-                      unitPrice: extraServices,
-                    })
-                  }
+                  recordPurchase({
+                    total,
+                    lines: purchaseLines,
+                  })
+                  toast.success(
+                    `${t({ ru: 'Заказ', en: 'Order' })} #${order.id} ${t({ ru: 'оплачен', en: 'paid' })} · ${formatMoney(total)}`,
+                  )
+                  clear()
+                  resetCartAddons()
+                } catch (error) {
+                  const message =
+                    axios.isAxiosError(error) && error.response?.data?.message
+                      ? error.response.data.message
+                      : t({ ru: 'Не удалось оформить заказ', en: 'Failed to place order' })
+                  toast.error(message)
+                } finally {
+                  setIsCheckingOut(false)
                 }
-
-                recordPurchase({
-                  total,
-                  lines: purchaseLines,
-                })
-                toast.success(`${t({ ru: 'Оплачено', en: 'Paid' })} ${formatMoney(total)} (demo)`)
-                clear()
-                resetCartAddons()
               }}
             >
-              {t({ ru: 'Оплатить', en: 'Pay' })}
+              {isCheckingOut
+                ? t({ ru: 'Оплата…', en: 'Paying…' })
+                : t({ ru: 'Оплатить', en: 'Pay' })}
             </button>
 
             {items.length > 0 && (

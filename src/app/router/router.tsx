@@ -17,6 +17,7 @@ import BalancePage from '@/pages/balance'
 import CalculatorPage from '@/pages/calculator'
 import ProductDetailPage from '@/pages/product-detail'
 import ProfilePage from '@/pages/profile'
+import OrdersPage from '@/pages/orders'
 
 export const router = createBrowserRouter([
   {
@@ -68,6 +69,10 @@ export const router = createBrowserRouter([
       {
         path: 'profile',
         element: <ProfilePage />,
+      },
+      {
+        path: 'orders',
+        element: <OrdersPage />,
       },
       {
         path: 'admin',

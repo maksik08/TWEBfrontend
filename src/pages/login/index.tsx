@@ -4,18 +4,13 @@ import { useLogin } from '@/features/auth'
 import { useLanguage } from '@/shared/i18n'
 import styles from './login.module.css'
 
-const demoCredentials = {
-  identifier: 'client',
-  password: 'client123',
-}
-
 export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const loginMutation = useLogin()
 
-  const [identifier, setIdentifier] = useState(demoCredentials.identifier)
-  const [password, setPassword] = useState(demoCredentials.password)
+  const [identifier, setIdentifier] = useState('')
+  const [password, setPassword] = useState('')
 
   type LocationState = { from?: { pathname: string } }
   const state = location.state as LocationState | null
@@ -28,14 +23,14 @@ export default function LoginPage() {
         <div className={styles.card}>
           <h1 className={styles.title}>{t({ ru: 'Вход', en: 'Sign in' })}</h1>
           <p className={styles.subtitle}>
-            {t({ ru: 'Страница уже открывается с примером текущего пользователя, так что можно войти сразу.', en: 'The page already opens with a demo user, so you can sign in right away.' })}
+            {t({ ru: 'Введите логин и пароль вашей учётной записи.', en: 'Enter your account username and password.' })}
           </p>
 
           <form
             onSubmit={(event) => {
               event.preventDefault()
               loginMutation.mutate(
-                { email: identifier, password },
+                { username: identifier, password },
                 { onSuccess: () => navigate(fromPath, { replace: true }) },
               )
             }}
@@ -67,11 +62,6 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 placeholder={t({ ru: 'Введите пароль', en: 'Enter password' })}
               />
-            </div>
-
-            <div className={styles.demoBox}>
-              <span>{t({ ru: 'Логин:', en: 'Username:' })} {demoCredentials.identifier}</span>
-              <span>{t({ ru: 'Пароль:', en: 'Password:' })} {demoCredentials.password}</span>
             </div>
 
             <div className={styles.actions}>

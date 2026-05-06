@@ -24,7 +24,7 @@ export const useAuthBootstrap = () => {
 
     const initAuth = async () => {
       try {
-        const { user } = await meRequest(token)
+        const { user } = await meRequest()
         setUser(user)
       } catch {
         logout()

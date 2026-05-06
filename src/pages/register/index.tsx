@@ -92,6 +92,7 @@ export default function RegisterPage() {
         email: form.email.trim(),
         username: form.username.trim(),
         password: form.password,
+        confirmPassword: form.confirmPassword,
       },
       {
         onSuccess: () => navigate('/', { replace: true }),
