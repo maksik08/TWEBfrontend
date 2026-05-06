@@ -1,4 +1,4 @@
-import type { CategoryDto } from '@/shared/api/dto/category.dto'
+import type { SupplierDto } from '@/shared/api/dto/supplier.dto'
 import { http } from '@/shared/api/http'
 
 interface ApiResponse<T> {
@@ -9,8 +9,8 @@ interface ApiResponse<T> {
 
 type PagedResponse<T> = ApiResponse<T[]>
 
-export const fetchCategoryDtos = async (): Promise<CategoryDto[]> => {
-  const { data } = await http.get<PagedResponse<CategoryDto>>('/categories', {
+export const fetchSupplierDtos = async (): Promise<SupplierDto[]> => {
+  const { data } = await http.get<PagedResponse<SupplierDto>>('/suppliers', {
     params: { pageSize: 100, sortBy: 'name', sortDirection: 'asc' },
   })
   return data.data

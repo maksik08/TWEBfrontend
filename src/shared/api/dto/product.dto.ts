@@ -19,3 +19,5 @@ export interface UpdateProductPayload {
   supplierId?: number | null
 }
 
+export type CreateProductPayload = UpdateProductPayload
+
