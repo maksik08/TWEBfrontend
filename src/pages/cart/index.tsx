@@ -9,7 +9,7 @@ import type {
   InstallationType,
   ObjectType,
 } from '@/entities/calculator/Model/types'
-import { useProfileStore } from '@/entities/user/model/profile.store'
+import { useSessionStore } from '@/entities/session/model/session.store'
 import { createOrder, payOrder } from '@/entities/order'
 import { useLanguage } from '@/shared/i18n'
 import styles from './cart.module.css'
@@ -34,8 +34,9 @@ export default function CartPage() {
   const setQuantity = useCartStore((s) => s.setQuantity)
   const remove = useCartStore((s) => s.remove)
   const clear = useCartStore((s) => s.clear)
-  const balance = useProfileStore((s) => s.balance)
-  const recordPurchase = useProfileStore((s) => s.recordPurchase)
+  const sessionUser = useSessionStore((s) => s.user)
+  const patchUser = useSessionStore((s) => s.patchUser)
+  const balance = sessionUser?.balance ?? 0
 
   const [discount, setDiscount] = useState<number>(0)
   const [servicesEnabled, setServicesEnabled] = useState(() => searchParams.get('services') === '1')
@@ -454,44 +455,11 @@ export default function CartPage() {
                     })),
                   })
 
-                  await payOrder(order.id)
+                  const paid = await payOrder(order.id)
+                  patchUser({ balance: balance - paid.subtotal })
 
-                  const purchaseLines = items.map((item) => ({
-                    productId: item.product.id,
-                    title: item.product.title || item.product.name,
-                    quantity: item.quantity,
-                    unitPrice: item.product.price,
-                  }))
-
-                  if (serviceCalculation) {
-                    if (serviceCalculation.breakdown.delivery > 0) {
-                      purchaseLines.push({
-                        productId: 900001,
-                        title: t({ ru: 'Доставка оборудования', en: 'Equipment delivery' }),
-                        quantity: 1,
-                        unitPrice: serviceCalculation.breakdown.delivery,
-                      })
-                    }
-
-                    const extraServices =
-                      serviceCalculation.total - serviceCalculation.breakdown.delivery
-
-                    if (extraServices > 0) {
-                      purchaseLines.push({
-                        productId: 900002,
-                        title: t({ ru: 'Услуги установки и настройки', en: 'Installation and setup services' }),
-                        quantity: 1,
-                        unitPrice: extraServices,
-                      })
-                    }
-                  }
-
-                  recordPurchase({
-                    total,
-                    lines: purchaseLines,
-                  })
                   toast.success(
-                    `${t({ ru: 'Заказ', en: 'Order' })} #${order.id} ${t({ ru: 'оплачен', en: 'paid' })} · ${formatMoney(total)}`,
+                    `${t({ ru: 'Заказ', en: 'Order' })} #${order.id} ${t({ ru: 'оплачен', en: 'paid' })} · ${formatMoney(paid.subtotal)}`,
                   )
                   clear()
                   resetCartAddons()

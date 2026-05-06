@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import {
   FiUser,
@@ -13,9 +13,11 @@ import {
   FiX,
 } from 'react-icons/fi'
 import toast from 'react-hot-toast'
-import { useProfileStore } from '@/entities/user/model/profile.store'
+import axios from 'axios'
 import { useSessionStore } from '@/entities/session/model/session.store'
+import { updateProfile } from '@/entities/user/api/profile.api'
 import { useFavoritesStore } from '@/entities/favorites/model/favorites.store'
+import { fetchMyOrders, type Order } from '@/entities/order'
 import { useLanguage } from '@/shared/i18n'
 import styles from './profile.module.css'
 
@@ -27,49 +29,121 @@ const formatDate = (value: string) =>
     new Date(value),
   )
 
+const orderStatusLabel = (status: Order['status'], t: (m: { ru: string; en: string }) => string) => {
+  switch (status) {
+    case 'Pending':
+      return t({ ru: 'Ожидает', en: 'Pending' })
+    case 'Paid':
+      return t({ ru: 'Оплачен', en: 'Paid' })
+    case 'Shipped':
+      return t({ ru: 'Отправлен', en: 'Shipped' })
+    case 'Completed':
+      return t({ ru: 'Выполнен', en: 'Completed' })
+    case 'Cancelled':
+      return t({ ru: 'Отменён', en: 'Cancelled' })
+    default:
+      return status
+  }
+}
+
 export default function ProfilePage() {
   const isAuthenticated = useSessionStore((s) => s.isAuthenticated)
   const isBootstrapped = useSessionStore((s) => s.isBootstrapped)
   const sessionUser = useSessionStore((s) => s.user)
+  const setUser = useSessionStore((s) => s.setUser)
   const logout = useSessionStore((s) => s.logout)
-
-  const firstName = useProfileStore((s) => s.firstName)
-  const lastName = useProfileStore((s) => s.lastName)
-  const phone = useProfileStore((s) => s.phone)
-  const avatarUrl = useProfileStore((s) => s.avatarUrl)
-  const balance = useProfileStore((s) => s.balance)
-  const stats = useProfileStore((s) => s.stats)
-  const purchaseHistory = useProfileStore((s) => s.purchaseHistory)
-  const updateProfile = useProfileStore((s) => s.updateProfile)
 
   const favorites = useFavoritesStore((s) => s.favorites)
 
   const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState<Tab>('account')
-  const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
+  const [expandedOrder, setExpandedOrder] = useState<number | null>(null)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [isOrdersLoading, setIsOrdersLoading] = useState(true)
+
+  const firstName = sessionUser?.firstName ?? ''
+  const lastName = sessionUser?.lastName ?? ''
+  const phone = sessionUser?.phone ?? ''
+  const balance = sessionUser?.balance ?? 0
 
   const [editFirstName, setEditFirstName] = useState(firstName)
   const [editLastName, setEditLastName] = useState(lastName)
   const [editPhone, setEditPhone] = useState(phone)
   const [isEditing, setIsEditing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  useEffect(() => {
+    if (!sessionUser) return
+    let cancelled = false
+    setIsOrdersLoading(true)
+    fetchMyOrders()
+      .then((data) => {
+        if (!cancelled) setOrders(data)
+      })
+      .catch(() => {
+        if (!cancelled) setOrders([])
+      })
+      .finally(() => {
+        if (!cancelled) setIsOrdersLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [sessionUser])
 
   if (isBootstrapped && !isAuthenticated) {
     return <Navigate to="/login" replace />
   }
 
+  const stats = useMemo(() => {
+    const paidOrders = orders.filter(
+      (o) => o.status === 'Paid' || o.status === 'Shipped' || o.status === 'Completed',
+    )
+    const items = paidOrders.reduce(
+      (sum, order) => sum + order.items.reduce((s, line) => s + line.quantity, 0),
+      0,
+    )
+    const spent = paidOrders.reduce((sum, order) => sum + order.subtotal, 0)
+    const lastPurchaseAt = paidOrders.length > 0
+      ? paidOrders.reduce((latest, order) => {
+          const ts = order.paidAt ?? order.createdAt
+          return ts > latest ? ts : latest
+        }, '')
+      : null
+    return { ordersCount: paidOrders.length, items, spent, lastPurchaseAt }
+  }, [orders])
+
   const displayName = sessionUser?.username ?? `${firstName} ${lastName}`.trim()
   const initials = displayName.slice(0, 2).toUpperCase() || 'U'
-  const roleLabel = sessionUser?.role === 'admin' ? t({ ru: 'Администратор', en: 'Administrator' }) : t({ ru: 'Клиент', en: 'Client' })
+  const roleLabel = sessionUser?.role === 'admin'
+    ? t({ ru: 'Администратор', en: 'Administrator' })
+    : t({ ru: 'Клиент', en: 'Client' })
   const roleClass = sessionUser?.role === 'admin' ? styles.roleAdmin : styles.roleClient
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     if (!editFirstName.trim() || !editLastName.trim()) {
       toast.error(t({ ru: 'Имя и фамилия не могут быть пустыми', en: 'First and last name cannot be empty' }))
       return
     }
-    updateProfile({ firstName: editFirstName, lastName: editLastName, phone: editPhone })
-    toast.success(t({ ru: 'Профиль обновлён', en: 'Profile updated' }))
-    setIsEditing(false)
+    setIsSaving(true)
+    try {
+      const updated = await updateProfile({
+        firstName: editFirstName.trim(),
+        lastName: editLastName.trim(),
+        phone: editPhone.trim(),
+      })
+      setUser(updated)
+      toast.success(t({ ru: 'Профиль обновлён', en: 'Profile updated' }))
+      setIsEditing(false)
+    } catch (err) {
+      const message =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : t({ ru: 'Не удалось обновить профиль', en: 'Failed to update profile' })
+      toast.error(message)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleCancelEdit = () => {
@@ -81,7 +155,7 @@ export default function ProfilePage() {
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'account', label: t({ ru: 'Аккаунт', en: 'Account' }), icon: <FiUser size={17} /> },
-    { id: 'orders', label: `${t({ ru: 'Заказы', en: 'Orders' })} (${purchaseHistory.length})`, icon: <FiShoppingBag size={17} /> },
+    { id: 'orders', label: `${t({ ru: 'Заказы', en: 'Orders' })} (${orders.length})`, icon: <FiShoppingBag size={17} /> },
     { id: 'favorites', label: `${t({ ru: 'Избранное', en: 'Favorites' })} (${favorites.length})`, icon: <FiHeart size={17} /> },
     { id: 'settings', label: t({ ru: 'Настройки', en: 'Settings' }), icon: <FiSettings size={17} /> },
   ]
@@ -89,22 +163,16 @@ export default function ProfilePage() {
   return (
     <div className={styles.page}>
       <div className="container">
-        {/* Page header */}
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>{t({ ru: 'Личный кабинет', en: 'My account' })}</h1>
           <p className={styles.pageSubtitle}>{t({ ru: 'Управляйте профилем, заказами и настройками', en: 'Manage your profile, orders, and settings' })}</p>
         </div>
 
         <div className={styles.layout}>
-          {/* Sidebar */}
           <aside className={styles.sidebar}>
             <div className={styles.sidebarProfile}>
               <div className={styles.avatar}>
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt={displayName} />
-                ) : (
-                  <span className={styles.avatarInitials}>{initials}</span>
-                )}
+                <span className={styles.avatarInitials}>{initials}</span>
               </div>
               <div className={styles.sidebarInfo}>
                 <div className={styles.sidebarName}>{displayName}</div>
@@ -139,18 +207,15 @@ export default function ProfilePage() {
             </button>
           </aside>
 
-          {/* Main content */}
           <main className={styles.main}>
-            {/* Account tab */}
             {activeTab === 'account' && (
               <div className={styles.tabContent}>
                 <h2 className={styles.tabTitle}>{t({ ru: 'Информация об аккаунте', en: 'Account information' })}</h2>
 
-                {/* Stats row */}
                 <div className={styles.statsGrid}>
                   <div className={styles.statCard}>
                     <span className={styles.statLabel}>{t({ ru: 'Заказов', en: 'Orders' })}</span>
-                    <strong className={styles.statValue}>{stats.orders}</strong>
+                    <strong className={styles.statValue}>{stats.ordersCount}</strong>
                   </div>
                   <div className={styles.statCard}>
                     <span className={styles.statLabel}>{t({ ru: 'Товаров куплено', en: 'Items purchased' })}</span>
@@ -166,7 +231,6 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Profile info card */}
                 <div className={styles.card}>
                   <div className={styles.cardHeader}>
                     <h3 className={styles.cardTitle}>{t({ ru: 'Личные данные', en: 'Personal data' })}</h3>
@@ -215,10 +279,10 @@ export default function ProfilePage() {
                         />
                       </div>
                       <div className={styles.editActions}>
-                        <button type="button" className={styles.saveBtn} onClick={handleSaveProfile}>
-                          <FiCheck size={15} /> {t({ ru: 'Сохранить', en: 'Save' })}
+                        <button type="button" className={styles.saveBtn} onClick={handleSaveProfile} disabled={isSaving}>
+                          <FiCheck size={15} /> {isSaving ? t({ ru: 'Сохраняем…', en: 'Saving…' }) : t({ ru: 'Сохранить', en: 'Save' })}
                         </button>
-                        <button type="button" className={styles.cancelBtn} onClick={handleCancelEdit}>
+                        <button type="button" className={styles.cancelBtn} onClick={handleCancelEdit} disabled={isSaving}>
                           <FiX size={15} /> {t({ ru: 'Отмена', en: 'Cancel' })}
                         </button>
                       </div>
@@ -253,7 +317,6 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                {/* Last order */}
                 {stats.lastPurchaseAt && (
                   <div className={styles.card}>
                     <h3 className={styles.cardTitle}>{t({ ru: 'Последняя активность', en: 'Recent activity' })}</h3>
@@ -272,15 +335,18 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Orders tab */}
             {activeTab === 'orders' && (
               <div className={styles.tabContent}>
                 <div className={styles.tabTitleRow}>
                   <h2 className={styles.tabTitle}>{t({ ru: 'История заказов', en: 'Order history' })}</h2>
-                  <span className={styles.countBadge}>{purchaseHistory.length}</span>
+                  <span className={styles.countBadge}>{orders.length}</span>
                 </div>
 
-                {purchaseHistory.length === 0 ? (
+                {isOrdersLoading ? (
+                  <div className={styles.emptyState}>
+                    <p>{t({ ru: 'Загрузка…', en: 'Loading…' })}</p>
+                  </div>
+                ) : orders.length === 0 ? (
                   <div className={styles.emptyState}>
                     <FiShoppingBag size={40} className={styles.emptyIcon} />
                     <p>{t({ ru: 'У вас пока нет заказов', en: 'You have no orders yet' })}</p>
@@ -288,60 +354,62 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className={styles.orderList}>
-                    {purchaseHistory.map((order) => (
-                      <article key={order.id} className={styles.orderCard}>
-                        <button
-                          type="button"
-                          className={styles.orderHeader}
-                          onClick={() =>
-                            setExpandedOrder(expandedOrder === order.id ? null : order.id)
-                          }
-                        >
-                          <div className={styles.orderMeta}>
-                            <span className={styles.orderStatus}>{t({ ru: 'Выполнен', en: 'Completed' })}</span>
-                            <span className={styles.orderDate}>{formatDate(order.purchasedAt)}</span>
-                          </div>
-                          <div className={styles.orderSummary}>
-                            <span className={styles.orderItems}>{order.itemsCount} {t({ ru: 'шт.', en: 'pcs.' })}</span>
-                            <strong className={styles.orderTotal}>{formatMoney(order.total)}</strong>
-                            {expandedOrder === order.id ? (
-                              <FiChevronUp size={16} />
-                            ) : (
-                              <FiChevronDown size={16} />
-                            )}
-                          </div>
-                        </button>
-
-                        {expandedOrder === order.id && (
-                          <div className={styles.orderLines}>
-                            {order.lines.map((line) => (
-                              <div
-                                key={`${order.id}-${line.productId}`}
-                                className={styles.orderLine}
-                              >
-                                <span className={styles.lineTitle}>{line.title}</span>
-                                <span className={styles.lineQty}>
-                                  {line.quantity} × {formatMoney(line.unitPrice)}
-                                </span>
-                                <span className={styles.lineTotal}>
-                                  {formatMoney(line.quantity * line.unitPrice)}
-                                </span>
-                              </div>
-                            ))}
-                            <div className={styles.orderFooter}>
-                              <span>{t({ ru: 'Итого:', en: 'Total:' })}</span>
-                              <strong>{formatMoney(order.total)}</strong>
+                    {orders.map((order) => {
+                      const itemsCount = order.items.reduce((s, l) => s + l.quantity, 0)
+                      return (
+                        <article key={order.id} className={styles.orderCard}>
+                          <button
+                            type="button"
+                            className={styles.orderHeader}
+                            onClick={() =>
+                              setExpandedOrder(expandedOrder === order.id ? null : order.id)
+                            }
+                          >
+                            <div className={styles.orderMeta}>
+                              <span className={styles.orderStatus}>{orderStatusLabel(order.status, t)}</span>
+                              <span className={styles.orderDate}>{formatDate(order.paidAt ?? order.createdAt)}</span>
                             </div>
-                          </div>
-                        )}
-                      </article>
-                    ))}
+                            <div className={styles.orderSummary}>
+                              <span className={styles.orderItems}>{itemsCount} {t({ ru: 'шт.', en: 'pcs.' })}</span>
+                              <strong className={styles.orderTotal}>{formatMoney(order.subtotal)}</strong>
+                              {expandedOrder === order.id ? (
+                                <FiChevronUp size={16} />
+                              ) : (
+                                <FiChevronDown size={16} />
+                              )}
+                            </div>
+                          </button>
+
+                          {expandedOrder === order.id && (
+                            <div className={styles.orderLines}>
+                              {order.items.map((line) => (
+                                <div
+                                  key={line.id}
+                                  className={styles.orderLine}
+                                >
+                                  <span className={styles.lineTitle}>{line.productName}</span>
+                                  <span className={styles.lineQty}>
+                                    {line.quantity} × {formatMoney(line.unitPrice)}
+                                  </span>
+                                  <span className={styles.lineTotal}>
+                                    {formatMoney(line.lineTotal)}
+                                  </span>
+                                </div>
+                              ))}
+                              <div className={styles.orderFooter}>
+                                <span>{t({ ru: 'Итого:', en: 'Total:' })}</span>
+                                <strong>{formatMoney(order.subtotal)}</strong>
+                              </div>
+                            </div>
+                          )}
+                        </article>
+                      )
+                    })}
                   </div>
                 )}
               </div>
             )}
 
-            {/* Favorites tab */}
             {activeTab === 'favorites' && (
               <div className={styles.tabContent}>
                 <div className={styles.tabTitleRow}>
@@ -381,7 +449,6 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Settings tab */}
             {activeTab === 'settings' && (
               <div className={styles.tabContent}>
                 <h2 className={styles.tabTitle}>{t({ ru: 'Настройки', en: 'Settings' })}</h2>
@@ -399,49 +466,6 @@ export default function ProfilePage() {
                       onClick={() => toast(t({ ru: 'Смена пароля недоступна в демо-режиме', en: 'Password change unavailable in demo mode' }), { icon: 'ℹ️' })}
                     >
                       {t({ ru: 'Изменить', en: 'Change' })}
-                    </button>
-                  </div>
-                  <div className={styles.settingRow}>
-                    <div>
-                      <div className={styles.settingName}>{t({ ru: 'Двухфакторная аутентификация', en: 'Two-factor authentication' })}</div>
-                      <div className={styles.settingDesc}>{t({ ru: 'Отключена', en: 'Disabled' })}</div>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.settingBtn}
-                      onClick={() => toast(t({ ru: '2FA недоступна в демо-режиме', en: '2FA unavailable in demo mode' }), { icon: 'ℹ️' })}
-                    >
-                      {t({ ru: 'Включить', en: 'Enable' })}
-                    </button>
-                  </div>
-                </div>
-
-                <div className={styles.card}>
-                  <h3 className={styles.cardTitle}>{t({ ru: 'Уведомления', en: 'Notifications' })}</h3>
-                  <div className={styles.settingRow}>
-                    <div>
-                      <div className={styles.settingName}>{t({ ru: 'Email-уведомления о заказах', en: 'Email order notifications' })}</div>
-                      <div className={styles.settingDesc}>{t({ ru: 'Получайте статус заказов на почту', en: 'Receive order status updates by email' })}</div>
-                    </div>
-                    <button
-                      type="button"
-                      className={`${styles.settingBtn} ${styles.settingBtnActive}`}
-                      onClick={() => toast(t({ ru: 'Настройки уведомлений недоступны в демо', en: 'Notification settings unavailable in demo' }), { icon: 'ℹ️' })}
-                    >
-                      {t({ ru: 'Включено', en: 'Enabled' })}
-                    </button>
-                  </div>
-                  <div className={styles.settingRow}>
-                    <div>
-                      <div className={styles.settingName}>{t({ ru: 'Промо-рассылка', en: 'Promotional emails' })}</div>
-                      <div className={styles.settingDesc}>{t({ ru: 'Акции, скидки и новинки', en: 'Promotions, discounts and new arrivals' })}</div>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.settingBtn}
-                      onClick={() => toast(t({ ru: 'Настройки рассылки недоступны в демо', en: 'Mailing settings unavailable in demo' }), { icon: 'ℹ️' })}
-                    >
-                      {t({ ru: 'Отключена', en: 'Disabled' })}
                     </button>
                   </div>
                 </div>

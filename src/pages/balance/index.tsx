@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useProfileStore } from '@/entities/user/model/profile.store'
+import axios from 'axios'
+import { useSessionStore } from '@/entities/session/model/session.store'
+import { topUpBalance } from '@/entities/user/api/profile.api'
+import { fetchMyOrders, type Order } from '@/entities/order'
 import { useLanguage } from '@/shared/i18n'
 import styles from './balance.module.css'
 
@@ -14,13 +17,74 @@ const formatDate = (value: string) =>
 const quickAmounts = [10, 25, 50, 100]
 
 export default function BalancePage() {
-  const balance = useProfileStore((s) => s.balance)
-  const stats = useProfileStore((s) => s.stats)
-  const purchaseHistory = useProfileStore((s) => s.purchaseHistory)
-  const topUp = useProfileStore((s) => s.topUp)
+  const user = useSessionStore((s) => s.user)
+  const setUser = useSessionStore((s) => s.setUser)
+  const balance = user?.balance ?? 0
 
   const { t } = useLanguage()
   const [amount, setAmount] = useState<number>(25)
+  const [isTopping, setIsTopping] = useState(false)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [isOrdersLoading, setIsOrdersLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user) return
+    let cancelled = false
+    setIsOrdersLoading(true)
+    fetchMyOrders()
+      .then((data) => {
+        if (!cancelled) setOrders(data)
+      })
+      .catch(() => {
+        if (!cancelled) setOrders([])
+      })
+      .finally(() => {
+        if (!cancelled) setIsOrdersLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [user])
+
+  const stats = useMemo(() => {
+    const paidOrders = orders.filter((o) => o.status === 'Paid' || o.status === 'Shipped' || o.status === 'Completed')
+    const items = paidOrders.reduce(
+      (sum, order) => sum + order.items.reduce((s, line) => s + line.quantity, 0),
+      0,
+    )
+    const spent = paidOrders.reduce((sum, order) => sum + order.subtotal, 0)
+    const lastPurchaseAt = paidOrders.length > 0
+      ? paidOrders.reduce((latest, order) => {
+          const ts = order.paidAt ?? order.createdAt
+          return ts > latest ? ts : latest
+        }, '')
+      : null
+    return { ordersCount: paidOrders.length, items, spent, lastPurchaseAt }
+  }, [orders])
+
+  const handleTopUp = async () => {
+    if (!Number.isFinite(amount) || amount <= 0) {
+      toast.error(t({ ru: 'Введите корректную сумму', en: 'Enter a valid amount' }))
+      return
+    }
+    if (!user) return
+
+    setIsTopping(true)
+    try {
+      const updated = await topUpBalance(amount)
+      setUser(updated)
+      toast.success(`${t({ ru: 'Баланс пополнен на', en: 'Balance topped up by' })} ${formatMoney(amount)}`)
+      setAmount(0)
+    } catch (err) {
+      const message =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : t({ ru: 'Не удалось пополнить баланс', en: 'Failed to top up balance' })
+      toast.error(message)
+    } finally {
+      setIsTopping(false)
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -40,7 +104,7 @@ export default function BalancePage() {
             <div className={styles.stats}>
               <div className={styles.statItem}>
                 <span>{t({ ru: 'Покупок', en: 'Purchases' })}</span>
-                <strong>{stats.orders}</strong>
+                <strong>{stats.ordersCount}</strong>
               </div>
               <div className={styles.statItem}>
                 <span>{t({ ru: 'Товаров', en: 'Items' })}</span>
@@ -65,14 +129,7 @@ export default function BalancePage() {
               className={styles.form}
               onSubmit={(event) => {
                 event.preventDefault()
-                if (!Number.isFinite(amount) || amount <= 0) {
-                  toast.error(t({ ru: 'Введите корректную сумму', en: 'Enter a valid amount' }))
-                  return
-                }
-
-                topUp(amount)
-                toast.success(`${t({ ru: 'Баланс пополнен на', en: 'Balance topped up by' })} ${formatMoney(amount)}`)
-                setAmount(0)
+                handleTopUp()
               }}
             >
               <label className={styles.label} htmlFor="balance-amount">
@@ -88,8 +145,10 @@ export default function BalancePage() {
                   value={Number.isFinite(amount) ? amount : 0}
                   onChange={(e) => setAmount(Number(e.target.value))}
                 />
-                <button className={styles.submit} type="submit">
-                  {t({ ru: 'Пополнить', en: 'Top up' })}
+                <button className={styles.submit} type="submit" disabled={isTopping}>
+                  {isTopping
+                    ? t({ ru: 'Пополнение…', en: 'Topping up…' })
+                    : t({ ru: 'Пополнить', en: 'Top up' })}
                 </button>
               </div>
 
@@ -114,34 +173,38 @@ export default function BalancePage() {
         <section className={styles.historySection}>
           <div className={styles.historyHeader}>
             <h2 className={styles.sectionTitle}>{t({ ru: 'История покупок', en: 'Purchase history' })}</h2>
-            <span className={styles.historyCount}>{t({ ru: 'Всего заказов:', en: 'Total orders:' })} {purchaseHistory.length}</span>
+            <span className={styles.historyCount}>{t({ ru: 'Всего заказов:', en: 'Total orders:' })} {orders.length}</span>
           </div>
 
-          {purchaseHistory.length === 0 ? (
+          {isOrdersLoading ? (
+            <div className={styles.emptyHistory}>{t({ ru: 'Загрузка…', en: 'Loading…' })}</div>
+          ) : orders.length === 0 ? (
             <div className={styles.emptyHistory}>
               {t({ ru: 'История пока пустая. После оплаты в корзине здесь появятся ваши покупки.', en: 'History is empty. After paying in the cart, your purchases will appear here.' })}
             </div>
           ) : (
             <div className={styles.historyList}>
-              {purchaseHistory.map((entry) => (
-                <article key={entry.id} className={styles.historyCard}>
+              {orders.map((order) => (
+                <article key={order.id} className={styles.historyCard}>
                   <div className={styles.historyTop}>
                     <div>
-                      <h3 className={styles.historyTitle}>{t({ ru: 'Заказ на', en: 'Order for' })} {formatMoney(entry.total)}</h3>
-                      <p className={styles.historyDate}>{formatDate(entry.purchasedAt)}</p>
+                      <h3 className={styles.historyTitle}>
+                        {t({ ru: 'Заказ', en: 'Order' })} #{order.id} — {formatMoney(order.subtotal)}
+                      </h3>
+                      <p className={styles.historyDate}>{formatDate(order.paidAt ?? order.createdAt)}</p>
                     </div>
                     <div className={styles.historyMeta}>
-                      <span>{entry.itemsCount} {t({ ru: 'шт.', en: 'pcs.' })}</span>
-                      <strong>{formatMoney(entry.total)}</strong>
+                      <span>{order.items.reduce((s, l) => s + l.quantity, 0)} {t({ ru: 'шт.', en: 'pcs.' })}</span>
+                      <strong>{formatMoney(order.subtotal)}</strong>
                     </div>
                   </div>
 
                   <div className={styles.historyLines}>
-                    {entry.lines.map((line) => (
-                      <div key={`${entry.id}-${line.productId}`} className={styles.historyLine}>
-                        <span>{line.title}</span>
+                    {order.items.map((item) => (
+                      <div key={item.id} className={styles.historyLine}>
+                        <span>{item.productName}</span>
                         <span>
-                          {line.quantity} x {formatMoney(line.unitPrice)}
+                          {item.quantity} x {formatMoney(item.unitPrice)}
                         </span>
                       </div>
                     ))}

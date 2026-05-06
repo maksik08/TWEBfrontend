@@ -3,7 +3,6 @@ import { FiHeart, FiMenu, FiMoon, FiShoppingCart, FiSun } from 'react-icons/fi'
 import { useCartStore, selectCartCount } from '@/entities/cart/model/cart.store'
 import { useFavoritesStore } from '@/entities/favorites/model/favorites.store'
 import { useSessionStore } from '@/entities/session/model/session.store'
-import { useProfileStore } from '@/entities/user/model/profile.store'
 import { useThemeStore } from '@/entities/theme/model/theme.store'
 import { useLanguage } from '@/shared/i18n'
 import styles from './header.module.css'
@@ -19,11 +18,10 @@ export const Header = () => {
   const isAuthenticated = useSessionStore((state) => state.isAuthenticated)
   const sessionUser = useSessionStore((state) => state.user)
   const logout = useSessionStore((state) => state.logout)
-  const firstName = useProfileStore((state) => state.firstName)
-  const lastName = useProfileStore((state) => state.lastName)
-  const avatarUrl = useProfileStore((state) => state.avatarUrl)
-  const balance = useProfileStore((state) => state.balance)
-  const stats = useProfileStore((state) => state.stats)
+
+  const firstName = sessionUser?.firstName ?? ''
+  const lastName = sessionUser?.lastName ?? ''
+  const balance = sessionUser?.balance ?? 0
 
   const theme = useThemeStore((state) => state.theme)
   const toggleTheme = useThemeStore((state) => state.toggleTheme)
@@ -123,11 +121,7 @@ export const Header = () => {
               <div className={styles.profileCard}>
                 <Link to="/profile" className={styles.profileLink}>
                   <div className={styles.avatarFrame} aria-hidden="true">
-                    {avatarUrl ? (
-                      <img src={avatarUrl} alt={`${firstName} ${lastName}`} />
-                    ) : (
-                      <span className={styles.avatarInitials}>{initials || 'U'}</span>
-                    )}
+                    <span className={styles.avatarInitials}>{initials || 'U'}</span>
                   </div>
                   <div className={styles.profileInfo}>
                     <div className={styles.profileName}>{displayName}</div>
@@ -136,13 +130,11 @@ export const Header = () => {
                       <span className={styles.profileBalance}>
                         {t({ ru: 'Баланс', en: 'Balance' })}: {formatMoney(balance)}
                       </span>
-                      <span className={styles.profileStats}>
-                        {t({ ru: 'Покупок', en: 'Orders' })}: {stats.orders} •{' '}
-                        {t({ ru: 'Товаров', en: 'Items' })}: {stats.items} •{' '}
-                        {t({ ru: 'Потрачено', en: 'Spent' })}: {formatMoney(stats.spent)}
-                      </span>
                     </div>
                   </div>
+                </Link>
+                <Link to="/orders" className={styles.topUp}>
+                  {t({ ru: 'Заказы', en: 'Orders' })}
                 </Link>
                 <Link to="/balance" className={styles.topUp}>
                   {t({ ru: 'Баланс', en: 'Balance' })}

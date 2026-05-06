@@ -24,7 +24,6 @@ import {
 } from '@/entities/product'
 import { getProductRatingSummary, StarRating, useProductFeedbackStore } from '@/entities/product-feedback'
 import { useSessionStore } from '@/entities/session/model/session.store'
-import { useProfileStore } from '@/entities/user/model/profile.store'
 import { useLanguage } from '@/shared/i18n'
 import styles from './product-detail.module.css'
 
@@ -50,8 +49,8 @@ export default function ProductDetailPage() {
   const reviews = useProductFeedbackStore((state) => state.reviews[String(productId)] ?? [])
   const sessionUser = useSessionStore((state) => state.user)
   const isAdmin = sessionUser?.role === 'admin'
-  const firstName = useProfileStore((state) => state.firstName)
-  const lastName = useProfileStore((state) => state.lastName)
+  const firstName = sessionUser?.firstName ?? ''
+  const lastName = sessionUser?.lastName ?? ''
 
   const { t, language } = useLanguage()
   const defaultAuthor = buildAuthorName(sessionUser?.username, firstName, lastName)

@@ -10,5 +10,9 @@ export const mapUserDtoToUser = (dto: UserDto): User => {
     email: dto.email,
     username: dto.username,
     role: normalizeRole(dto.role),
+    firstName: dto.firstName ?? '',
+    lastName: dto.lastName ?? '',
+    phone: dto.phone ?? '',
+    balance: typeof dto.balance === 'number' && Number.isFinite(dto.balance) ? dto.balance : 0,
   }
 }
