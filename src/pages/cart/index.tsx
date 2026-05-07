@@ -11,6 +11,7 @@ import type {
 } from '@/entities/calculator/Model/types'
 import { useSessionStore } from '@/entities/session/model/session.store'
 import { createOrder, payOrder } from '@/entities/order'
+import { getProductImageUrl } from '@/entities/product/model/product.helpers'
 import { useLanguage } from '@/shared/i18n'
 import styles from './cart.module.css'
 
@@ -127,7 +128,7 @@ export default function CartPage() {
                   {items.map((item) => (
                     <div key={item.product.id} className={styles.card}>
                       <div className={styles.thumb}>
-                        <img src={item.product.image} alt={item.product.title} />
+                        <img src={getProductImageUrl(item.product)} alt={item.product.title} />
                       </div>
 
                       <div>

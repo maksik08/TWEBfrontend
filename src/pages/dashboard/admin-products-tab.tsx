@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -10,9 +10,11 @@ import {
   deleteProductDto,
   fetchProductDtos,
   updateProductDto,
+  uploadProductImage,
 } from '@/entities/product/api/products.admin'
 import { fetchCategoryDtos } from '@/entities/product/api/categories.admin'
 import { fetchSupplierDtos } from '@/entities/product/api/suppliers.admin'
+import { resolveImageUrl } from '@/entities/product/model/product.helpers'
 import styles from './admin.module.css'
 
 type ProductDraft = {
@@ -57,6 +59,7 @@ export const AdminProductsTab = () => {
   const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
   const [draft, setDraft] = useState<ProductDraft | null>(null)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
 
   const { data: dtos = [], isLoading, isError, error } = useQuery<ProductDto[]>({
     queryKey: ['admin', 'products'],
@@ -134,7 +137,24 @@ export const AdminProductsTab = () => {
   })
 
   const isPending =
-    updateMutation.isPending || createMutation.isPending || deleteMutation.isPending
+    updateMutation.isPending || createMutation.isPending || deleteMutation.isPending || isUploadingImage
+
+  const handleImageFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    setIsUploadingImage(true)
+    try {
+      const url = await uploadProductImage(file)
+      setDraft((d) => (d ? { ...d, image: url } : d))
+      toast.success('Картинка загружена')
+    } catch (err) {
+      toast.error(extractMessage(err, 'Не удалось загрузить картинку'))
+    } finally {
+      setIsUploadingImage(false)
+    }
+  }
 
   useEffect(() => {
     if (!draft || draft.id == null) return
@@ -293,7 +313,7 @@ export const AdminProductsTab = () => {
                     </div>
                     {dto.image ? (
                       <img
-                        src={dto.image.toString()}
+                        src={resolveImageUrl(dto.image.toString())}
                         alt={title}
                         style={{
                           width: 72,
@@ -417,18 +437,34 @@ export const AdminProductsTab = () => {
               </div>
 
               <label className={styles.field}>
-                <span className={styles.fieldLabel}>Картинка (image URL)</span>
+                <span className={styles.fieldLabel}>Картинка (URL или загрузить файл)</span>
                 <input
                   className={styles.input}
                   value={draft.image}
                   onChange={(e) => setDraft((d) => (d ? { ...d, image: e.target.value } : d))}
-                  placeholder="/images/product/..."
+                  placeholder="/images/product/... или /uploads/products/..."
                 />
+              </label>
+
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>Загрузить из файла (jpg, png, webp, gif — до 5 МБ)</span>
+                <input
+                  className={styles.input}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  onChange={handleImageFileChange}
+                  disabled={isPending}
+                />
+                {isUploadingImage && (
+                  <span style={{ fontSize: '0.875rem', color: 'var(--color-text-muted, #6b7280)' }}>
+                    Загрузка…
+                  </span>
+                )}
               </label>
 
               {draft.image && (
                 <img
-                  src={draft.image}
+                  src={resolveImageUrl(draft.image)}
                   alt="preview"
                   style={{
                     marginTop: '0.5rem',

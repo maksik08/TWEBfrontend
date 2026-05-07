@@ -1,3 +1,4 @@
+import { env } from '@/shared/config/env'
 import type { AppLanguage } from '@/shared/i18n'
 import type { Product, ProductAvailability, ProductCategory } from './types'
 
@@ -24,14 +25,30 @@ export const getProductCategoryLabel = (category: ProductCategory, language: App
 export const getProductAvailabilityLabel = (availability?: ProductAvailability, language: AppLanguage = 'ru') =>
   availability ? availabilityLabels[availability][language] : availabilityLabels['in-stock'][language]
 
-export const getProductImageUrl = (product: Product) => {
-  if (!product.image || product.image === 'N/A') {
-    return undefined
+const apiOrigin = (() => {
+  try {
+    return new URL(env.apiUrl).origin
+  } catch {
+    return ''
+  }
+})()
+
+export const resolveImageUrl = (image?: string | null): string | undefined => {
+  if (!image || image === 'N/A') return undefined
+
+  if (image.startsWith('http://') || image.startsWith('https://')) {
+    return image
   }
 
-  if (product.image.startsWith('http') || product.image.startsWith('/')) {
-    return product.image
+  if (image.startsWith('/uploads/') && apiOrigin) {
+    return `${apiOrigin}${image}`
   }
 
-  return `/images/product/${product.image}`
+  if (image.startsWith('/')) {
+    return image
+  }
+
+  return `/images/product/${image}`
 }
+
+export const getProductImageUrl = (product: Product) => resolveImageUrl(product.image)

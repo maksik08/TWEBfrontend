@@ -45,3 +45,10 @@ export const deleteProductDto = async (id: number | string): Promise<void> => {
   }
   await http.delete(`/products/${numericId}`)
 }
+
+export const uploadProductImage = async (file: File): Promise<string> => {
+  const form = new FormData()
+  form.append('file', file)
+  const { data } = await http.post<ApiResponse<{ url: string }>>('/products/upload-image', form)
+  return data.data.url
+}
