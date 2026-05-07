@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { User } from '@/entities/user/model/types'
 import { tokenService } from '@/shared/lib/token'
+import { logoutRequest } from '@/features/auth/api/auth.api'
 
 interface SessionState {
   user: User | null
@@ -41,6 +42,7 @@ export const useSessionStore = create<SessionState>((set) => ({
     }),
 
   logout: () => {
+    void logoutRequest().catch(() => {})
     tokenService.remove()
     clearPerUserState()
     set({

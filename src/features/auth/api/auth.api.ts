@@ -47,3 +47,7 @@ export const meRequest = async () => {
   const response = await http.get<ApiResponse<UserDto>>('/profile/me')
   return { user: mapUserDtoToUser(response.data.data) }
 }
+
+export const logoutRequest = async () => {
+  await http.post('/auth/logout')
+}
