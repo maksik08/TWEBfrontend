@@ -21,6 +21,7 @@ import ProductDetailPage from '@/pages/product-detail'
 import ProfilePage from '@/pages/profile'
 import OrdersPage from '@/pages/orders'
 import OrderDetailPage from '@/pages/order-detail'
+import ContactPage from '@/pages/contact'
 
 export const router = createBrowserRouter([
   {
@@ -54,6 +55,10 @@ export const router = createBrowserRouter([
       {
         path: 'about',
         element: <AboutPage />,
+      },
+      {
+        path: 'contact',
+        element: <ContactPage />,
       },
       {
         path: 'catalog',

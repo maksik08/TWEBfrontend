@@ -53,6 +53,9 @@ export const Header = () => {
             <Link to="/about" className={styles.navLink}>
               {t({ ru: 'О нас', en: 'About' })}
             </Link>
+            <Link to="/contact" className={styles.navLink}>
+              {t({ ru: 'Контакты', en: 'Contact' })}
+            </Link>
           </nav>
 
           <div className={styles.actions}>

@@ -1,0 +1,153 @@
+.page {
+  padding: 2rem 0 4rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 720px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.intro {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.title {
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0 0 1rem;
+}
+
+.contactList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.contactItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.95rem;
+}
+
+.contactLabel {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.contactValue {
+  color: var(--text);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.75rem 0;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+.textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.inputError {
+  border-color: #dc2626;
+}
+
+.fieldError {
+  font-size: 0.8rem;
+  color: #dc2626;
+}
+
+.formError {
+  margin-top: 0.9rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius);
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.success {
+  margin-top: 0.9rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: var(--radius);
+  background: rgba(16, 185, 129, 0.08);
+  color: #047857;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.button {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}

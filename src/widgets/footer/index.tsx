@@ -37,7 +37,7 @@ export const Footer = () => {
                 <Link to="/cart?services=1">{t({ ru: 'Оплата', en: 'Payment' })}</Link>
               </li>
               <li>
-                <a href="#">{t({ ru: 'Контакты', en: 'Contacts' })}</a>
+                <Link to="/contact">{t({ ru: 'Обратная связь', en: 'Contact us' })}</Link>
               </li>
             </ul>
           </div>
