@@ -1,3 +1,5 @@
 export { useAuthBootstrap } from './model/useAuthBootstrap'
 export { useLogin } from './model/useLogin'
 export { useRegister } from './model/useRegister'
+export { useForgotPassword } from './model/useForgotPassword'
+export { useResetPassword } from './model/useResetPassword'

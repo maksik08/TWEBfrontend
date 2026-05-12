@@ -51,3 +51,21 @@ export const meRequest = async () => {
 export const logoutRequest = async () => {
   await http.post('/auth/logout')
 }
+
+export const forgotPasswordRequest = async (data: { email: string }) => {
+  await http.post('/auth/forgot-password', {
+    email: data.email.trim().toLowerCase(),
+  })
+}
+
+export const resetPasswordRequest = async (data: {
+  token: string
+  newPassword: string
+  confirmPassword: string
+}) => {
+  await http.post('/auth/reset-password', {
+    token: data.token,
+    newPassword: data.newPassword,
+    confirmPassword: data.confirmPassword,
+  })
+}

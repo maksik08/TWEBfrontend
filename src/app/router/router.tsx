@@ -7,6 +7,8 @@ import ClientDashboard from '@/pages/dashboard/client'
 import Forbidden from '@/pages/forbidden'
 import Login from '@/pages/login'
 import Register from '@/pages/register'
+import ForgotPasswordPage from '@/pages/forgot-password'
+import ResetPasswordPage from '@/pages/reset-password'
 import AboutPage from '@/pages/about'
 import HomePage from '@/pages/home'
 import CatalogPage from '@/pages/catalog'
@@ -29,6 +31,16 @@ export const router = createBrowserRouter([
     path: '/register',
     element: <PublicLayout />,
     children: [{ index: true, element: <Register /> }],
+  },
+  {
+    path: '/forgot-password',
+    element: <PublicLayout />,
+    children: [{ index: true, element: <ForgotPasswordPage /> }],
+  },
+  {
+    path: '/reset-password/:token',
+    element: <PublicLayout />,
+    children: [{ index: true, element: <ResetPasswordPage /> }],
   },
   {
     path: '/',

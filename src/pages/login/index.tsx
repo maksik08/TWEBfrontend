@@ -12,9 +12,10 @@ export default function LoginPage() {
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
 
-  type LocationState = { from?: { pathname: string } }
+  type LocationState = { from?: { pathname: string }; resetSuccess?: boolean }
   const state = location.state as LocationState | null
   const fromPath = state?.from?.pathname ?? '/'
+  const resetSuccess = state?.resetSuccess === true
   const { t } = useLanguage()
 
   return (
@@ -25,6 +26,15 @@ export default function LoginPage() {
           <p className={styles.subtitle}>
             {t({ ru: 'Введите логин и пароль вашей учётной записи.', en: 'Enter your account username and password.' })}
           </p>
+
+          {resetSuccess && (
+            <div className={styles.resetSuccess}>
+              {t({
+                ru: 'Пароль обновлён. Войдите с новым паролем.',
+                en: 'Password updated. Sign in with your new password.',
+              })}
+            </div>
+          )}
 
           <form
             onSubmit={(event) => {
@@ -62,6 +72,12 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 placeholder={t({ ru: 'Введите пароль', en: 'Enter password' })}
               />
+            </div>
+
+            <div className={styles.forgotRow}>
+              <Link to="/forgot-password" className={styles.forgotLink}>
+                {t({ ru: 'Забыли пароль?', en: 'Forgot your password?' })}
+              </Link>
             </div>
 
             <div className={styles.actions}>
