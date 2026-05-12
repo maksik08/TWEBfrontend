@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useSessionStore } from '@/entities/session/model/session.store'
@@ -127,9 +127,9 @@ export default function OrdersPage() {
                 <article key={order.id} className={styles.card}>
                   <header className={styles.cardHeader}>
                     <div>
-                      <div className={styles.cardTitle}>
+                      <Link to={`/orders/${order.id}`} className={styles.cardTitleLink}>
                         {t({ ru: 'Заказ', en: 'Order' })} #{order.id}
-                      </div>
+                      </Link>
                       <div className={styles.meta}>
                         {formatDate(order.createdAt)}
                         {order.paidAt

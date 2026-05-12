@@ -20,6 +20,7 @@ import CalculatorPage from '@/pages/calculator'
 import ProductDetailPage from '@/pages/product-detail'
 import ProfilePage from '@/pages/profile'
 import OrdersPage from '@/pages/orders'
+import OrderDetailPage from '@/pages/order-detail'
 
 export const router = createBrowserRouter([
   {
@@ -85,6 +86,10 @@ export const router = createBrowserRouter([
       {
         path: 'orders',
         element: <OrdersPage />,
+      },
+      {
+        path: 'orders/:orderId',
+        element: <OrderDetailPage />,
       },
       {
         path: 'admin',

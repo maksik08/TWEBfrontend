@@ -63,6 +63,17 @@
   font-weight: 600;
 }
 
+.cardTitleLink {
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.cardTitleLink:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 .meta {
   color: var(--color-muted, #666);
   font-size: 0.9rem;

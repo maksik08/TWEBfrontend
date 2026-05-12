@@ -30,6 +30,11 @@ export const fetchMyOrders = async (): Promise<Order[]> => {
   return data.data
 }
 
+export const fetchOrderById = async (orderId: number): Promise<Order> => {
+  const { data } = await http.get<ApiResponse<Order>>(`/Orders/${orderId}`)
+  return data.data
+}
+
 export const payOrder = async (orderId: number): Promise<Order> => {
   const { data } = await http.post<ApiResponse<Order>>(`/Orders/${orderId}/pay`)
   return data.data
