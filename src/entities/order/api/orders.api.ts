@@ -16,6 +16,11 @@ export type CreateOrderItemPayload = {
 
 export type CreateOrderPayload = {
   items: CreateOrderItemPayload[]
+  recipientName: string
+  phone: string
+  shippingAddress: string
+  city: string
+  comment?: string
 }
 
 export const createOrder = async (payload: CreateOrderPayload): Promise<Order> => {

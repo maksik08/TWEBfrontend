@@ -568,7 +568,7 @@ export const ProductCatalog = () => {
                   title={service.name}
                   description={service.description}
                   priceLabel={`от $${service.price.toFixed(2)}`}
-                  href="/cart?services=1"
+                  href="/checkout?services=1"
                   actionLabel={service.ctaLabel ?? t({ ru: 'Перейти к расчёту', en: 'Go to calculator' })}
                 />
               ))}
@@ -592,7 +592,7 @@ export const ProductCatalog = () => {
                   title={promotion.title}
                   description={promotion.description}
                   priceLabel={promotion.discountLabel}
-                  href="/cart?services=1"
+                  href="/checkout?services=1"
                   actionLabel={t({ ru: 'Открыть калькулятор', en: 'Open calculator' })}
                 />
               ))}

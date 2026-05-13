@@ -15,6 +15,7 @@ import CatalogPage from '@/pages/catalog'
 import FavoritesPage from '@/pages/favorites'
 import NotFoundPage from '@/pages/not-found'
 import CartPage from '@/pages/cart'
+import CheckoutPage from '@/pages/checkout'
 import BalancePage from '@/pages/balance'
 import CalculatorPage from '@/pages/calculator'
 import ProductDetailPage from '@/pages/product-detail'
@@ -75,6 +76,10 @@ export const router = createBrowserRouter([
       {
         path: 'cart',
         element: <CartPage />,
+      },
+      {
+        path: 'checkout',
+        element: <CheckoutPage />,
       },
       {
         path: 'balance',

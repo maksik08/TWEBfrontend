@@ -16,6 +16,11 @@ export interface Order {
   status: OrderStatus
   subtotal: number
   paidAt?: string
+  recipientName?: string
+  phone?: string
+  shippingAddress?: string
+  city?: string
+  comment?: string
   createdAt: string
   updatedAt: string
   items: OrderItem[]
