@@ -7,7 +7,7 @@ export type ProductCategory =
   | 'server'
   | (string & {})
 
-export type ProductAvailability = 'in-stock' | 'limited' | 'preorder'
+export type ProductAvailability = 'in-stock' | 'limited' | 'preorder' | 'out-of-stock'
 
 export interface ProductSpecification {
   label: string
@@ -21,6 +21,8 @@ export interface Product {
   price: number
   category: ProductCategory
   image: string
+  stockQuantity?: number
+  isPreorder?: boolean
   brand?: string
   sku?: string
   shortDescription?: string

@@ -362,6 +362,8 @@ const buildDefaultShortDescription = (product: Product) =>
 export const enrichProduct = (product: Product): Product => {
   const specific = productDetailsById[product.id] ?? {}
   const category = product.category as ProductCategory
+  const availability =
+    product.availability ?? specific.availability ?? defaultAvailabilityByCategory[category] ?? 'in-stock'
 
   return {
     ...product,
@@ -369,7 +371,7 @@ export const enrichProduct = (product: Product): Product => {
     sku: specific.sku ?? buildDefaultSku(product),
     shortDescription: specific.shortDescription ?? buildDefaultShortDescription(product),
     description: specific.description ?? buildDefaultDescription(product),
-    availability: specific.availability ?? defaultAvailabilityByCategory[category] ?? 'in-stock',
+    availability,
     technology: specific.technology ?? categoryTechnologies[category] ?? [],
     keyFeatures: specific.keyFeatures ?? categoryFeatures[category] ?? [],
     specifications: specific.specifications ?? defaultSpecsByCategory[category] ?? [],

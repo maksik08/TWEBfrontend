@@ -1,5 +1,5 @@
 import type { ProductDto } from '@/shared/api/dto/product.dto'
-import type { Product, ProductCategory } from '@/entities/product/model/types'
+import type { Product, ProductAvailability, ProductCategory } from '@/entities/product/model/types'
 import { enrichProduct } from '@/entities/product/model/product.details'
 
 const normalizeCategory = (value: string | null | undefined): ProductCategory => {
@@ -32,11 +32,22 @@ const pickImage = (dto: ProductDto): string => {
   return (first ?? '') as string
 }
 
+const VALID_AVAILABILITIES: ProductAvailability[] = ['in-stock', 'limited', 'preorder', 'out-of-stock']
+
+const normalizeAvailability = (value: string | null | undefined): ProductAvailability | undefined => {
+  if (!value) return undefined
+  const raw = value.trim().toLowerCase()
+  return (VALID_AVAILABILITIES as string[]).includes(raw) ? (raw as ProductAvailability) : undefined
+}
+
 export const mapProductDtoToProduct = (dto: ProductDto): Product => {
   const title = (dto.title ?? dto.name ?? '').toString()
   const name = (dto.name ?? dto.title ?? title).toString()
 
   const id = Number(dto.id)
+  const stockQuantity = typeof dto.stockQuantity === 'number' ? dto.stockQuantity : undefined
+  const isPreorder = typeof dto.isPreorder === 'boolean' ? dto.isPreorder : undefined
+  const availability = normalizeAvailability(dto.availability)
 
   return enrichProduct({
     id,
@@ -45,6 +56,9 @@ export const mapProductDtoToProduct = (dto: ProductDto): Product => {
     price: normalizePrice(dto.price),
     category: normalizeCategory(dto.category),
     image: pickImage(dto),
+    stockQuantity,
+    isPreorder,
+    availability,
     updatedAt: generateUpdatedAt(id),
   })
 }

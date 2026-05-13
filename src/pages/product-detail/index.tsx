@@ -85,6 +85,11 @@ export default function ProductDetailPage() {
       return
     }
 
+    if (product.availability === 'out-of-stock') {
+      toast.error(t({ ru: 'Товара нет в наличии', en: 'Product is out of stock' }))
+      return
+    }
+
     add(product)
     toast.success(t({ ru: 'Товар добавлен в корзину', en: 'Product added to cart' }))
   }
@@ -205,6 +210,11 @@ export default function ProductDetailPage() {
                   <div>
                     <span className={styles.priceLabel}>{t({ ru: 'Цена', en: 'Price' })}</span>
                     <div className={styles.price}>${product.price.toFixed(2)}</div>
+                    {product.availability === 'limited' && typeof product.stockQuantity === 'number' && (
+                      <small style={{ color: 'var(--warning, #d97706)', fontWeight: 600 }}>
+                        {t({ ru: 'Осталось', en: 'Left' })} {product.stockQuantity} {t({ ru: 'шт.', en: 'pcs' })}
+                      </small>
+                    )}
                   </div>
                   <div className={styles.skuBox}>
                     <span>SKU</span>
@@ -213,9 +223,16 @@ export default function ProductDetailPage() {
                 </div>
 
                 <div className={styles.actions}>
-                  <button type="button" className={styles.primaryAction} onClick={handleAddToCart}>
+                  <button
+                    type="button"
+                    className={styles.primaryAction}
+                    onClick={handleAddToCart}
+                    disabled={product.availability === 'out-of-stock'}
+                  >
                     <FiShoppingCart size={18} />
-                    {t({ ru: 'Добавить в корзину', en: 'Add to cart' })}
+                    {product.availability === 'out-of-stock'
+                      ? t({ ru: 'Нет в наличии', en: 'Out of stock' })
+                      : t({ ru: 'Добавить в корзину', en: 'Add to cart' })}
                   </button>
                   <button
                     type="button"

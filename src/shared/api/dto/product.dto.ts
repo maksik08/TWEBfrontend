@@ -8,6 +8,9 @@ export interface ProductDto {
   supplierId?: number | null
   image?: string | null
   images?: Array<string | null> | null
+  stockQuantity?: number | null
+  isPreorder?: boolean | null
+  availability?: string | null
 }
 
 export interface UpdateProductPayload {
@@ -15,9 +18,10 @@ export interface UpdateProductPayload {
   title?: string | null
   image?: string | null
   price: number
+  stockQuantity: number
+  isPreorder: boolean
   categoryId?: number | null
   supplierId?: number | null
 }
 
 export type CreateProductPayload = UpdateProductPayload
-

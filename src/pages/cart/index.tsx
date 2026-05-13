@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import toast from 'react-hot-toast'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore, selectCartCount, selectCartSubtotal } from '@/entities/cart/model/cart.store'
 import { useSessionStore } from '@/entities/session/model/session.store'
@@ -66,7 +67,20 @@ export default function CartPage() {
                         <span className={styles.qtyValue}>{item.quantity}</span>
                         <button
                           className={styles.qtyButton}
-                          onClick={() => setQuantity(item.product.id, item.quantity + 1)}
+                          onClick={() => {
+                            const stock = item.product.stockQuantity
+                            const isPreorder = item.product.isPreorder
+                            if (!isPreorder && typeof stock === 'number' && item.quantity >= stock) {
+                              toast.error(
+                                t({
+                                  ru: `Доступно только ${stock} шт.`,
+                                  en: `Only ${stock} pcs available`,
+                                }),
+                              )
+                              return
+                            }
+                            setQuantity(item.product.id, item.quantity + 1)
+                          }}
                           aria-label="Increase quantity"
                         >
                           +

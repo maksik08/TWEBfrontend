@@ -23,13 +23,22 @@ export const useCartStore = create<CartState>()(
       add: (product) =>
         set((state) => {
           const existing = state.items.find((i) => i.product.id === product.id)
+          const stock = product.stockQuantity
+          const hasStockCap = !product.isPreorder && typeof stock === 'number'
 
           if (existing) {
+            if (hasStockCap && existing.quantity >= (stock as number)) {
+              return state
+            }
             return {
               items: state.items.map((i) =>
                 i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i,
               ),
             }
+          }
+
+          if (hasStockCap && (stock as number) <= 0) {
+            return state
           }
 
           return {

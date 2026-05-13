@@ -15,6 +15,7 @@ const availabilityLabels: Record<ProductAvailability, Record<AppLanguage, string
   'in-stock': { ru: 'В наличии', en: 'In stock' },
   limited: { ru: 'Осталось мало', en: 'Limited stock' },
   preorder: { ru: 'Под заказ', en: 'Pre-order' },
+  'out-of-stock': { ru: 'Нет в наличии', en: 'Out of stock' },
 }
 
 export const getProductDisplayName = (product: Product) => product.title || product.name

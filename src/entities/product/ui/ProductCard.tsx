@@ -145,6 +145,11 @@ export const ProductCard = ({ product }: Props) => {
 
         <div className={styles.priceContainer}>
           <span className={styles.price}>${product.price.toFixed(2)}</span>
+          {product.availability === 'limited' && typeof product.stockQuantity === 'number' && (
+            <span className={styles.stockHint}>
+              {t({ ru: 'Осталось', en: 'Left' })} {product.stockQuantity}
+            </span>
+          )}
         </div>
 
         <Link to={productUrl} className={styles.detailsLink}>
@@ -166,14 +171,21 @@ export const ProductCard = ({ product }: Props) => {
         <button
           type="button"
           className={styles.addButton}
-          title={t({ ru: 'Добавить в корзину', en: 'Add to cart' })}
+          title={
+            product.availability === 'out-of-stock'
+              ? t({ ru: 'Нет в наличии', en: 'Out of stock' })
+              : t({ ru: 'Добавить в корзину', en: 'Add to cart' })
+          }
+          disabled={product.availability === 'out-of-stock'}
           onClick={() => {
             add(product)
             toast.success(t({ ru: 'Добавлено в корзину', en: 'Added to cart' }))
           }}
         >
           <FiShoppingCart size={18} style={{ marginRight: '0.5rem' }} />
-          {t({ ru: 'Купить', en: 'Buy' })}
+          {product.availability === 'out-of-stock'
+            ? t({ ru: 'Нет в наличии', en: 'Out of stock' })
+            : t({ ru: 'Купить', en: 'Buy' })}
         </button>
       </div>
     </article>

@@ -22,6 +22,8 @@ type ProductDraft = {
   name: string
   title: string
   price: string
+  stockQuantity: string
+  isPreorder: boolean
   categoryId: string
   supplierId: string
   image: string
@@ -32,6 +34,8 @@ const emptyDraft = (): ProductDraft => ({
   name: '',
   title: '',
   price: '',
+  stockQuantity: '0',
+  isPreorder: false,
   categoryId: '',
   supplierId: '',
   image: '',
@@ -42,6 +46,8 @@ const toDraft = (dto: ProductDto): ProductDraft => ({
   name: (dto.name ?? '').toString(),
   title: (dto.title ?? '').toString(),
   price: (dto.price ?? '').toString(),
+  stockQuantity: dto.stockQuantity != null ? String(dto.stockQuantity) : '0',
+  isPreorder: Boolean(dto.isPreorder),
   categoryId: dto.categoryId != null ? String(dto.categoryId) : '',
   supplierId: dto.supplierId != null ? String(dto.supplierId) : '',
   image: (dto.image ?? '').toString(),
@@ -181,6 +187,12 @@ export const AdminProductsTab = () => {
       return
     }
 
+    const stockQuantity = Number(draft.stockQuantity)
+    if (!Number.isFinite(stockQuantity) || stockQuantity < 0 || !Number.isInteger(stockQuantity)) {
+      toast.error('Остаток должен быть целым неотрицательным числом')
+      return
+    }
+
     const categoryIdNum = draft.categoryId === '' ? null : Number(draft.categoryId)
     if (categoryIdNum !== null && !Number.isFinite(categoryIdNum)) {
       toast.error('Некорректная категория')
@@ -198,6 +210,8 @@ export const AdminProductsTab = () => {
       title: draft.title.trim() || null,
       image: draft.image.trim() || null,
       price,
+      stockQuantity,
+      isPreorder: draft.isPreorder,
       categoryId: categoryIdNum,
       supplierId: supplierIdNum,
     }
@@ -398,6 +412,26 @@ export const AdminProductsTab = () => {
                     min="0"
                     value={draft.price}
                     onChange={(e) => setDraft((d) => (d ? { ...d, price: e.target.value } : d))}
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Остаток (шт.)</span>
+                  <input
+                    className={styles.input}
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={draft.stockQuantity}
+                    onChange={(e) => setDraft((d) => (d ? { ...d, stockQuantity: e.target.value } : d))}
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Под заказ (preorder)</span>
+                  <input
+                    type="checkbox"
+                    checked={draft.isPreorder}
+                    onChange={(e) => setDraft((d) => (d ? { ...d, isPreorder: e.target.checked } : d))}
+                    style={{ width: 20, height: 20, marginTop: 8 }}
                   />
                 </label>
                 <label className={styles.field}>
