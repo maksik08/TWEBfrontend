@@ -13,6 +13,7 @@ import AboutPage from '@/pages/about'
 import HomePage from '@/pages/home'
 import CatalogPage from '@/pages/catalog'
 import FavoritesPage from '@/pages/favorites'
+import ComparePage from '@/pages/compare'
 import NotFoundPage from '@/pages/not-found'
 import CartPage from '@/pages/cart'
 import CheckoutPage from '@/pages/checkout'
@@ -72,6 +73,10 @@ export const router = createBrowserRouter([
       {
         path: 'favorites',
         element: <FavoritesPage />,
+      },
+      {
+        path: 'compare',
+        element: <ComparePage />,
       },
       {
         path: 'cart',

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { FiHeart, FiShoppingCart, FiStar } from 'react-icons/fi'
+import { FiBarChart2, FiHeart, FiShoppingCart, FiStar } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
 
 import { useCartStore } from '@/entities/cart/model/cart.store'
+import { COMPARE_LIMIT, useCompareStore } from '@/entities/compare/model/compare.store'
 import { buildFavoriteKey, useFavoritesStore } from '@/entities/favorites/model/favorites.store'
 import { getProductRatingSummary, StarRating, useProductFeedbackStore } from '@/entities/product-feedback'
 import {
@@ -27,12 +28,44 @@ export const ProductCard = ({ product }: Props) => {
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
   const addLike = useFavoritesStore((state) => state.addLike)
   const reviews = useProductFeedbackStore((state) => state.reviews[String(product.id)] ?? [])
+  const toggleCompare = useCompareStore((state) => state.toggle)
+  const isInCompare = useCompareStore((state) => state.items.some((item) => item.id === product.id))
 
   const favoriteKey = buildFavoriteKey('product', product.id)
   const likes = useFavoritesStore((state) => state.likes[favoriteKey] ?? 0)
   const isFavorite = useFavoritesStore((state) =>
     state.favorites.some((favorite) => favorite.key === favoriteKey),
   )
+
+  const handleToggleCompare = () => {
+    const result = toggleCompare(product)
+    if ('removed' in result) {
+      toast.success(t({ ru: 'Убрано из сравнения', en: 'Removed from comparison' }))
+      return
+    }
+    if (result.ok) {
+      toast.success(t({ ru: 'Добавлено к сравнению', en: 'Added to comparison' }))
+      return
+    }
+    if (result.reason === 'limit') {
+      toast.error(
+        t({
+          ru: `В сравнении уже ${COMPARE_LIMIT} товара — больше нельзя`,
+          en: `Comparison already has ${COMPARE_LIMIT} items`,
+        }),
+      )
+      return
+    }
+    const expected = result.expectedCategory
+      ? getProductCategoryLabel(result.expectedCategory, language)
+      : ''
+    toast.error(
+      t({
+        ru: `Можно сравнивать только товары одной категории (${expected})`,
+        en: `Only products from the same category can be compared (${expected})`,
+      }),
+    )
+  }
 
   const productUrl = `/catalog/${product.id}`
   const ratingSummary = getProductRatingSummary(reviews)
@@ -64,6 +97,19 @@ export const ProductCard = ({ product }: Props) => {
           title={isFavorite ? t({ ru: 'Убрать из избранного', en: 'Remove from favorites' }) : t({ ru: 'Добавить в избранное', en: 'Add to favorites' })}
         >
           <FiStar size={16} />
+        </button>
+
+        <button
+          type="button"
+          className={`${styles.compareButton} ${isInCompare ? styles.compareButtonActive : ''}`}
+          onClick={handleToggleCompare}
+          title={
+            isInCompare
+              ? t({ ru: 'Убрать из сравнения', en: 'Remove from comparison' })
+              : t({ ru: 'Добавить к сравнению', en: 'Add to comparison' })
+          }
+        >
+          <FiBarChart2 size={16} />
         </button>
 
         {hasImage ? (

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
-import { FiHeart, FiMenu, FiMoon, FiShoppingCart, FiSun } from 'react-icons/fi'
+import { FiBarChart2, FiHeart, FiMenu, FiMoon, FiShoppingCart, FiSun } from 'react-icons/fi'
 import { useCartStore, selectCartCount } from '@/entities/cart/model/cart.store'
+import { useCompareStore } from '@/entities/compare/model/compare.store'
 import { useFavoritesStore } from '@/entities/favorites/model/favorites.store'
 import { useSessionStore } from '@/entities/session/model/session.store'
 import { useThemeStore } from '@/entities/theme/model/theme.store'
@@ -12,6 +13,7 @@ const formatMoney = (value: number) => `$${value.toFixed(2)}`
 export const Header = () => {
   const { language, setLanguage, t } = useLanguage()
   const cartCount = useCartStore((state) => selectCartCount(state.items))
+  const compareCount = useCompareStore((state) => state.items.length)
   const totalLikes = useFavoritesStore((state) =>
     Object.values(state.likes).reduce((sum, value) => sum + value, 0),
   )
@@ -109,6 +111,16 @@ export const Header = () => {
             >
               <FiHeart size={20} />
               {totalLikes > 0 && <span className={styles.likesBadge}>{totalLikes}</span>}
+            </Link>
+
+            <Link
+              to="/compare"
+              className={styles.iconButton}
+              aria-label={t({ ru: 'Сравнение товаров', en: 'Compare products' })}
+              title={t({ ru: 'Сравнение товаров', en: 'Compare products' })}
+            >
+              <FiBarChart2 size={20} />
+              {compareCount > 0 && <span className={styles.likesBadge}>{compareCount}</span>}
             </Link>
 
             <Link
