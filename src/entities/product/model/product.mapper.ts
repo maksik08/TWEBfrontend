@@ -95,6 +95,8 @@ export const mapProductDtoToProduct = (dto: ProductDto): Product => {
     keyFeatures: compactStringList(dto.keyFeatures),
     packageContents: compactStringList(dto.packageContents),
     specifications: compactSpecifications(dto.specifications),
+    ratingAverage: typeof dto.ratingAverage === 'number' ? dto.ratingAverage : undefined,
+    ratingCount: typeof dto.ratingCount === 'number' ? dto.ratingCount : undefined,
     updatedAt: generateUpdatedAt(id),
   })
 }

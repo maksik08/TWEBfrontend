@@ -33,5 +33,7 @@ export interface Product {
   specifications?: ProductSpecification[]
   packageContents?: string[]
   warranty?: string
+  ratingAverage?: number
+  ratingCount?: number
   updatedAt?: string
 }

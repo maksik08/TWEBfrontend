@@ -1,6 +1,7 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
+import axios from 'axios'
 import {
   FiArrowLeft,
   FiHeart,
@@ -22,7 +23,12 @@ import {
   getProductImageUrl,
   type Product,
 } from '@/entities/product'
-import { getProductRatingSummary, StarRating, useProductFeedbackStore } from '@/entities/product-feedback'
+import { StarRating } from '@/entities/product-feedback'
+import {
+  useCreateReviewMutation,
+  useDeleteReviewMutation,
+  useProductReviewsQuery,
+} from '@/entities/product-feedback/api/reviews.api'
 import { useSessionStore } from '@/entities/session/model/session.store'
 import { useLanguage } from '@/shared/i18n'
 import styles from './product-detail.module.css'
@@ -33,9 +39,12 @@ const reviewDateFormatter = new Intl.DateTimeFormat('ru-RU', {
   year: 'numeric',
 })
 
-const buildAuthorName = (username?: string, firstName?: string, lastName?: string) => {
-  const profileName = `${firstName ?? ''} ${lastName ?? ''}`.trim()
-  return username ?? (profileName || 'Гость')
+const extractApiMessage = (err: unknown, fallback: string): string => {
+  if (axios.isAxiosError(err) && err.response?.data?.message) {
+    return err.response.data.message as string
+  }
+  if (err instanceof Error) return err.message
+  return fallback
 }
 
 export default function ProductDetailPage() {
@@ -44,23 +53,14 @@ export default function ProductDetailPage() {
 
   const add = useCartStore((state) => state.add)
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
-  const addReview = useProductFeedbackStore((state) => state.addReview)
-  const removeReview = useProductFeedbackStore((state) => state.removeReview)
-  const reviews = useProductFeedbackStore((state) => state.reviews[String(productId)] ?? [])
   const sessionUser = useSessionStore((state) => state.user)
+  const isAuthenticated = useSessionStore((state) => state.isAuthenticated)
+  const sessionUserId = sessionUser ? Number(sessionUser.id) : null
   const isAdmin = sessionUser?.role === 'admin'
-  const firstName = sessionUser?.firstName ?? ''
-  const lastName = sessionUser?.lastName ?? ''
 
   const { t, language } = useLanguage()
-  const defaultAuthor = buildAuthorName(sessionUser?.username, firstName, lastName)
-  const [authorName, setAuthorName] = useState(defaultAuthor)
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
-
-  useEffect(() => {
-    setAuthorName(defaultAuthor)
-  }, [defaultAuthor])
 
   const { data: products = [], isLoading, isError, error } = useQuery<Product[]>({
     queryKey: ['products'],
@@ -73,7 +73,12 @@ export default function ProductDetailPage() {
   const isFavorite = useFavoritesStore((state) =>
     state.favorites.some((favorite) => favorite.key === favoriteKey),
   )
-  const ratingSummary = getProductRatingSummary(reviews)
+  const reviewsQuery = useProductReviewsQuery(productId, Number.isFinite(productId))
+  const reviews = reviewsQuery.data ?? []
+  const createReview = useCreateReviewMutation(productId)
+  const deleteReview = useDeleteReviewMutation(productId)
+  const ratingAverage = product?.ratingAverage ?? 0
+  const ratingCount = product?.ratingCount ?? 0
   const heroSpecs = product?.specifications?.slice(0, 3) ?? []
   const imageUrl = product ? getProductImageUrl(product) : undefined
   const displayName = product ? getProductDisplayName(product) : t({ ru: 'Товар', en: 'Product' })
@@ -114,7 +119,14 @@ export default function ProductDetailPage() {
   const handleSubmitReview = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    if (!product) {
+    if (!product) return
+    if (!isAuthenticated) {
+      toast.error(t({ ru: 'Войдите, чтобы оставить отзыв', en: 'Sign in to post a review' }))
+      return
+    }
+
+    if (rating < 1 || rating > 5) {
+      toast.error(t({ ru: 'Поставьте оценку от 1 до 5', en: 'Please set a rating from 1 to 5' }))
       return
     }
 
@@ -123,32 +135,34 @@ export default function ProductDetailPage() {
       return
     }
 
-    addReview({
-      productId: product.id,
-      author: authorName.trim() || defaultAuthor,
-      rating,
-      comment,
-    })
-
-    setComment('')
-    setRating(0)
-    toast.success(t({ ru: 'Комментарий опубликован', en: 'Comment published' }))
+    createReview.mutate(
+      { rating, comment: comment.trim() },
+      {
+        onSuccess: () => {
+          setComment('')
+          setRating(0)
+          toast.success(t({ ru: 'Комментарий опубликован', en: 'Comment published' }))
+        },
+        onError: (err) => {
+          toast.error(extractApiMessage(err, t({ ru: 'Не удалось опубликовать отзыв', en: 'Failed to publish review' })))
+        },
+      },
+    )
   }
 
-  const handleDeleteReview = (reviewId: string) => {
-    if (!product) {
-      return
-    }
+  const handleDeleteReview = (reviewId: number) => {
+    if (!product) return
 
     const confirmed = window.confirm(
       t({ ru: 'Удалить этот отзыв?', en: 'Delete this review?' }),
     )
-    if (!confirmed) {
-      return
-    }
+    if (!confirmed) return
 
-    removeReview({ productId: product.id, reviewId })
-    toast.success(t({ ru: 'Отзыв удалён', en: 'Review deleted' }))
+    deleteReview.mutate(reviewId, {
+      onSuccess: () => toast.success(t({ ru: 'Отзыв удалён', en: 'Review deleted' })),
+      onError: (err) =>
+        toast.error(extractApiMessage(err, t({ ru: 'Не удалось удалить отзыв', en: 'Failed to delete review' }))),
+    })
   }
 
   return (
@@ -199,10 +213,10 @@ export default function ProductDetailPage() {
                 <p className={styles.subtitle}>{product.shortDescription}</p>
 
                 <div className={styles.ratingBox}>
-                  <StarRating value={ratingSummary.average} readOnly size="md" />
+                  <StarRating value={ratingAverage} readOnly size="md" />
                   <div>
-                    <strong>{ratingSummary.average.toFixed(1)} / 5</strong>
-                    <p>{ratingSummary.total} {t({ ru: 'отзывов', en: 'reviews' })}</p>
+                    <strong>{ratingAverage.toFixed(1)} / 5</strong>
+                    <p>{ratingCount} {t({ ru: 'отзывов', en: 'reviews' })}</p>
                   </div>
                 </div>
 
@@ -292,64 +306,71 @@ export default function ProductDetailPage() {
 
                   <div className={styles.reviewSummary}>
                     <div className={styles.reviewSummaryScore}>
-                      <strong>{ratingSummary.average.toFixed(1)}</strong>
+                      <strong>{ratingAverage.toFixed(1)}</strong>
                       <span>{t({ ru: 'Средняя оценка', en: 'Average rating' })}</span>
                     </div>
                     <div className={styles.reviewSummaryMeta}>
-                      <StarRating value={ratingSummary.average} readOnly size="md" />
+                      <StarRating value={ratingAverage} readOnly size="md" />
                       <p>
                         {t({ ru: 'Пользователи оценивают товар по удобству, качеству сборки и полезности характеристик.', en: 'Users rate products by usability, build quality, and usefulness of features.' })}
                       </p>
                     </div>
                   </div>
 
-                  <form className={styles.reviewForm} onSubmit={handleSubmitReview}>
-                    <div className={styles.formGrid}>
-                      <label className={styles.field}>
-                        <span>{t({ ru: 'Имя', en: 'Name' })}</span>
-                        <input
-                          value={authorName}
-                          onChange={(event) => setAuthorName(event.target.value)}
-                          placeholder={t({ ru: 'Ваше имя', en: 'Your name' })}
-                        />
-                      </label>
-
+                  {isAuthenticated ? (
+                    <form className={styles.reviewForm} onSubmit={handleSubmitReview}>
                       <label className={styles.field}>
                         <span>{t({ ru: 'Оценка', en: 'Rating' })}</span>
                         <div className={styles.ratingInput}>
                           <StarRating value={rating} onChange={setRating} size="lg" showValue />
                         </div>
                       </label>
+
+                      <label className={styles.field}>
+                        <span>{t({ ru: 'Комментарий', en: 'Comment' })}</span>
+                        <textarea
+                          value={comment}
+                          onChange={(event) => setComment(event.target.value)}
+                          placeholder={t({ ru: 'Расскажите, что понравилось: порты, технологии, стабильность работы, комплектация...', en: 'Tell us what you liked: ports, technologies, stability, package contents...' })}
+                          rows={5}
+                        />
+                      </label>
+
+                      <button
+                        type="submit"
+                        className={styles.reviewButton}
+                        disabled={createReview.isPending}
+                      >
+                        <FiMessageSquare size={18} />
+                        {createReview.isPending
+                          ? t({ ru: 'Публикация…', en: 'Publishing…' })
+                          : t({ ru: 'Опубликовать комментарий', en: 'Publish comment' })}
+                      </button>
+                    </form>
+                  ) : (
+                    <div className={styles.reviewForm}>
+                      <p>
+                        <Link to="/login">
+                          {t({ ru: 'Войдите, чтобы оставить отзыв', en: 'Sign in to post a review' })}
+                        </Link>
+                      </p>
                     </div>
-
-                    <label className={styles.field}>
-                      <span>{t({ ru: 'Комментарий', en: 'Comment' })}</span>
-                      <textarea
-                        value={comment}
-                        onChange={(event) => setComment(event.target.value)}
-                        placeholder={t({ ru: 'Расскажите, что понравилось: порты, технологии, стабильность работы, комплектация...', en: 'Tell us what you liked: ports, technologies, stability, package contents...' })}
-                        rows={5}
-                      />
-                    </label>
-
-                    <button type="submit" className={styles.reviewButton}>
-                      <FiMessageSquare size={18} />
-                      {t({ ru: 'Опубликовать комментарий', en: 'Publish comment' })}
-                    </button>
-                  </form>
+                  )}
 
                   <div className={styles.reviewList}>
-                    {reviews.map((review) => (
+                    {reviews.map((review) => {
+                      const canDelete = isAdmin || (sessionUserId != null && review.userId === sessionUserId)
+                      return (
                       <article key={review.id} className={styles.reviewCard}>
                         <div className={styles.reviewCardTop}>
                           <div>
-                            <strong>{review.author}</strong>
+                            <strong>{review.authorUsername}</strong>
                             <span>{reviewDateFormatter.format(new Date(review.createdAt))}</span>
                           </div>
                           <div className={styles.reviewRating}>
                             <StarRating value={review.rating} readOnly size="sm" />
                             <span>{review.rating.toFixed(1)} / 5</span>
-                            {isAdmin && (
+                            {canDelete && (
                               <button
                                 type="button"
                                 className={styles.reviewDeleteButton}
@@ -364,7 +385,8 @@ export default function ProductDetailPage() {
                         </div>
                         <p>{review.comment}</p>
                       </article>
-                    ))}
+                      )
+                    })}
                   </div>
                 </article>
               </div>

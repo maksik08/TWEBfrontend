@@ -28,6 +28,8 @@ export interface ProductDto {
   keyFeatures?: Array<string | null> | null
   packageContents?: Array<string | null> | null
   specifications?: Array<ProductSpecificationDto | null> | null
+  ratingAverage?: number | null
+  ratingCount?: number | null
 }
 
 export interface UpdateProductPayload {

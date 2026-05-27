@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import { useCartStore } from '@/entities/cart/model/cart.store'
 import { COMPARE_LIMIT, useCompareStore } from '@/entities/compare/model/compare.store'
 import { buildFavoriteKey, useFavoritesStore } from '@/entities/favorites/model/favorites.store'
-import { getProductRatingSummary, StarRating, useProductFeedbackStore } from '@/entities/product-feedback'
+import { StarRating } from '@/entities/product-feedback'
 import {
   getProductAvailabilityLabel,
   getProductCategoryLabel,
@@ -27,7 +27,6 @@ export const ProductCard = ({ product }: Props) => {
   const add = useCartStore((state) => state.add)
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
   const addLike = useFavoritesStore((state) => state.addLike)
-  const reviews = useProductFeedbackStore((state) => state.reviews[String(product.id)] ?? [])
   const toggleCompare = useCompareStore((state) => state.toggle)
   const isInCompare = useCompareStore((state) => state.items.some((item) => item.id === product.id))
 
@@ -68,7 +67,8 @@ export const ProductCard = ({ product }: Props) => {
   }
 
   const productUrl = `/catalog/${product.id}`
-  const ratingSummary = getProductRatingSummary(reviews)
+  const ratingAverage = product.ratingAverage ?? 0
+  const ratingCount = product.ratingCount ?? 0
   const imageUrl = getProductImageUrl(product)
   const hasImage = Boolean(imageUrl && !imageError)
   const displayName = getProductDisplayName(product)
@@ -137,9 +137,9 @@ export const ProductCard = ({ product }: Props) => {
         <p className={styles.summary}>{summaryText}</p>
 
         <div className={styles.ratingRow}>
-          <StarRating value={ratingSummary.average} readOnly size="sm" />
+          <StarRating value={ratingAverage} readOnly size="sm" />
           <span className={styles.ratingMeta}>
-            {ratingSummary.average.toFixed(1)} ({ratingSummary.total})
+            {ratingAverage.toFixed(1)} ({ratingCount})
           </span>
         </div>
 
