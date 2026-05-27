@@ -359,6 +359,9 @@ const buildDefaultDescription = (product: Product) =>
 const buildDefaultShortDescription = (product: Product) =>
   `${product.title} для задач категории "${product.category}".`
 
+const nonEmptyList = <T>(list: T[] | undefined): T[] | undefined =>
+  Array.isArray(list) && list.length > 0 ? list : undefined
+
 export const enrichProduct = (product: Product): Product => {
   const specific = productDetailsById[product.id] ?? {}
   const category = product.category as ProductCategory
@@ -367,15 +370,17 @@ export const enrichProduct = (product: Product): Product => {
 
   return {
     ...product,
-    brand: specific.brand ?? 'NetInstall',
-    sku: specific.sku ?? buildDefaultSku(product),
-    shortDescription: specific.shortDescription ?? buildDefaultShortDescription(product),
-    description: specific.description ?? buildDefaultDescription(product),
+    brand: product.brand ?? specific.brand ?? 'NetInstall',
+    sku: product.sku ?? specific.sku ?? buildDefaultSku(product),
+    shortDescription: product.shortDescription ?? specific.shortDescription ?? buildDefaultShortDescription(product),
+    description: product.description ?? specific.description ?? buildDefaultDescription(product),
     availability,
-    technology: specific.technology ?? categoryTechnologies[category] ?? [],
-    keyFeatures: specific.keyFeatures ?? categoryFeatures[category] ?? [],
-    specifications: specific.specifications ?? defaultSpecsByCategory[category] ?? [],
-    packageContents: specific.packageContents ?? categoryPackages[category] ?? ['Устройство'],
-    warranty: specific.warranty ?? '12 месяцев',
+    technology: nonEmptyList(product.technology) ?? specific.technology ?? categoryTechnologies[category] ?? [],
+    keyFeatures: nonEmptyList(product.keyFeatures) ?? specific.keyFeatures ?? categoryFeatures[category] ?? [],
+    specifications:
+      nonEmptyList(product.specifications) ?? specific.specifications ?? defaultSpecsByCategory[category] ?? [],
+    packageContents:
+      nonEmptyList(product.packageContents) ?? specific.packageContents ?? categoryPackages[category] ?? ['Устройство'],
+    warranty: product.warranty ?? specific.warranty ?? '12 месяцев',
   }
 }
