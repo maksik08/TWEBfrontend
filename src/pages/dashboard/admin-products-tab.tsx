@@ -2,7 +2,11 @@ import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { ProductDto } from '@/shared/api/dto/product.dto'
+import type {
+  ProductAvailabilityState,
+  ProductDto,
+  ProductSpecificationDto,
+} from '@/shared/api/dto/product.dto'
 import type { CategoryDto } from '@/shared/api/dto/category.dto'
 import type { SupplierDto } from '@/shared/api/dto/supplier.dto'
 import {
@@ -17,6 +21,8 @@ import { fetchSupplierDtos } from '@/entities/product/api/suppliers.admin'
 import { resolveImageUrl } from '@/entities/product/model/product.helpers'
 import styles from './admin.module.css'
 
+type SpecDraft = { label: string; value: string }
+
 type ProductDraft = {
   id: number | string | null
   name: string
@@ -27,7 +33,24 @@ type ProductDraft = {
   categoryId: string
   supplierId: string
   image: string
+  brand: string
+  sku: string
+  shortDescription: string
+  description: string
+  warranty: string
+  availability: ProductAvailabilityState
+  technology: string[]
+  keyFeatures: string[]
+  packageContents: string[]
+  specifications: SpecDraft[]
 }
+
+const AVAILABILITY_OPTIONS: { value: ProductAvailabilityState; label: string }[] = [
+  { value: 'InStock', label: 'В наличии' },
+  { value: 'Limited', label: 'Ограниченно' },
+  { value: 'Preorder', label: 'Под заказ' },
+  { value: 'OutOfStock', label: 'Нет в наличии' },
+]
 
 const emptyDraft = (): ProductDraft => ({
   id: null,
@@ -39,7 +62,33 @@ const emptyDraft = (): ProductDraft => ({
   categoryId: '',
   supplierId: '',
   image: '',
+  brand: '',
+  sku: '',
+  shortDescription: '',
+  description: '',
+  warranty: '',
+  availability: 'InStock',
+  technology: [],
+  keyFeatures: [],
+  packageContents: [],
+  specifications: [],
 })
+
+const sanitizeStringList = (values: Array<string | null> | null | undefined): string[] => {
+  if (!Array.isArray(values)) return []
+  return values
+    .filter((v): v is string => typeof v === 'string')
+    .map((v) => v)
+}
+
+const sanitizeSpecList = (
+  values: Array<ProductSpecificationDto | null> | null | undefined,
+): SpecDraft[] => {
+  if (!Array.isArray(values)) return []
+  return values
+    .filter((entry): entry is ProductSpecificationDto => Boolean(entry))
+    .map((entry) => ({ label: entry.label ?? '', value: entry.value ?? '' }))
+}
 
 const toDraft = (dto: ProductDto): ProductDraft => ({
   id: dto.id,
@@ -51,6 +100,16 @@ const toDraft = (dto: ProductDto): ProductDraft => ({
   categoryId: dto.categoryId != null ? String(dto.categoryId) : '',
   supplierId: dto.supplierId != null ? String(dto.supplierId) : '',
   image: (dto.image ?? '').toString(),
+  brand: (dto.brand ?? '').toString(),
+  sku: (dto.sku ?? '').toString(),
+  shortDescription: (dto.shortDescription ?? '').toString(),
+  description: (dto.description ?? '').toString(),
+  warranty: (dto.warranty ?? '').toString(),
+  availability: dto.availabilityState ?? 'InStock',
+  technology: sanitizeStringList(dto.technology),
+  keyFeatures: sanitizeStringList(dto.keyFeatures),
+  packageContents: sanitizeStringList(dto.packageContents),
+  specifications: sanitizeSpecList(dto.specifications),
 })
 
 const extractMessage = (err: unknown, fallback: string): string => {
@@ -59,6 +118,135 @@ const extractMessage = (err: unknown, fallback: string): string => {
   }
   if (err instanceof Error) return err.message
   return fallback
+}
+
+function StringListEditor({
+  label,
+  placeholder,
+  items,
+  onChange,
+  disabled,
+}: {
+  label: string
+  placeholder?: string
+  items: string[]
+  onChange: (next: string[]) => void
+  disabled?: boolean
+}) {
+  const updateAt = (index: number, value: string) => {
+    const next = items.slice()
+    next[index] = value
+    onChange(next)
+  }
+  const removeAt = (index: number) => {
+    onChange(items.filter((_, i) => i !== index))
+  }
+  return (
+    <div className={styles.field}>
+      <span className={styles.fieldLabel}>{label}</span>
+      {items.length === 0 ? (
+        <p style={{ color: 'var(--color-text-muted, #6b7280)', fontSize: '0.875rem', margin: '0.25rem 0' }}>
+          Нет элементов
+        </p>
+      ) : (
+        items.map((item, index) => (
+          <div key={index} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <input
+              className={styles.input}
+              value={item}
+              placeholder={placeholder}
+              onChange={(e) => updateAt(index, e.target.value)}
+              disabled={disabled}
+              style={{ flex: 1 }}
+            />
+            <button
+              type="button"
+              className={styles.btnSecondary}
+              onClick={() => removeAt(index)}
+              disabled={disabled}
+            >
+              Удалить
+            </button>
+          </div>
+        ))
+      )}
+      <button
+        type="button"
+        className={styles.btnSecondary}
+        onClick={() => onChange([...items, ''])}
+        disabled={disabled}
+      >
+        + Добавить
+      </button>
+    </div>
+  )
+}
+
+function SpecListEditor({
+  items,
+  onChange,
+  disabled,
+}: {
+  items: SpecDraft[]
+  onChange: (next: SpecDraft[]) => void
+  disabled?: boolean
+}) {
+  const updateAt = (index: number, patch: Partial<SpecDraft>) => {
+    const next = items.slice()
+    next[index] = { ...next[index], ...patch }
+    onChange(next)
+  }
+  const removeAt = (index: number) => {
+    onChange(items.filter((_, i) => i !== index))
+  }
+  return (
+    <div className={styles.field}>
+      <span className={styles.fieldLabel}>Характеристики</span>
+      {items.length === 0 ? (
+        <p style={{ color: 'var(--color-text-muted, #6b7280)', fontSize: '0.875rem', margin: '0.25rem 0' }}>
+          Нет характеристик
+        </p>
+      ) : (
+        items.map((spec, index) => (
+          <div
+            key={index}
+            style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: '0.5rem', marginBottom: '0.5rem' }}
+          >
+            <input
+              className={styles.input}
+              value={spec.label}
+              placeholder="название"
+              onChange={(e) => updateAt(index, { label: e.target.value })}
+              disabled={disabled}
+            />
+            <input
+              className={styles.input}
+              value={spec.value}
+              placeholder="значение"
+              onChange={(e) => updateAt(index, { value: e.target.value })}
+              disabled={disabled}
+            />
+            <button
+              type="button"
+              className={styles.btnSecondary}
+              onClick={() => removeAt(index)}
+              disabled={disabled}
+            >
+              Удалить
+            </button>
+          </div>
+        ))
+      )}
+      <button
+        type="button"
+        className={styles.btnSecondary}
+        onClick={() => onChange([...items, { label: '', value: '' }])}
+        disabled={disabled}
+      >
+        + Добавить характеристику
+      </button>
+    </div>
+  )
 }
 
 export const AdminProductsTab = () => {
@@ -205,6 +393,13 @@ export const AdminProductsTab = () => {
       return
     }
 
+    const cleanStringList = (values: string[]) =>
+      values.map((v) => v.trim()).filter((v) => v.length > 0)
+
+    const cleanedSpecs = draft.specifications
+      .map((spec) => ({ label: spec.label.trim(), value: spec.value.trim() }))
+      .filter((spec) => spec.label.length > 0 && spec.value.length > 0)
+
     const payload = {
       name: trimmedName,
       title: draft.title.trim() || null,
@@ -214,6 +409,16 @@ export const AdminProductsTab = () => {
       isPreorder: draft.isPreorder,
       categoryId: categoryIdNum,
       supplierId: supplierIdNum,
+      brand: draft.brand.trim() || null,
+      sku: draft.sku.trim() || null,
+      shortDescription: draft.shortDescription.trim() || null,
+      description: draft.description.trim() || null,
+      warranty: draft.warranty.trim() || null,
+      availability: draft.availability,
+      technology: cleanStringList(draft.technology),
+      keyFeatures: cleanStringList(draft.keyFeatures),
+      packageContents: cleanStringList(draft.packageContents),
+      specifications: cleanedSpecs,
     }
 
     if (draft.id == null) {
@@ -469,6 +674,106 @@ export const AdminProductsTab = () => {
                   </select>
                 </label>
               </div>
+
+              <div className={styles.fieldGrid}>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Бренд</span>
+                  <input
+                    className={styles.input}
+                    value={draft.brand}
+                    onChange={(e) => setDraft((d) => (d ? { ...d, brand: e.target.value } : d))}
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>SKU</span>
+                  <input
+                    className={styles.input}
+                    value={draft.sku}
+                    onChange={(e) => setDraft((d) => (d ? { ...d, sku: e.target.value } : d))}
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Гарантия</span>
+                  <input
+                    className={styles.input}
+                    value={draft.warranty}
+                    onChange={(e) => setDraft((d) => (d ? { ...d, warranty: e.target.value } : d))}
+                    placeholder="например, 24 месяца"
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Доступность</span>
+                  <select
+                    className={styles.input}
+                    value={draft.availability}
+                    onChange={(e) =>
+                      setDraft((d) =>
+                        d ? { ...d, availability: e.target.value as ProductAvailabilityState } : d,
+                      )
+                    }
+                  >
+                    {AVAILABILITY_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>Краткое описание</span>
+                <textarea
+                  className={styles.textarea}
+                  rows={2}
+                  value={draft.shortDescription}
+                  onChange={(e) =>
+                    setDraft((d) => (d ? { ...d, shortDescription: e.target.value } : d))
+                  }
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>Описание</span>
+                <textarea
+                  className={styles.textarea}
+                  rows={5}
+                  value={draft.description}
+                  onChange={(e) =>
+                    setDraft((d) => (d ? { ...d, description: e.target.value } : d))
+                  }
+                />
+              </label>
+
+              <StringListEditor
+                label="Технологии"
+                placeholder="например, Wi-Fi 6"
+                items={draft.technology}
+                onChange={(next) => setDraft((d) => (d ? { ...d, technology: next } : d))}
+                disabled={isPending}
+              />
+
+              <StringListEditor
+                label="Ключевые особенности"
+                placeholder="одна строка — одна особенность"
+                items={draft.keyFeatures}
+                onChange={(next) => setDraft((d) => (d ? { ...d, keyFeatures: next } : d))}
+                disabled={isPending}
+              />
+
+              <StringListEditor
+                label="Комплектация"
+                placeholder="например, Блок питания"
+                items={draft.packageContents}
+                onChange={(next) => setDraft((d) => (d ? { ...d, packageContents: next } : d))}
+                disabled={isPending}
+              />
+
+              <SpecListEditor
+                items={draft.specifications}
+                onChange={(next) => setDraft((d) => (d ? { ...d, specifications: next } : d))}
+                disabled={isPending}
+              />
 
               <label className={styles.field}>
                 <span className={styles.fieldLabel}>Картинка (URL или загрузить файл)</span>
