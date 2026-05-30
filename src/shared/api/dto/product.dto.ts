@@ -17,6 +17,7 @@ export interface ProductDto {
   images?: Array<string | null> | null
   stockQuantity?: number | null
   isPreorder?: boolean | null
+  isVisible?: boolean | null
   availability?: string | null
   availabilityState?: ProductAvailabilityState | null
   brand?: string | null
@@ -39,6 +40,7 @@ export interface UpdateProductPayload {
   price: number
   stockQuantity: number
   isPreorder: boolean
+  isVisible: boolean
   categoryId?: number | null
   supplierId?: number | null
   brand?: string | null

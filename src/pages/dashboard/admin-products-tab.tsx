@@ -30,6 +30,7 @@ type ProductDraft = {
   price: string
   stockQuantity: string
   isPreorder: boolean
+  isVisible: boolean
   categoryId: string
   supplierId: string
   image: string
@@ -59,6 +60,7 @@ const emptyDraft = (): ProductDraft => ({
   price: '',
   stockQuantity: '0',
   isPreorder: false,
+  isVisible: true,
   categoryId: '',
   supplierId: '',
   image: '',
@@ -97,6 +99,7 @@ const toDraft = (dto: ProductDto): ProductDraft => ({
   price: (dto.price ?? '').toString(),
   stockQuantity: dto.stockQuantity != null ? String(dto.stockQuantity) : '0',
   isPreorder: Boolean(dto.isPreorder),
+  isVisible: dto.isVisible ?? true,
   categoryId: dto.categoryId != null ? String(dto.categoryId) : '',
   supplierId: dto.supplierId != null ? String(dto.supplierId) : '',
   image: (dto.image ?? '').toString(),
@@ -407,6 +410,7 @@ export const AdminProductsTab = () => {
       price,
       stockQuantity,
       isPreorder: draft.isPreorder,
+      isVisible: draft.isVisible,
       categoryId: categoryIdNum,
       supplierId: supplierIdNum,
       brand: draft.brand.trim() || null,
@@ -636,6 +640,15 @@ export const AdminProductsTab = () => {
                     type="checkbox"
                     checked={draft.isPreorder}
                     onChange={(e) => setDraft((d) => (d ? { ...d, isPreorder: e.target.checked } : d))}
+                    style={{ width: 20, height: 20, marginTop: 8 }}
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span className={styles.fieldLabel}>Видим в каталоге</span>
+                  <input
+                    type="checkbox"
+                    checked={draft.isVisible}
+                    onChange={(e) => setDraft((d) => (d ? { ...d, isVisible: e.target.checked } : d))}
                     style={{ width: 20, height: 20, marginTop: 8 }}
                   />
                 </label>
