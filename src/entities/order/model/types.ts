@@ -15,6 +15,8 @@ export interface Order {
   userName?: string
   status: OrderStatus
   subtotal: number
+  servicesTotal: number
+  total: number
   paidAt?: string
   recipientName?: string
   phone?: string

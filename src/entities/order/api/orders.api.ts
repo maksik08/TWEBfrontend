@@ -14,6 +14,16 @@ export type CreateOrderItemPayload = {
   quantity: number
 }
 
+export type CreateOrderServicesPayload = {
+  objectType: string
+  installationType: string
+  works: string[]
+  staffCount: number
+  staffRate: number
+  installationCost: number
+  deliveryCost: number
+}
+
 export type CreateOrderPayload = {
   items: CreateOrderItemPayload[]
   recipientName: string
@@ -21,6 +31,7 @@ export type CreateOrderPayload = {
   shippingAddress: string
   city: string
   comment?: string
+  services?: CreateOrderServicesPayload
 }
 
 export const createOrder = async (payload: CreateOrderPayload): Promise<Order> => {

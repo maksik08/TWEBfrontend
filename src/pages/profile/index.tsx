@@ -103,7 +103,7 @@ export default function ProfilePage() {
       (sum, order) => sum + order.items.reduce((s, line) => s + line.quantity, 0),
       0,
     )
-    const spent = paidOrders.reduce((sum, order) => sum + order.subtotal, 0)
+    const spent = paidOrders.reduce((sum, order) => sum + order.total, 0)
     const lastPurchaseAt = paidOrders.length > 0
       ? paidOrders.reduce((latest, order) => {
           const ts = order.paidAt ?? order.createdAt
@@ -371,7 +371,7 @@ export default function ProfilePage() {
                             </div>
                             <div className={styles.orderSummary}>
                               <span className={styles.orderItems}>{itemsCount} {t({ ru: 'шт.', en: 'pcs.' })}</span>
-                              <strong className={styles.orderTotal}>{formatMoney(order.subtotal)}</strong>
+                              <strong className={styles.orderTotal}>{formatMoney(order.total)}</strong>
                               {expandedOrder === order.id ? (
                                 <FiChevronUp size={16} />
                               ) : (
@@ -396,9 +396,15 @@ export default function ProfilePage() {
                                   </span>
                                 </div>
                               ))}
+                              {order.servicesTotal > 0 && (
+                                <div className={styles.orderFooter}>
+                                  <span>{t({ ru: 'Услуги:', en: 'Services:' })}</span>
+                                  <strong>{formatMoney(order.servicesTotal)}</strong>
+                                </div>
+                              )}
                               <div className={styles.orderFooter}>
                                 <span>{t({ ru: 'Итого:', en: 'Total:' })}</span>
-                                <strong>{formatMoney(order.subtotal)}</strong>
+                                <strong>{formatMoney(order.total)}</strong>
                               </div>
                             </div>
                           )}

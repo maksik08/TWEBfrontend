@@ -80,7 +80,7 @@ api.interceptors.response.use(
 
       try {
         const response = await refreshApi.post('/auth/refresh')
-        const nextToken: string | undefined = response?.data?.accessToken
+        const nextToken: string | undefined = response?.data?.data?.token
 
         if (!nextToken) {
           throw new Error('Refresh did not return accessToken')

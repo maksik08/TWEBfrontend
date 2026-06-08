@@ -153,7 +153,7 @@ export default function OrdersPage() {
 
                   <footer className={styles.footer}>
                     <span className={styles.total}>
-                      {t({ ru: 'Итого', en: 'Total' })}: {formatMoney(order.subtotal)}
+                      {t({ ru: 'Итого', en: 'Total' })}: {formatMoney(order.total)}
                     </span>
                     {canCancel && (
                       <button

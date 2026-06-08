@@ -52,7 +52,7 @@ export default function BalancePage() {
       (sum, order) => sum + order.items.reduce((s, line) => s + line.quantity, 0),
       0,
     )
-    const spent = paidOrders.reduce((sum, order) => sum + order.subtotal, 0)
+    const spent = paidOrders.reduce((sum, order) => sum + order.total, 0)
     const lastPurchaseAt = paidOrders.length > 0
       ? paidOrders.reduce((latest, order) => {
           const ts = order.paidAt ?? order.createdAt
@@ -189,13 +189,13 @@ export default function BalancePage() {
                   <div className={styles.historyTop}>
                     <div>
                       <h3 className={styles.historyTitle}>
-                        {t({ ru: 'Заказ', en: 'Order' })} #{order.id} — {formatMoney(order.subtotal)}
+                        {t({ ru: 'Заказ', en: 'Order' })} #{order.id} — {formatMoney(order.total)}
                       </h3>
                       <p className={styles.historyDate}>{formatDate(order.paidAt ?? order.createdAt)}</p>
                     </div>
                     <div className={styles.historyMeta}>
                       <span>{order.items.reduce((s, l) => s + l.quantity, 0)} {t({ ru: 'шт.', en: 'pcs.' })}</span>
-                      <strong>{formatMoney(order.subtotal)}</strong>
+                      <strong>{formatMoney(order.total)}</strong>
                     </div>
                   </div>
 

@@ -83,7 +83,6 @@ export default function CheckoutPage() {
   const [searchParams] = useSearchParams()
   const [shipping, setShipping] = useState<ShippingForm>(loadShipping)
   const [errors, setErrors] = useState<ShippingErrors>({})
-  const [discount, setDiscount] = useState<number>(0)
   const [servicesEnabled, setServicesEnabled] = useState(() => searchParams.get('services') === '1')
   const [serviceForm, setServiceForm] = useState<Omit<CalculateRequest, 'selectedEquipment'>>(
     createInitialServiceForm,
@@ -107,9 +106,8 @@ export default function CheckoutPage() {
     return calculatePrice({ ...serviceForm, selectedEquipment: cartEquipment })
   }, [cartEquipment, serviceForm, servicesEnabled])
 
-  const goodsTotal = Math.max(0, subtotal - Math.max(0, discount))
   const servicesTotal = serviceCalculation?.total ?? 0
-  const total = goodsTotal + servicesTotal
+  const total = subtotal + servicesTotal
   const hasEnoughBalance = total <= balance
 
   useEffect(() => {
@@ -185,13 +183,25 @@ export default function CheckoutPage() {
         city: shipping.city.trim(),
         shippingAddress: shipping.shippingAddress.trim(),
         comment: shipping.comment.trim() || undefined,
+        services:
+          servicesEnabled && serviceCalculation
+            ? {
+                objectType: serviceForm.objectType,
+                installationType: serviceForm.installationType,
+                works: serviceForm.works,
+                staffCount: serviceForm.staffCount,
+                staffRate: serviceForm.staffRate,
+                installationCost: serviceForm.installationCost,
+                deliveryCost: serviceForm.deliveryCost,
+              }
+            : undefined,
       })
 
       const paid = await payOrder(order.id)
-      patchUser({ balance: balance - paid.subtotal })
+      patchUser({ balance: balance - paid.total })
 
       toast.success(
-        `${t({ ru: 'Заказ', en: 'Order' })} #${order.id} ${t({ ru: 'оплачен', en: 'paid' })} · ${formatMoney(paid.subtotal)}`,
+        `${t({ ru: 'Заказ', en: 'Order' })} #${order.id} ${t({ ru: 'оплачен', en: 'paid' })} · ${formatMoney(paid.total)}`,
       )
       clear()
       navigate(`/orders/${order.id}`)
@@ -466,24 +476,6 @@ export default function CheckoutPage() {
             <div className={styles.row}>
               <span className={styles.muted}>{t({ ru: 'Сумма товаров', en: 'Subtotal' })}</span>
               <span>{formatMoney(subtotal)}</span>
-            </div>
-
-            <div className={styles.row}>
-              <span className={styles.muted}>{t({ ru: 'Скидка', en: 'Discount' })}</span>
-              <input
-                className={styles.input}
-                type="number"
-                min={0}
-                step={1}
-                value={Number.isFinite(discount) ? discount : 0}
-                onChange={(e) => setDiscount(Number(e.target.value))}
-                style={{ maxWidth: 110 }}
-              />
-            </div>
-
-            <div className={styles.row}>
-              <span className={styles.muted}>{t({ ru: 'Итого по товарам', en: 'Goods total' })}</span>
-              <span>{formatMoney(goodsTotal)}</span>
             </div>
 
             <div className={styles.row}>
