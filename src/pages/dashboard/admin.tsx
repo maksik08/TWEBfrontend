@@ -13,11 +13,12 @@ import {
 } from '@/entities/content/model/content.store'
 import { AdminProductsTab } from './admin-products-tab'
 import { AdminUsersTab } from './admin-users-tab'
+import { AdminLogsTab } from './admin-logs-tab'
 import styles from './admin.module.css'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type AdminTab = 'overview' | 'services' | 'promotions' | 'home' | 'about' | 'products' | 'users'
+type AdminTab = 'overview' | 'services' | 'promotions' | 'home' | 'about' | 'products' | 'users' | 'logs'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -626,6 +627,7 @@ const TAB_LABELS: { id: AdminTab; label: string; icon: string }[] = [
   { id: 'about', label: 'О компании', icon: '🏢' },
   { id: 'products', label: 'Товары', icon: '🛒' },
   { id: 'users', label: 'Пользователи', icon: '👥' },
+  { id: 'logs', label: 'Логи действий', icon: '📜' },
 ]
 
 export default function AdminDashboard() {
@@ -661,6 +663,7 @@ export default function AdminDashboard() {
             {activeTab === 'about' && <AboutTab />}
             {activeTab === 'products' && <AdminProductsTab />}
             {activeTab === 'users' && <AdminUsersTab />}
+            {activeTab === 'logs' && <AdminLogsTab />}
           </main>
         </div>
       </div>
