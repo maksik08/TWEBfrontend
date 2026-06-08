@@ -12,11 +12,12 @@ import {
   type BilingualText,
 } from '@/entities/content/model/content.store'
 import { AdminProductsTab } from './admin-products-tab'
+import { AdminUsersTab } from './admin-users-tab'
 import styles from './admin.module.css'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type AdminTab = 'overview' | 'services' | 'promotions' | 'home' | 'about' | 'products'
+type AdminTab = 'overview' | 'services' | 'promotions' | 'home' | 'about' | 'products' | 'users'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -624,6 +625,7 @@ const TAB_LABELS: { id: AdminTab; label: string; icon: string }[] = [
   { id: 'home', label: 'Главная', icon: '🏠' },
   { id: 'about', label: 'О компании', icon: '🏢' },
   { id: 'products', label: 'Товары', icon: '🛒' },
+  { id: 'users', label: 'Пользователи', icon: '👥' },
 ]
 
 export default function AdminDashboard() {
@@ -658,6 +660,7 @@ export default function AdminDashboard() {
             {activeTab === 'home' && <HomeTab />}
             {activeTab === 'about' && <AboutTab />}
             {activeTab === 'products' && <AdminProductsTab />}
+            {activeTab === 'users' && <AdminUsersTab />}
           </main>
         </div>
       </div>
