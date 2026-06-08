@@ -75,6 +75,8 @@ export default function OrderDetailPage() {
         return t({ ru: 'Завершён', en: 'Completed' })
       case 'Cancelled':
         return t({ ru: 'Отменён', en: 'Cancelled' })
+      case 'Returned':
+        return t({ ru: 'Возврат', en: 'Returned' })
       default:
         return status
     }
