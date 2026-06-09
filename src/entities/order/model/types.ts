@@ -16,6 +16,8 @@ export interface Order {
   status: OrderStatus
   subtotal: number
   servicesTotal: number
+  discount: number
+  couponCode?: string | null
   total: number
   paidAt?: string
   recipientName?: string

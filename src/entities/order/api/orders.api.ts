@@ -32,6 +32,7 @@ export type CreateOrderPayload = {
   city: string
   comment?: string
   services?: CreateOrderServicesPayload
+  couponCode?: string
 }
 
 export const createOrder = async (payload: CreateOrderPayload): Promise<Order> => {

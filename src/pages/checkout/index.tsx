@@ -11,6 +11,7 @@ import type {
 } from '@/entities/calculator/Model/types'
 import { useSessionStore } from '@/entities/session/model/session.store'
 import { createOrder, payOrder } from '@/entities/order'
+import { previewCoupon } from '@/entities/coupon/api/coupon.api'
 import { useLanguage } from '@/shared/i18n'
 import styles from './checkout.module.css'
 
@@ -87,6 +88,9 @@ export default function CheckoutPage() {
   const [serviceForm, setServiceForm] = useState<Omit<CalculateRequest, 'selectedEquipment'>>(
     createInitialServiceForm,
   )
+  const [couponInput, setCouponInput] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null)
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
   const [isCheckingOut, setIsCheckingOut] = useState(false)
 
   const count = useMemo(() => selectCartCount(items), [items])
@@ -107,7 +111,8 @@ export default function CheckoutPage() {
   }, [cartEquipment, serviceForm, servicesEnabled])
 
   const servicesTotal = serviceCalculation?.total ?? 0
-  const total = subtotal + servicesTotal
+  const discount = appliedCoupon ? Math.min(appliedCoupon.discount, subtotal) : 0
+  const total = subtotal - discount + servicesTotal
   const hasEnoughBalance = total <= balance
 
   useEffect(() => {
@@ -158,6 +163,36 @@ export default function CheckoutPage() {
     }
   }
 
+  const applyCoupon = async () => {
+    const code = couponInput.trim()
+    if (!code) return
+    if (subtotal <= 0) {
+      toast.error(t({ ru: 'Корзина пуста', en: 'Cart is empty' }))
+      return
+    }
+
+    setIsApplyingCoupon(true)
+    try {
+      const result = await previewCoupon(code, subtotal)
+      setAppliedCoupon({ code: result.code, discount: result.discount })
+      toast.success(t({ ru: 'Промокод применён', en: 'Promo code applied' }))
+    } catch (error) {
+      setAppliedCoupon(null)
+      const message =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : t({ ru: 'Промокод недействителен', en: 'Invalid promo code' })
+      toast.error(message)
+    } finally {
+      setIsApplyingCoupon(false)
+    }
+  }
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponInput('')
+  }
+
   const handleSubmit = async () => {
     const validation = validateShipping(shipping, t)
     if (Object.keys(validation).length > 0) {
@@ -195,6 +230,7 @@ export default function CheckoutPage() {
                 deliveryCost: serviceForm.deliveryCost,
               }
             : undefined,
+        couponCode: appliedCoupon?.code,
       })
 
       const paid = await payOrder(order.id)
@@ -482,6 +518,47 @@ export default function CheckoutPage() {
               <span className={styles.muted}>{t({ ru: 'Услуги', en: 'Services' })}</span>
               <span>{formatMoney(servicesTotal)}</span>
             </div>
+
+            <div className={styles.row}>
+              <span className={styles.muted}>{t({ ru: 'Промокод', en: 'Promo code' })}</span>
+              {appliedCoupon ? (
+                <span style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <strong>{appliedCoupon.code}</strong>
+                  <button
+                    type="button"
+                    onClick={removeCoupon}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted, #6b7280)' }}
+                  >
+                    ✕
+                  </button>
+                </span>
+              ) : (
+                <span style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    className={styles.input}
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    placeholder={t({ ru: 'Код', en: 'Code' })}
+                    style={{ maxWidth: 120 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={applyCoupon}
+                    disabled={isApplyingCoupon || !couponInput.trim()}
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    {isApplyingCoupon ? '…' : t({ ru: 'Применить', en: 'Apply' })}
+                  </button>
+                </span>
+              )}
+            </div>
+
+            {discount > 0 && (
+              <div className={styles.row}>
+                <span className={styles.muted}>{t({ ru: 'Скидка', en: 'Discount' })}</span>
+                <span>−{formatMoney(discount)}</span>
+              </div>
+            )}
 
             <div className={`${styles.row} ${styles.totalRow}`}>
               <span>{t({ ru: 'Итого', en: 'Total' })}</span>

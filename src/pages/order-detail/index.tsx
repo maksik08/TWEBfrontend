@@ -199,17 +199,26 @@ export default function OrderDetailPage() {
                       <td className={styles.num}>{formatMoney(item.lineTotal)}</td>
                     </tr>
                   ))}
+                  {(order.servicesTotal > 0 || order.discount > 0) && (
+                    <tr>
+                      <td colSpan={3}>{t({ ru: 'Товары', en: 'Goods' })}</td>
+                      <td className={styles.num}>{formatMoney(order.subtotal)}</td>
+                    </tr>
+                  )}
+                  {order.discount > 0 && (
+                    <tr>
+                      <td colSpan={3}>
+                        {t({ ru: 'Скидка', en: 'Discount' })}
+                        {order.couponCode ? ` (${order.couponCode})` : ''}
+                      </td>
+                      <td className={styles.num}>−{formatMoney(order.discount)}</td>
+                    </tr>
+                  )}
                   {order.servicesTotal > 0 && (
-                    <>
-                      <tr>
-                        <td colSpan={3}>{t({ ru: 'Товары', en: 'Goods' })}</td>
-                        <td className={styles.num}>{formatMoney(order.subtotal)}</td>
-                      </tr>
-                      <tr>
-                        <td colSpan={3}>{t({ ru: 'Услуги', en: 'Services' })}</td>
-                        <td className={styles.num}>{formatMoney(order.servicesTotal)}</td>
-                      </tr>
-                    </>
+                    <tr>
+                      <td colSpan={3}>{t({ ru: 'Услуги', en: 'Services' })}</td>
+                      <td className={styles.num}>{formatMoney(order.servicesTotal)}</td>
+                    </tr>
                   )}
                   <tr className={styles.totalRow}>
                     <td colSpan={3}>{t({ ru: 'Итого', en: 'Total' })}</td>
