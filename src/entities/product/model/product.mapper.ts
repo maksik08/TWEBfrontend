@@ -60,7 +60,7 @@ const compactSpecifications = (
   if (!Array.isArray(values)) return undefined
   const cleaned = values
     .filter((entry): entry is ProductSpecificationDto =>
-      Boolean(entry) && typeof entry.label === 'string' && typeof entry.value === 'string'
+      entry !== null && typeof entry.label === 'string' && typeof entry.value === 'string'
         && entry.label.trim().length > 0 && entry.value.trim().length > 0,
     )
     .map((entry) => ({ label: entry.label.trim(), value: entry.value.trim() }))

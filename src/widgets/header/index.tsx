@@ -49,6 +49,9 @@ export const Header = () => {
             <Link to="/catalog" className={styles.navLink}>
               {t({ ru: 'Каталог', en: 'Catalog' })}
             </Link>
+            <Link to="/services" className={styles.navLink}>
+              {t({ ru: 'Услуги', en: 'Services' })}
+            </Link>
             <Link to="/favorites" className={styles.navLink}>
               {t({ ru: 'Избранное', en: 'Favorites' })}
             </Link>
