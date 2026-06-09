@@ -25,6 +25,7 @@ import OrdersPage from '@/pages/orders'
 import OrderDetailPage from '@/pages/order-detail'
 import ContactPage from '@/pages/contact'
 import ServicesPage from '@/pages/services'
+import SupportPage from '@/pages/support'
 
 export const router = createBrowserRouter([
   {
@@ -98,6 +99,10 @@ export const router = createBrowserRouter([
       {
         path: 'services',
         element: <ServicesPage />,
+      },
+      {
+        path: 'support',
+        element: <SupportPage />,
       },
       {
         path: 'profile',

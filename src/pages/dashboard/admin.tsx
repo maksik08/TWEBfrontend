@@ -19,11 +19,12 @@ import { AdminReturnsTab } from './admin-returns-tab'
 import { AdminCouponsTab } from './admin-coupons-tab'
 import { AdminWarehouseTab } from './admin-warehouse-tab'
 import { AdminServiceTariffsTab } from './admin-service-tariffs-tab'
+import { AdminSupportTab } from './admin-support-tab'
 import styles from './admin.module.css'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type AdminTab = 'overview' | 'services' | 'promotions' | 'home' | 'about' | 'products' | 'users' | 'logs' | 'messages' | 'returns' | 'coupons' | 'warehouse' | 'tariffs'
+type AdminTab = 'overview' | 'services' | 'promotions' | 'home' | 'about' | 'products' | 'users' | 'logs' | 'messages' | 'returns' | 'coupons' | 'warehouse' | 'tariffs' | 'support'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -638,6 +639,7 @@ const TAB_LABELS: { id: AdminTab; label: string; icon: string }[] = [
   { id: 'coupons', label: 'Промокоды', icon: '🏷️' },
   { id: 'warehouse', label: 'Склад', icon: '📦' },
   { id: 'tariffs', label: 'Тарифы услуг', icon: '🧰' },
+  { id: 'support', label: 'Поддержка', icon: '🎧' },
 ]
 
 export default function AdminDashboard() {
@@ -679,6 +681,7 @@ export default function AdminDashboard() {
             {activeTab === 'coupons' && <AdminCouponsTab />}
             {activeTab === 'warehouse' && <AdminWarehouseTab />}
             {activeTab === 'tariffs' && <AdminServiceTariffsTab />}
+            {activeTab === 'support' && <AdminSupportTab />}
           </main>
         </div>
       </div>
