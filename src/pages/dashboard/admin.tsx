@@ -5,7 +5,6 @@ import {
   useContentStore,
   defaultHome,
   defaultAbout,
-  type ContentService,
   type ContentPromotion,
   type HomeContent,
   type AboutContent,
@@ -24,7 +23,7 @@ import styles from './admin.module.css'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type AdminTab = 'overview' | 'services' | 'promotions' | 'home' | 'about' | 'products' | 'users' | 'logs' | 'messages' | 'returns' | 'coupons' | 'warehouse' | 'tariffs' | 'support'
+type AdminTab = 'overview' | 'promotions' | 'home' | 'about' | 'products' | 'users' | 'logs' | 'messages' | 'returns' | 'coupons' | 'warehouse' | 'tariffs' | 'support'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -137,87 +136,6 @@ function OverviewTab() {
           <Link to="/catalog?section=services" className={styles.overviewLink}>Каталог — Услуги</Link>
           <Link to="/catalog?section=promotions" className={styles.overviewLink}>Каталог — Акции</Link>
         </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── Tab: Services ────────────────────────────────────────────────────────────
-
-function ServicesTab() {
-  const { services, setServices } = useContentStore()
-  const [draft, setDraft] = useState<ContentService[]>(() => structuredClone(services))
-
-  const update = (index: number, patch: Partial<ContentService>) => {
-    setDraft((prev) => prev.map((item, i) => (i === index ? { ...item, ...patch } : item)))
-  }
-
-  const addItem = () => {
-    setDraft((prev) => [
-      ...prev,
-      { id: `service-${Date.now()}`, name: '', description: '', price: 0, ctaLabel: '' },
-    ])
-  }
-
-  const removeItem = (index: number) => {
-    setDraft((prev) => prev.filter((_, i) => i !== index))
-  }
-
-  const save = () => {
-    setServices(draft)
-    toast.success('Услуги сохранены')
-  }
-
-  const reset = () => {
-    setDraft(structuredClone(services))
-    toast('Черновик сброшен')
-  }
-
-  return (
-    <div className={styles.content}>
-      <div className={styles.card}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>Услуги ({draft.length})</h2>
-          <div className={styles.actionRow}>
-            <button type="button" className={styles.btnSecondary} onClick={reset}>Сбросить</button>
-            <button type="button" className={styles.btnPrimary} onClick={save}>Сохранить</button>
-          </div>
-        </div>
-
-        <div className={styles.itemList}>
-          {draft.map((service, i) => (
-            <div key={service.id} className={styles.itemRow}>
-              <div className={styles.itemRowHeader}>
-                <span className={styles.itemIndex}>Услуга {i + 1}</span>
-                <button type="button" className={styles.btnDanger} onClick={() => removeItem(i)}>
-                  Удалить
-                </button>
-              </div>
-              <div className={styles.fieldGrid}>
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Название</span>
-                  <input className={styles.input} value={service.name} onChange={(e) => update(i, { name: e.target.value })} />
-                </label>
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Цена ($)</span>
-                  <input className={styles.input} type="number" value={service.price} onChange={(e) => update(i, { price: Number(e.target.value) })} />
-                </label>
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Кнопка (CTA)</span>
-                  <input className={styles.input} value={service.ctaLabel} onChange={(e) => update(i, { ctaLabel: e.target.value })} />
-                </label>
-              </div>
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>Описание</span>
-                <textarea className={styles.textarea} value={service.description} rows={2} onChange={(e) => update(i, { description: e.target.value })} />
-              </label>
-            </div>
-          ))}
-        </div>
-
-        <button type="button" className={styles.btnAdd} onClick={addItem} style={{ marginTop: '1rem' }}>
-          + Добавить услугу
-        </button>
       </div>
     </div>
   )
@@ -627,7 +545,6 @@ function AboutTab() {
 
 const TAB_LABELS: { id: AdminTab; label: string; icon: string }[] = [
   { id: 'overview', label: 'Обзор', icon: '📊' },
-  { id: 'services', label: 'Услуги', icon: '🛠️' },
   { id: 'promotions', label: 'Акции', icon: '🏷️' },
   { id: 'home', label: 'Главная', icon: '🏠' },
   { id: 'about', label: 'О компании', icon: '🏢' },
@@ -638,7 +555,7 @@ const TAB_LABELS: { id: AdminTab; label: string; icon: string }[] = [
   { id: 'returns', label: 'Возвраты', icon: '↩️' },
   { id: 'coupons', label: 'Промокоды', icon: '🏷️' },
   { id: 'warehouse', label: 'Склад', icon: '📦' },
-  { id: 'tariffs', label: 'Тарифы услуг', icon: '🧰' },
+  { id: 'tariffs', label: 'Услуги', icon: '🧰' },
   { id: 'support', label: 'Поддержка', icon: '🎧' },
 ]
 
@@ -669,7 +586,6 @@ export default function AdminDashboard() {
 
           <main>
             {activeTab === 'overview' && <OverviewTab />}
-            {activeTab === 'services' && <ServicesTab />}
             {activeTab === 'promotions' && <PromotionsTab />}
             {activeTab === 'home' && <HomeTab />}
             {activeTab === 'about' && <AboutTab />}

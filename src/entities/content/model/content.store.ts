@@ -43,14 +43,6 @@ export type ContentTimelineItem = {
   text: BilingualText
 }
 
-export type ContentService = {
-  id: string
-  name: string
-  description: string
-  price: number
-  ctaLabel: string
-}
-
 export type ContentPromotion = {
   id: string
   title: string
@@ -73,30 +65,6 @@ export type AboutContent = {
 }
 
 // ─── Defaults ────────────────────────────────────────────────────────────────
-
-export const defaultServices: ContentService[] = [
-  {
-    id: 'site-survey',
-    name: 'Аудит и обследование объекта',
-    price: 80,
-    description: 'Проверяем покрытие, узкие места и готовим схему монтажа под ваш объект.',
-    ctaLabel: 'Рассчитать аудит',
-  },
-  {
-    id: 'installation',
-    name: 'Монтаж и пусконаладка',
-    price: 150,
-    description: 'Подключаем оборудование, маркируем линии и запускаем сеть в работу.',
-    ctaLabel: 'Рассчитать монтаж',
-  },
-  {
-    id: 'support',
-    name: 'Сервисное сопровождение',
-    price: 60,
-    description: 'Берём на себя обслуживание, обновления и оперативные выезды инженеров.',
-    ctaLabel: 'Подобрать план',
-  },
-]
 
 export const defaultPromotions: ContentPromotion[] = [
   {
@@ -226,11 +194,9 @@ export const defaultAbout: AboutContent = {
 // ─── Store ────────────────────────────────────────────────────────────────────
 
 type ContentState = {
-  services: ContentService[]
   promotions: ContentPromotion[]
   home: HomeContent
   about: AboutContent
-  setServices: (v: ContentService[]) => void
   setPromotions: (v: ContentPromotion[]) => void
   setHome: (v: HomeContent) => void
   setAbout: (v: AboutContent) => void
@@ -240,18 +206,15 @@ type ContentState = {
 export const useContentStore = create<ContentState>()(
   persist(
     (set) => ({
-      services: defaultServices,
       promotions: defaultPromotions,
       home: defaultHome,
       about: defaultAbout,
 
-      setServices: (services) => set({ services }),
       setPromotions: (promotions) => set({ promotions }),
       setHome: (home) => set({ home }),
       setAbout: (about) => set({ about }),
       resetToDefaults: () =>
         set({
-          services: defaultServices,
           promotions: defaultPromotions,
           home: defaultHome,
           about: defaultAbout,

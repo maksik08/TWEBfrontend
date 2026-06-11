@@ -18,7 +18,7 @@ import { ProductsCounter } from '@/features/products-counter'
 import { useLanguage } from '@/shared/i18n'
 import styles from './product-catalog.module.css'
 
-type CatalogSection = 'equipment' | 'services' | 'promotions'
+type CatalogSection = 'equipment' | 'promotions'
 type CatalogSort = 'default' | 'price-asc' | 'price-desc' | 'likes' | 'date' | 'availability'
 
 const AVAILABILITY_ORDER: Record<string, number> = {
@@ -39,7 +39,7 @@ type CatalogInfoCardProps = {
 }
 
 const isCatalogSection = (value: string | null): value is CatalogSection =>
-  value === 'equipment' || value === 'services' || value === 'promotions'
+  value === 'equipment' || value === 'promotions'
 
 const isCatalogSort = (value: string | null, options: { value: CatalogSort }[]): value is CatalogSort =>
   options.some((opt) => opt.value === value)
@@ -99,7 +99,7 @@ const CatalogInfoCard = ({
 
 export const ProductCatalog = () => {
   const { t } = useLanguage()
-  const { services, promotions } = useContentStore()
+  const { promotions } = useContentStore()
   const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
@@ -334,8 +334,8 @@ export const ProductCatalog = () => {
               <h1 className={styles.catalogTitle}>{t({ ru: 'Каталог', en: 'Catalog' })}</h1>
               <p className={styles.catalogSubtitle}>
                 {t({
-                  ru: 'Оборудование, услуги и акции для сетевых проектов.',
-                  en: 'Equipment, services, and promotions for network projects.',
+                  ru: 'Оборудование и акции для сетевых проектов.',
+                  en: 'Equipment and promotions for network projects.',
                 })}
               </p>
             </div>
@@ -355,15 +355,6 @@ export const ProductCatalog = () => {
               onClick={() => updateParams('equipment')}
             >
               {t({ ru: 'Оборудование', en: 'Equipment' })}
-            </button>
-            <button
-              type="button"
-              className={`${styles.sectionTab} ${
-                activeSection === 'services' ? styles.sectionTabActive : ''
-              }`}
-              onClick={() => updateParams('services', 'default')}
-            >
-              {t({ ru: 'Услуги', en: 'Services' })}
             </button>
             <button
               type="button"
@@ -556,30 +547,6 @@ export const ProductCatalog = () => {
               </div>
             )}
           </div>
-        ) : activeSection === 'services' ? (
-          <>
-            <div className={styles.infoGrid}>
-              {services.map((service) => (
-                <CatalogInfoCard
-                  key={service.id}
-                  entityType="service"
-                  entityId={service.id}
-                  badge={t({ ru: 'Услуга', en: 'Service' })}
-                  title={service.name}
-                  description={service.description}
-                  priceLabel={`от $${service.price.toFixed(2)}`}
-                  href="/checkout?services=1"
-                  actionLabel={service.ctaLabel ?? t({ ru: 'Перейти к расчёту', en: 'Go to calculator' })}
-                />
-              ))}
-            </div>
-
-            <div className={styles.catalogFooter}>
-              <div className={styles.catalogSummary}>
-                {t({ ru: 'Подберите услугу и сразу переходите к расчёту стоимости монтажа.', en: 'Select a service and proceed directly to installation cost calculation.' })}
-              </div>
-            </div>
-          </>
         ) : (
           <>
             <div className={styles.infoGrid}>
